@@ -1,0 +1,456 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Base styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f8fafc;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Custom scrollbar for desktop */
+@media (min-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+}
+
+/* Hide scrollbar on mobile for native app feel */
+@media (max-width: 767px) {
+  /* Hide scrollbar for webkit browsers (Safari, Chrome on mobile) */
+  ::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  
+  /* Hide scrollbar for Firefox */
+  * {
+    scrollbar-width: none;
+  }
+  
+  /* Hide scrollbar for IE/Edge */
+  * {
+    -ms-overflow-style: none;
+  }
+  
+  /* Ensure smooth scrolling on mobile */
+  html {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto !important;
+    height: auto !important;
+  }
+  
+  body {
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    overflow-y: auto !important; /* Allow vertical scroll */
+    -webkit-overflow-scrolling: touch;
+    height: auto !important;
+    min-height: 100vh;
+  }
+}
+
+/* Mobile-first responsive design */
+.mobile-container {
+  width: 100%;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 0;
+}
+
+@media (min-width: 768px) {
+  .mobile-container {
+    width: 100%;
+    max-width: none;
+    padding: 0 1rem;
+  }
+}
+
+/* Bottom navigation for mobile */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  z-index: 50;
+  padding: 0.5rem 0;
+}
+
+@media (min-width: 768px) {
+  .bottom-nav {
+    display: none;
+  }
+}
+
+/* Desktop sidebar */
+.desktop-sidebar {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .desktop-sidebar {
+    display: block;
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 250px;
+    background: white;
+    border-right: 1px solid #e5e7eb;
+    z-index: 40;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+  }
+}
+
+/* Main content area */
+.main-content {
+  padding-bottom: 80px; /* Space for bottom nav on mobile */
+  width: 100%;
+  min-height: 100vh;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media (min-width: 768px) {
+  .main-content {
+    margin-left: 250px; /* Space for sidebar on desktop */
+    padding-bottom: 0;
+    width: calc(100% - 250px); /* Full width minus sidebar */
+    min-height: 100vh;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Mobile header */
+.mobile-header {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+@media (min-width: 768px) {
+  .mobile-header {
+    display: none;
+  }
+}
+
+/* Custom components - Blue theme */
+.btn-primary {
+  @apply bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.btn-secondary {
+  @apply bg-blue-50 hover:bg-blue-100 text-blue-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+}
+
+.input-field {
+  @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200;
+}
+
+.card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 w-full;
+}
+
+/* Admin Dashboard specific styles */
+.admin-content {
+  @apply w-full max-w-none;
+}
+
+.admin-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full;
+}
+
+.user-card {
+  @apply bg-white rounded-lg shadow-sm border border-gray-200 p-4 w-full hover:shadow-md transition-shadow duration-200;
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 767px) {
+  /* Hide all scrollbars on mobile */
+  * {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+  
+  *::-webkit-scrollbar {
+    display: none; /* Safari/Chrome */
+    width: 0;
+    height: 0;
+  }
+  
+  /* Ensure body and html allow scrolling */
+  html, body {
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Mobile touch targets */
+  .mobile-touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Mobile buttons */
+  .btn-primary, .btn-secondary {
+    min-height: 44px;
+    font-size: 16px;
+  }
+  
+  /* Mobile form inputs */
+  .input-field {
+    min-height: 44px;
+    font-size: 16px;
+  }
+}
+
+/* Button glow effect for onboarding */
+.button-glow {
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.button-glow:hover {
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+
+/* Hide scrollbar utility class */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* No tap highlight for better mobile experience */
+.no-tap-highlight {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection where needed */
+.allow-select {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Safe area handling for devices with notches */
+.safe-area-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.safe-area-top {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+/* Loading animations - Blue theme */
+.loading-spinner {
+  @apply animate-spin rounded-full border-2 border-blue-200 border-t-blue-600;
+}
+
+/* Post styles */
+.post-content {
+  @apply text-gray-800 leading-relaxed;
+}
+
+.post-content p {
+  @apply mb-3;
+}
+
+.post-content a {
+  @apply text-primary-600 hover:text-primary-700 underline;
+}
+
+/* Community badge styles */
+.badge {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-department {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.badge-course {
+  @apply bg-green-100 text-green-800;
+}
+
+.badge-batch {
+  @apply bg-purple-100 text-purple-800;
+}
+
+.badge-club {
+  @apply bg-orange-100 text-orange-800;
+}
+
+.badge-opportunities {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+/* Verification status badges */
+.status-pending {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.status-verified {
+  @apply bg-green-100 text-green-800;
+}
+
+.status-blocked {
+  @apply bg-red-100 text-red-800;
+}
+
+/* Role badges */
+.role-student {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.role-alumni {
+  @apply bg-purple-100 text-purple-800;
+}
+
+.role-teacher {
+  @apply bg-green-100 text-green-800;
+}
+
+.role-principal {
+  @apply bg-indigo-100 text-indigo-800;
+}
+
+.role-admin {
+  @apply bg-red-100 text-red-800;
+}
+
+
+/* Custom animations for Create Post page */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.animate-scaleIn {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass morphism effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Smooth transitions */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover lift effect */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}

@@ -1,0 +1,181 @@
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
+const { auth } = require('../middleware/auth');
+const upload = require('../middleware/upload');
+const cloudinary = require('../config/cloudinary');
+
+// @route   GET /api/profile
+// @desc    Get current user profile
+// @access  Private
+router.get('/', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+    res.json(user);
+  } catch (error) {
+    console.error('Error fetching profile:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   GET /api/profile/user/:userId
+// @desc    Get public user profile by ID
+// @access  Private
+router.get('/user/:userId', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId)
+      .select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check privacy settings
+    if (user.profileVisibility === 'private' && user._id.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'This profile is private' });
+    }
+
+    // Get user's posts
+    const Post = require('../models/Post');
+    const posts = await Post.find({ 
+      author: req.params.userId,
+      isActive: true 
+    })
+      .populate('author', 'name role department profileImage')
+      .sort({ createdAt: -1 })
+      .limit(10);
+
+    // Filter posts based on viewer's eligibility
+    const viewer = await User.findById(req.user.id);
+    const filteredPosts = posts.filter(post => post.canUserView(viewer));
+
+    // Get total post count
+    const totalPosts = await Post.countDocuments({
+      author: req.params.userId,
+      isActive: true
+    });
+
+    // Get connections count (for now, return 0 - will implement later)
+    const connectionsCount = 0;
+
+    // Get communities count (for now, return 0 - will implement later)
+    const communitiesCount = 0;
+
+    res.json({
+      user,
+      posts: filteredPosts,
+      stats: {
+        postCount: totalPosts,
+        connectionsCount,
+        communitiesCount
+      }
+    });
+
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   PUT /api/profile
+// @desc    Update user profile
+// @access  Private
+router.put('/', auth, upload.single('profileImage'), async (req, res) => {
+  try {
+    const { name, phone, location, department, course, batch, bio } = req.body;
+    
+    // Build profile object
+    const profileFields = {};
+    if (name) profileFields.name = name;
+    if (phone) profileFields.phone = phone;
+    if (location) profileFields.location = location;
+    if (department) profileFields.department = department;
+    if (course) profileFields.course = course;
+    if (batch) profileFields.batch = batch;
+    if (bio) profileFields.bio = bio;
+
+    // Handle image upload to Cloudinary
+    if (req.file) {
+      try {
+        console.log('Uploading image to Cloudinary...');
+        
+        // Convert buffer to base64
+        const b64 = Buffer.from(req.file.buffer).toString('base64');
+        const dataURI = `data:${req.file.mimetype};base64,${b64}`;
+
+        // Upload to Cloudinary
+        const result = await cloudinary.uploader.upload(dataURI, {
+          folder: 'collegeconnect/profiles',
+          transformation: [
+            { width: 500, height: 500, crop: 'fill', gravity: 'face' },
+            { quality: 'auto' }
+          ]
+        });
+
+        console.log('Image uploaded successfully:', result.secure_url);
+
+        // Add image URL to profile fields
+        profileFields.profileImage = result.secure_url;
+        profileFields.profileImagePublicId = result.public_id;
+
+      } catch (error) {
+        console.error('Error uploading to Cloudinary:', error);
+        return res.status(500).json({ message: 'Error uploading image' });
+      }
+    }
+
+    // Update user
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { $set: profileFields },
+      { new: true }
+    ).select('-password');
+
+    console.log('Profile updated successfully for user:', req.user.id);
+    console.log('Updated user data:', {
+      name: user.name,
+      profileImage: user.profileImage,
+      profileImagePublicId: user.profileImagePublicId
+    });
+
+    res.json({ 
+      success: true, 
+      message: 'Profile updated successfully',
+      user 
+    });
+
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// @route   DELETE /api/profile/image
+// @desc    Delete profile image
+// @access  Private
+router.delete('/image', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (user.profileImagePublicId) {
+      // Delete from Cloudinary
+      await cloudinary.uploader.destroy(user.profileImagePublicId);
+    }
+
+    // Remove image from user profile
+    user.profileImage = null;
+    user.profileImagePublicId = null;
+    await user.save();
+
+    res.json({ 
+      success: true, 
+      message: 'Profile image deleted successfully' 
+    });
+
+  } catch (error) {
+    console.error('Error deleting profile image:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+module.exports = router;
