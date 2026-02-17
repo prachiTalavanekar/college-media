@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema({
     required: function() {
       return this.role === 'student' || this.role === 'alumni';
     },
-    enum: ['B.Tech', 'M.Tech', 'BCA', 'MCA', 'MBA', 'Admin', 'Other']
+    enum: ['B.Tech', 'M.Tech', 'BCA', 'MCA', 'MBA', 'B.Sc', 'M.Sc', 'B.Com', 'M.Com', 'BA', 'MA', 'B.E', 'M.E', 'Admin', 'Other']
   },
   batch: {
     type: String,
@@ -163,6 +163,47 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  
+  // Connections/Network
+  connections: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'accepted', 'rejected'],
+      default: 'pending'
+    },
+    connectedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  
+  // Connection Requests Sent
+  connectionRequestsSent: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    sentAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
+  
+  // Connection Requests Received
+  connectionRequestsReceived: [{
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    receivedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }],
   
   // Profile Views Tracking
   profileViews: [{

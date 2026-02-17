@@ -112,11 +112,16 @@ router.post('/', [
   auth,
   requireVerified,
   body('content').trim().isLength({ min: 1 }).withMessage('Content is required'),
-  body('postType').isIn(['community_post', 'blog', 'announcement', 'opportunity', 'reel', 'story']).withMessage('Invalid post type')
+  body('postType').isIn(['community_post', 'blog', 'announcement', 'opportunity', 'reel', 'story', 'event', 'poll']).withMessage('Invalid post type')
 ], async (req, res) => {
   try {
+    console.log('=== Create Post Request ===');
+    console.log('Body:', JSON.stringify(req.body, null, 2));
+    console.log('User:', req.user.id, req.user.role);
+    
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({ 
         message: 'Validation failed', 
         errors: errors.array() 
@@ -126,18 +131,21 @@ router.post('/', [
     const {
       content,
       postType,
+      isImportant = false,
       targetAudience = {},
       community,
       opportunityDetails,
+      eventDetails,
+      pollDetails,
       media = []
     } = req.body;
 
     // Check permissions for specific post types
-    if (postType === 'announcement') {
+    if (postType === 'announcement' || postType === 'event' || postType === 'poll' || isImportant) {
       const allowedRoles = ['teacher', 'principal', 'admin'];
       if (!allowedRoles.includes(req.user.role)) {
         return res.status(403).json({ 
-          message: 'Only teachers, principals, and admins can post announcements' 
+          message: 'Only teachers, principals, and admins can post announcements, events, polls, or mark posts as important' 
         });
       }
     }
@@ -164,10 +172,11 @@ router.post('/', [
     }
 
     // Create post
-    const post = new Post({
+    const postData = {
       author: req.user.id,
       content: content.trim(),
       postType,
+      isImportant,
       targetAudience: {
         departments: targetAudience.departments || [],
         courses: targetAudience.courses || [],
@@ -176,10 +185,32 @@ router.post('/', [
       },
       community,
       media,
-      opportunityDetails: postType === 'opportunity' ? opportunityDetails : undefined,
       expiresAt: postType === 'story' ? new Date(Date.now() + 24 * 60 * 60 * 1000) : undefined // 24 hours for stories
-    });
+    };
 
+    // Add type-specific details
+    if (postType === 'opportunity' && opportunityDetails) {
+      postData.opportunityDetails = opportunityDetails;
+    }
+    
+    if (postType === 'event' && eventDetails) {
+      postData.eventDetails = eventDetails;
+    }
+    
+    if (postType === 'poll' && pollDetails) {
+      // Transform poll options from array of strings to array of objects
+      postData.pollDetails = {
+        question: pollDetails.question,
+        options: pollDetails.options.map(opt => ({
+          text: typeof opt === 'string' ? opt : opt.text,
+          votes: []
+        })),
+        duration: pollDetails.duration || 7,
+        endsAt: new Date(Date.now() + (pollDetails.duration || 7) * 24 * 60 * 60 * 1000)
+      };
+    }
+
+    const post = new Post(postData);
     await post.save();
 
     // Update community stats if posted in a community

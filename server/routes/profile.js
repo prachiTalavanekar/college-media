@@ -37,20 +37,28 @@ router.get('/user/:userId', auth, async (req, res) => {
 
     // Track profile view (only if viewing someone else's profile)
     if (user._id.toString() !== req.user.id) {
-      // Check if this viewer already viewed this profile recently (within last 24 hours)
-      const recentView = user.profileViews.find(view => 
-        view.viewer && 
-        view.viewer.toString() === req.user.id && 
-        (Date.now() - new Date(view.viewedAt).getTime()) < 24 * 60 * 60 * 1000
-      );
+      try {
+        // Check if this viewer already viewed this profile recently (within last 24 hours)
+        const recentView = user.profileViews && user.profileViews.find(view => 
+          view.viewer && 
+          view.viewer.toString() === req.user.id && 
+          (Date.now() - new Date(view.viewedAt).getTime()) < 24 * 60 * 60 * 1000
+        );
 
-      // Only add new view if no recent view exists
-      if (!recentView) {
-        user.profileViews.push({
-          viewer: req.user.id,
-          viewedAt: new Date()
-        });
-        await user.save();
+        // Only add new view if no recent view exists
+        if (!recentView) {
+          if (!user.profileViews) {
+            user.profileViews = [];
+          }
+          user.profileViews.push({
+            viewer: req.user.id,
+            viewedAt: new Date()
+          });
+          await user.save();
+        }
+      } catch (viewError) {
+        console.error('Error tracking profile view:', viewError);
+        // Continue even if view tracking fails
       }
     }
 
@@ -64,9 +72,22 @@ router.get('/user/:userId', auth, async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(10);
 
-    // Filter posts based on viewer's eligibility
+    console.log(`Profile route - Found ${posts.length} posts for user ${req.params.userId}`);
+
+    // Get viewer info for filtering
     const viewer = await User.findById(req.user.id);
-    const filteredPosts = posts.filter(post => post.canUserView(viewer));
+    
+    // Filter posts based on viewer's eligibility with error handling
+    const filteredPosts = posts.filter(post => {
+      try {
+        return post.canUserView(viewer);
+      } catch (filterError) {
+        console.error('Error filtering post:', filterError);
+        return false; // Skip posts that cause errors
+      }
+    });
+
+    console.log(`Profile route - After filtering: ${filteredPosts.length} posts visible`);
 
     // Get total post count
     const totalPosts = await Post.countDocuments({
@@ -74,16 +95,19 @@ router.get('/user/:userId', auth, async (req, res) => {
       isActive: true
     });
 
+    console.log(`Profile route - Total post count: ${totalPosts}`);
+
     // Get unique profile viewers count (count unique viewers)
     const uniqueViewers = new Set(
-      user.profileViews
-        .filter(view => view.viewer) // Filter out any null viewers
+      (user.profileViews || [])
+        .filter(view => view && view.viewer) // Filter out any null viewers
         .map(view => view.viewer.toString())
     );
     const profileViewers = uniqueViewers.size;
 
-    // Get connections count (for now, return 0 - will implement later)
-    const connectionsCount = 0;
+    // Get connections count (accepted connections only)
+    const connections = user.connections || [];
+    const connectionsCount = connections.filter(conn => conn.status === 'accepted').length;
 
     // Get communities count (for now, return 0 - will implement later)
     const communitiesCount = 0;
@@ -101,7 +125,11 @@ router.get('/user/:userId', auth, async (req, res) => {
 
   } catch (error) {
     console.error('Error fetching user profile:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 

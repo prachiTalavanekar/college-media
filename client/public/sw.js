@@ -1,12 +1,10 @@
 // Service Worker for CampusConnect PWA
-const CACHE_NAME = 'campusconnect-v3';
+const CACHE_NAME = 'campusconnect-v6';
 const urlsToCache = [
-  '/',
   '/manifest.json',
   '/favicon.ico',
   '/logo192.png',
-  '/logo512.png',
-  'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
+  '/logo512.png'
 ];
 
 // Install event - cache resources with error handling
@@ -43,6 +41,33 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
+  // Never cache API requests - always fetch from network
+  if (event.request.url.includes('/api/')) {
+    event.respondWith(
+      fetch(event.request)
+        .catch(function(error) {
+          console.log('API fetch failed:', error);
+          throw error;
+        })
+    );
+    return;
+  }
+
+  // Never cache HTML documents to prevent stale state issues
+  if (event.request.destination === 'document' || 
+      event.request.url.includes('.html') ||
+      event.request.url.endsWith('/')) {
+    event.respondWith(
+      fetch(event.request)
+        .catch(function(error) {
+          console.log('Network fetch failed for document:', error);
+          return caches.match('/').then(response => response || new Response('Offline'));
+        })
+    );
+    return;
+  }
+
+  // For other resources, use cache-first strategy
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
@@ -59,7 +84,7 @@ self.addEventListener('fetch', function(event) {
               return response;
             }
 
-            // Clone the response for caching
+            // Clone the response for caching (only for static assets)
             const responseToCache = response.clone();
 
             caches.open(CACHE_NAME)
@@ -71,10 +96,6 @@ self.addEventListener('fetch', function(event) {
           })
           .catch(function(error) {
             console.log('Fetch failed:', error);
-            // Return a fallback response for navigation requests
-            if (event.request.destination === 'document') {
-              return caches.match('/');
-            }
             throw error;
           });
       })

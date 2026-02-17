@@ -1,97 +1,107 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Search, Phone, Video, MoreVertical, Send, Paperclip, Smile, MessageCircle } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import api from '../../utils/api';
+import { toast } from 'react-hot-toast';
 
 const Messages = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const userIdFromUrl = searchParams.get('userId');
+  
   const [selectedChat, setSelectedChat] = useState(null);
   const [messageText, setMessageText] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+  const [conversations, setConversations] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [sending, setSending] = useState(false);
 
-  // Mock chat data
-  const chats = [
-    {
-      id: 1,
-      name: 'Dr. Sarah Johnson',
-      role: 'teacher',
-      department: 'Computer Science',
-      lastMessage: 'The assignment deadline has been extended to next Friday.',
-      timestamp: '2 min ago',
-      unreadCount: 2,
-      avatar: null,
-      online: true
-    },
-    {
-      id: 2,
-      name: 'Alex Kumar',
-      role: 'alumni',
-      company: 'Google',
-      lastMessage: 'Sure, I can help you with the interview preparation.',
-      timestamp: '1 hour ago',
-      unreadCount: 0,
-      avatar: null,
-      online: false
-    },
-    {
-      id: 3,
-      name: 'Study Group - CS 2021',
-      role: 'group',
-      members: 8,
-      lastMessage: 'Priya: Can we meet tomorrow at 3 PM?',
-      timestamp: '3 hours ago',
-      unreadCount: 5,
-      avatar: null,
-      online: false
-    },
-    {
-      id: 4,
-      name: 'Priya Sharma',
-      role: 'student',
-      department: 'Computer Science',
-      lastMessage: 'Thanks for sharing the notes!',
-      timestamp: '1 day ago',
-      unreadCount: 0,
-      avatar: null,
-      online: true
+  useEffect(() => {
+    fetchConversations();
+  }, []);
+
+  useEffect(() => {
+    if (userIdFromUrl && conversations.length > 0) {
+      const chat = conversations.find(c => c.id === userIdFromUrl);
+      if (chat) {
+        setSelectedChat(chat);
+        fetchConversation(userIdFromUrl);
+      }
     }
-  ];
+  }, [userIdFromUrl, conversations]);
 
-  // Mock messages for selected chat
-  const messages = [
-    {
-      id: 1,
-      senderId: 1,
-      senderName: 'Dr. Sarah Johnson',
-      text: 'Hello! I wanted to inform you about the upcoming assignment.',
-      timestamp: '10:30 AM',
-      isOwn: false
-    },
-    {
-      id: 2,
-      senderId: 'me',
-      senderName: 'You',
-      text: 'Thank you for letting me know, Professor.',
-      timestamp: '10:32 AM',
-      isOwn: true
-    },
-    {
-      id: 3,
-      senderId: 1,
-      senderName: 'Dr. Sarah Johnson',
-      text: 'The assignment deadline has been extended to next Friday. Please make sure to submit your work on time.',
-      timestamp: '10:35 AM',
-      isOwn: false
+  useEffect(() => {
+    if (selectedChat) {
+      fetchConversation(selectedChat.id);
+      // Poll for new messages every 3 seconds
+      const interval = setInterval(() => {
+        fetchConversation(selectedChat.id, true);
+      }, 3000);
+      return () => clearInterval(interval);
     }
-  ];
+  }, [selectedChat]);
 
-  const filteredChats = chats.filter(chat =>
-    chat.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const fetchConversations = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/messages/conversations');
+      setConversations(response.data.conversations);
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      toast.error('Failed to load conversations');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const handleSendMessage = () => {
-    if (messageText.trim()) {
-      // Add message sending logic here
+  const fetchConversation = async (userId, silent = false) => {
+    try {
+      if (!silent) setLoading(true);
+      const response = await api.get(`/messages/conversation/${userId}`);
+      setMessages(response.data.messages);
+      if (!selectedChat && response.data.partner) {
+        setSelectedChat({
+          id: response.data.partner._id,
+          name: response.data.partner.name,
+          profileImage: response.data.partner.profileImage,
+          role: response.data.partner.role,
+          department: response.data.partner.department,
+          online: false
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching conversation:', error);
+      if (error.response?.status === 403) {
+        toast.error('You need to be connected to message this user');
+        navigate('/');
+      }
+    } finally {
+      if (!silent) setLoading(false);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!messageText.trim() || !selectedChat) return;
+
+    try {
+      setSending(true);
+      const response = await api.post('/messages/send', {
+        recipientId: selectedChat.id,
+        content: messageText.trim()
+      });
+
+      // Add message to local state
+      setMessages([...messages, response.data.data]);
       setMessageText('');
+
+      // Update conversation list
+      fetchConversations();
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast.error(error.response?.data?.message || 'Failed to send message');
+    } finally {
+      setSending(false);
     }
   };
 
@@ -101,6 +111,38 @@ const Messages = () => {
       handleSendMessage();
     }
   };
+
+  const formatTime = (date) => {
+    const messageDate = new Date(date);
+    const now = new Date();
+    const diffInMinutes = Math.floor((now - messageDate) / (1000 * 60));
+    
+    if (diffInMinutes < 1) return 'Just now';
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
+    if (diffInMinutes < 10080) return `${Math.floor(diffInMinutes / 1440)}d ago`;
+    
+    return messageDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  };
+
+  const formatTimestamp = (date) => {
+    return new Date(date).toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit' 
+    });
+  };
+
+  const filteredChats = conversations.filter(chat =>
+    chat.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (loading && conversations.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -153,61 +195,71 @@ const Messages = () => {
 
           {/* Chat List */}
           <div className="flex-1 overflow-y-auto">
-            {filteredChats.map((chat) => (
-              <button
-                key={chat.id}
-                onClick={() => setSelectedChat(chat)}
-                className={`w-full p-4 flex items-center space-x-3 hover:bg-gray-50 transition-colors border-b border-gray-100 ${
-                  selectedChat?.id === chat.id ? 'bg-blue-50 border-blue-200' : ''
-                }`}
-              >
-                <div className="relative flex-shrink-0">
-                  <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
-                    {chat.avatar ? (
-                      <img 
-                        src={chat.avatar} 
-                        alt={chat.name}
-                        className="w-12 h-12 rounded-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-blue-600 font-semibold text-lg">
-                        {chat.name.charAt(0).toUpperCase()}
-                      </span>
+            {filteredChats.length > 0 ? (
+              filteredChats.map((chat) => (
+                <button
+                  key={chat.id}
+                  onClick={() => {
+                    setSelectedChat(chat);
+                    fetchConversation(chat.id);
+                  }}
+                  className={`w-full p-4 flex items-center space-x-3 hover:bg-gray-50 transition-colors border-b border-gray-100 ${
+                    selectedChat?.id === chat.id ? 'bg-blue-50 border-blue-200' : ''
+                  }`}
+                >
+                  <div className="relative flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                      {chat.profileImage ? (
+                        <img 
+                          src={chat.profileImage} 
+                          alt={chat.name}
+                          className="w-12 h-12 rounded-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-blue-600 font-semibold text-lg">
+                          {chat.name.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                    </div>
+                    {chat.online && (
+                      <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
                     )}
                   </div>
-                  {chat.online && (
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                  )}
-                </div>
-                
-                <div className="flex-1 min-w-0 text-left">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="text-sm font-semibold text-gray-900 truncate">
-                      {chat.name}
+                  
+                  <div className="flex-1 min-w-0 text-left">
+                    <div className="flex items-center justify-between mb-1">
+                      <p className="text-sm font-semibold text-gray-900 truncate">
+                        {chat.name}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {formatTime(chat.lastMessageTime)}
+                      </p>
+                    </div>
+                    <p className="text-sm text-gray-600 truncate">
+                      {chat.lastMessage}
                     </p>
-                    <p className="text-xs text-gray-500">
-                      {chat.timestamp}
-                    </p>
+                    <div className="flex items-center justify-between mt-1">
+                      <p className="text-xs text-gray-500">
+                        {chat.role} {chat.department && `• ${chat.department}`}
+                      </p>
+                      {chat.unreadCount > 0 && (
+                        <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                          {chat.unreadCount}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <p className="text-sm text-gray-600 truncate">
-                    {chat.lastMessage}
-                  </p>
-                  <div className="flex items-center justify-between mt-1">
-                    <p className="text-xs text-gray-500">
-                      {chat.role === 'group' ? `${chat.members} members` : 
-                       chat.role === 'teacher' ? `${chat.role} • ${chat.department}` :
-                       chat.role === 'alumni' ? `${chat.role} • ${chat.company}` :
-                       `${chat.role} • ${chat.department}`}
-                    </p>
-                    {chat.unreadCount > 0 && (
-                      <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
-                        {chat.unreadCount}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </button>
-            ))}
+                </button>
+              ))
+            ) : (
+              <div className="p-8 text-center">
+                <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                <p className="text-gray-500">No conversations yet</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  Connect with users to start messaging
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -221,9 +273,9 @@ const Messages = () => {
                   <div className="flex items-center space-x-3">
                     <div className="relative">
                       <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                        {selectedChat.avatar ? (
+                        {selectedChat.profileImage ? (
                           <img 
-                            src={selectedChat.avatar} 
+                            src={selectedChat.profileImage} 
                             alt={selectedChat.name}
                             className="w-10 h-10 rounded-full object-cover"
                           />
@@ -242,7 +294,7 @@ const Messages = () => {
                         {selectedChat.name}
                       </h3>
                       <p className="text-xs text-gray-500">
-                        {selectedChat.online ? 'Online' : 'Last seen 2 hours ago'}
+                        {selectedChat.online ? 'Online' : selectedChat.role}
                       </p>
                     </div>
                   </div>
@@ -262,25 +314,40 @@ const Messages = () => {
 
               {/* Messages */}
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                {messages.map((message) => (
-                  <div
-                    key={message.id}
-                    className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'}`}
-                  >
-                    <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                      message.isOwn 
-                        ? 'bg-blue-500 text-white' 
-                        : 'bg-gray-100 text-gray-900'
-                    }`}>
-                      <p className="text-sm">{message.text}</p>
-                      <p className={`text-xs mt-1 ${
-                        message.isOwn ? 'text-blue-100' : 'text-gray-500'
-                      }`}>
-                        {message.timestamp}
+                {messages.length > 0 ? (
+                  messages.map((message) => {
+                    const isOwn = message.sender._id !== selectedChat.id;
+                    return (
+                      <div
+                        key={message._id}
+                        className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}
+                      >
+                        <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          isOwn 
+                            ? 'bg-blue-500 text-white' 
+                            : 'bg-gray-100 text-gray-900'
+                        }`}>
+                          <p className="text-sm">{message.content}</p>
+                          <p className={`text-xs mt-1 ${
+                            isOwn ? 'text-blue-100' : 'text-gray-500'
+                          }`}>
+                            {formatTimestamp(message.createdAt)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <div className="text-center">
+                      <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                      <p className="text-gray-500">No messages yet</p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Start the conversation!
                       </p>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
 
               {/* Message Input */}
@@ -295,8 +362,9 @@ const Messages = () => {
                       value={messageText}
                       onChange={(e) => setMessageText(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                      placeholder="Type a message..."
+                      disabled={sending}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100"
+                      placeholder={sending ? "Sending..." : "Type a message..."}
                     />
                     <button className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full transition-colors">
                       <Smile size={18} className="text-gray-600" />
@@ -304,7 +372,12 @@ const Messages = () => {
                   </div>
                   <button 
                     onClick={handleSendMessage}
-                    className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors"
+                    disabled={sending || !messageText.trim()}
+                    className={`p-2 rounded-full transition-colors ${
+                      sending || !messageText.trim()
+                        ? 'bg-gray-300 cursor-not-allowed'
+                        : 'bg-blue-500 hover:bg-blue-600'
+                    } text-white`}
                   >
                     <Send size={18} />
                   </button>

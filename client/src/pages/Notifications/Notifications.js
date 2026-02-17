@@ -1,4 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../../utils/api';
+import { toast } from 'react-hot-toast';
 import { 
   Bell, 
   Heart, 
@@ -9,111 +12,110 @@ import {
   Pin,
   CheckCircle,
   X,
-  Settings
+  Settings,
+  UserPlus
 } from 'lucide-react';
 
 const Notifications = () => {
+  const navigate = useNavigate();
   const [filter, setFilter] = useState('all');
+  const [notifications, setNotifications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    hasMore: false
+  });
 
-  // Mock notifications data
-  const mockNotifications = [
-    {
-      _id: '1',
-      type: 'like',
-      title: 'New like on your post',
-      message: 'Alex Kumar liked your post about Microsoft internship',
-      user: {
-        name: 'Alex Kumar',
-        profileImage: null,
-        role: 'alumni'
-      },
-      isRead: false,
-      createdAt: new Date('2024-01-21T10:30:00'),
-      actionUrl: '/post/123'
-    },
-    {
-      _id: '2',
-      type: 'comment',
-      title: 'New comment on your post',
-      message: 'Priya Sharma commented: "Congratulations! Can you share some tips?"',
-      user: {
-        name: 'Priya Sharma',
-        profileImage: null,
-        role: 'student'
-      },
-      isRead: false,
-      createdAt: new Date('2024-01-21T09:15:00'),
-      actionUrl: '/post/123'
-    },
-    {
-      _id: '3',
-      type: 'announcement',
-      title: 'New announcement from CS Department',
-      message: 'Mid-semester exams will be conducted from March 15-20',
-      user: {
-        name: 'Dr. Sarah Johnson',
-        profileImage: null,
-        role: 'teacher'
-      },
-      isRead: true,
-      createdAt: new Date('2024-01-20T14:00:00'),
-      actionUrl: '/post/456'
-    },
-    {
-      _id: '4',
-      type: 'opportunity',
-      title: 'New job opportunity posted',
-      message: 'Software Engineer position at Google - Apply by Feb 15',
-      user: {
-        name: 'Alex Kumar',
-        profileImage: null,
-        role: 'alumni'
-      },
-      isRead: true,
-      createdAt: new Date('2024-01-19T16:45:00'),
-      actionUrl: '/post/789'
-    },
-    {
-      _id: '5',
-      type: 'community',
-      title: 'Invited to join Coding Club',
-      message: 'You have been invited to join the Coding Club community',
-      user: {
-        name: 'Coding Club Admin',
-        profileImage: null,
-        role: 'admin'
-      },
-      isRead: true,
-      createdAt: new Date('2024-01-18T11:20:00'),
-      actionUrl: '/communities/coding-club'
-    },
-    {
-      _id: '6',
-      type: 'verification',
-      title: 'Account verified successfully',
-      message: 'Your account has been verified by the admin. Welcome to CampusConnect!',
-      user: {
-        name: 'System',
-        profileImage: null,
-        role: 'admin'
-      },
-      isRead: true,
-      createdAt: new Date('2024-01-15T09:00:00'),
-      actionUrl: null
+  useEffect(() => {
+    fetchNotifications();
+  }, [filter]);
+
+  const fetchNotifications = async (page = 1) => {
+    try {
+      setLoading(true);
+      console.log('Fetching notifications...');
+      const response = await api.get('/notifications', {
+        params: {
+          page,
+          limit: 20,
+          unreadOnly: filter === 'unread'
+        }
+      });
+      
+      console.log('Notifications response:', response.data);
+      console.log('Notifications array:', response.data.notifications);
+      console.log('Notifications length:', response.data.notifications.length);
+      
+      setNotifications(response.data.notifications);
+      setPagination(response.data.pagination);
+      setUnreadCount(response.data.unreadCount);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      toast.error('Failed to load notifications');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const markAsRead = async (id) => {
+    try {
+      await api.put(`/notifications/${id}/read`);
+      setNotifications(notifications.map(n => 
+        n._id === id ? { ...n, read: true } : n
+      ));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      await api.put('/notifications/mark-all-read');
+      setNotifications(notifications.map(n => ({ ...n, read: true })));
+      setUnreadCount(0);
+      toast.success('All notifications marked as read');
+    } catch (error) {
+      console.error('Error marking all as read:', error);
+      toast.error('Failed to mark all as read');
+    }
+  };
+
+  const deleteNotification = async (id) => {
+    try {
+      await api.delete(`/notifications/${id}`);
+      setNotifications(notifications.filter(n => n._id !== id));
+      toast.success('Notification deleted');
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      toast.error('Failed to delete notification');
+    }
+  };
+
+  const handleNotificationClick = (notification) => {
+    if (!notification.read) {
+      markAsRead(notification._id);
+    }
+    
+    if (notification.link) {
+      navigate(notification.link);
+    }
+  };
 
   const filterOptions = [
     { id: 'all', label: 'All', icon: Bell },
+    { id: 'unread', label: 'Unread', icon: Bell },
+    { id: 'connection_request', label: 'Connections', icon: UserPlus },
     { id: 'like', label: 'Likes', icon: Heart },
-    { id: 'comment', label: 'Comments', icon: MessageCircle },
-    { id: 'announcement', label: 'Announcements', icon: Pin },
-    { id: 'opportunity', label: 'Opportunities', icon: Briefcase },
-    { id: 'community', label: 'Communities', icon: Users }
+    { id: 'comment', label: 'Comments', icon: MessageCircle }
   ];
 
   const getNotificationIcon = (type) => {
     switch (type) {
+      case 'connection_request': return UserPlus;
+      case 'connection_accepted': return CheckCircle;
       case 'like': return Heart;
       case 'comment': return MessageCircle;
       case 'announcement': return Pin;
@@ -126,6 +128,8 @@ const Notifications = () => {
 
   const getNotificationColor = (type) => {
     switch (type) {
+      case 'connection_request': return 'bg-blue-100 text-blue-600';
+      case 'connection_accepted': return 'bg-green-100 text-green-600';
       case 'like': return 'bg-red-100 text-red-600';
       case 'comment': return 'bg-blue-100 text-blue-600';
       case 'announcement': return 'bg-yellow-100 text-yellow-600';
@@ -157,21 +161,17 @@ const Notifications = () => {
     return notificationDate.toLocaleDateString();
   };
 
-  const filteredNotifications = mockNotifications.filter(notification => 
-    filter === 'all' || notification.type === filter
-  );
+  const filteredNotifications = filter === 'all' || filter === 'unread' 
+    ? notifications 
+    : notifications.filter(n => n.type === filter);
 
-  const unreadCount = mockNotifications.filter(n => !n.isRead).length;
-
-  const markAsRead = (id) => {
-    // In real app, make API call to mark as read
-    console.log('Mark as read:', id);
-  };
-
-  const markAllAsRead = () => {
-    // In real app, make API call to mark all as read
-    console.log('Mark all as read');
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 w-full mobile-overflow-hidden">
@@ -239,15 +239,9 @@ const Notifications = () => {
                 <div
                   key={notification._id}
                   className={`card hover:shadow-md transition-all cursor-pointer w-full min-h-[80px] ${
-                    !notification.isRead ? 'bg-blue-50 border-blue-200' : ''
+                    !notification.read ? 'bg-blue-50 border-blue-200' : ''
                   }`}
-                  onClick={() => {
-                    markAsRead(notification._id);
-                    if (notification.actionUrl) {
-                      // Navigate to the action URL
-                      console.log('Navigate to:', notification.actionUrl);
-                    }
-                  }}
+                  onClick={() => handleNotificationClick(notification)}
                 >
                   <div className="flex items-start space-x-3 md:space-x-4 w-full">
                     {/* Notification Icon */}
@@ -265,7 +259,7 @@ const Notifications = () => {
                           <span className="mobile-text-sm text-gray-500 whitespace-nowrap">
                             {formatTime(notification.createdAt)}
                           </span>
-                          {!notification.isRead && (
+                          {!notification.read && (
                             <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
                           )}
                         </div>
@@ -276,26 +270,26 @@ const Notifications = () => {
                       </p>
 
                       {/* User Info */}
-                      {notification.user.name !== 'System' && (
+                      {notification.sender && (
                         <div className="flex items-center space-x-2">
                           <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-                            {notification.user.profileImage ? (
+                            {notification.sender.profileImage ? (
                               <img 
-                                src={notification.user.profileImage} 
-                                alt={notification.user.name}
+                                src={notification.sender.profileImage} 
+                                alt={notification.sender.name}
                                 className="w-6 h-6 rounded-full object-cover"
                               />
                             ) : (
                               <span className="text-gray-600 font-medium text-xs">
-                                {notification.user.name.charAt(0).toUpperCase()}
+                                {notification.sender.name.charAt(0).toUpperCase()}
                               </span>
                             )}
                           </div>
                           <span className="mobile-text-sm text-gray-500 truncate">
-                            {notification.user.name}
+                            {notification.sender.name}
                           </span>
-                          <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(notification.user.role)}`}>
-                            {notification.user.role}
+                          <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(notification.sender.role)}`}>
+                            {notification.sender.role}
                           </span>
                         </div>
                       )}
@@ -305,8 +299,7 @@ const Notifications = () => {
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        // Handle dismiss notification
-                        console.log('Dismiss notification:', notification._id);
+                        deleteNotification(notification._id);
                       }}
                       className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                     >

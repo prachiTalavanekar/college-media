@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 import api from '../../utils/api';
 
 const EditProfile = () => {
-  const { user, updateUser, setUserData } = useAuth();
+  const { user, setUserData } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(user?.profileImage || null);
@@ -81,6 +81,9 @@ const EditProfile = () => {
         formDataToSend.append('profileImage', formData.profileImage);
       }
 
+      console.log('=== Profile Update Start ===');
+      console.log('Current user before update:', user);
+      
       const response = await api.put('/profile', formDataToSend, {
         headers: { 
           'Content-Type': 'multipart/form-data'
@@ -90,24 +93,23 @@ const EditProfile = () => {
       if (response.data.success) {
         console.log('Profile update response:', response.data);
         
-        // If we have a profile image in the response, update the user context immediately
-        if (response.data.user && response.data.user.profileImage) {
-          const updatedUserData = response.data.user;
-          setUserData(updatedUserData);
-          console.log('Updated user context with new profile image:', updatedUserData.profileImage);
-        }
+        // Update user context with the response data
+        const updatedUserData = response.data.user;
+        console.log('Updated user data from server:', updatedUserData);
+        
+        // Update the context immediately
+        setUserData(updatedUserData);
         
         toast.success('Profile updated successfully!');
         
-        // Also call updateUser to ensure we have the latest data
-        try {
-          console.log('Calling updateUser to refresh context...');
-          await updateUser();
-        } catch (error) {
-          console.error('Error refreshing user data:', error);
-        }
+        // Wait a bit for state to update before navigating
+        await new Promise(resolve => setTimeout(resolve, 300));
         
-        navigate('/profile');
+        console.log('=== Profile Update Complete ===');
+        console.log('Navigating to /profile');
+        
+        // Navigate to profile page
+        navigate('/profile', { replace: true });
       }
 
     } catch (error) {

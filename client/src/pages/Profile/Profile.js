@@ -30,6 +30,7 @@ const Profile = () => {
       console.log('user.name:', user?.name);
       console.log('user.role:', user?.role);
       console.log('user.email:', user?.email);
+      console.log('Current pathname:', window.location.pathname);
       
       // Get user ID - try both id and _id properties
       const userId = user?.id || user?._id;
@@ -39,7 +40,7 @@ const Profile = () => {
       
       if (!userId) {
         console.error('Profile.js - No user ID found, redirecting to login');
-        navigate('/login');
+        navigate('/login', { replace: true });
         return;
       }
       
@@ -57,6 +58,12 @@ const Profile = () => {
       } catch (error) {
         console.error('Profile.js - Error fetching profile data:', error);
         console.error('Profile.js - Error response:', error.response?.data);
+        
+        // Don't redirect on error, just show error state
+        if (error.response?.status === 401) {
+          console.log('Profile.js - 401 error, redirecting to login');
+          navigate('/login', { replace: true });
+        }
       } finally {
         setLoading(false);
       }
@@ -65,7 +72,8 @@ const Profile = () => {
     if (user) {
       fetchProfileData();
     }
-  }, [user?.id, user?._id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, user?._id, navigate]);
 
   if (loading) {
     return (

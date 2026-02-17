@@ -24,9 +24,16 @@ const StudentProfile = () => {
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
   const [activeTab, setActiveTab] = useState('posts');
+  const [connectionStatus, setConnectionStatus] = useState('none');
+  const [connectionLoading, setConnectionLoading] = useState(false);
+
+  const isOwnProfile = currentUser?.id === userId;
 
   useEffect(() => {
     fetchUserProfile();
+    if (!isOwnProfile) {
+      fetchConnectionStatus();
+    }
   }, [userId]);
 
   const fetchUserProfile = async () => {
@@ -40,6 +47,103 @@ const StudentProfile = () => {
       navigate('/');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchConnectionStatus = async () => {
+    try {
+      const response = await api.get(`/connections/status/${userId}`);
+      setConnectionStatus(response.data.status);
+    } catch (error) {
+      console.error('Error fetching connection status:', error);
+    }
+  };
+
+  const handleConnect = async () => {
+    try {
+      setConnectionLoading(true);
+      await api.post(`/connections/request/${userId}`);
+      setConnectionStatus('pending');
+      toast.success('Connection request sent!');
+    } catch (error) {
+      console.error('Error sending connection request:', error);
+      toast.error(error.response?.data?.message || 'Failed to send connection request');
+    } finally {
+      setConnectionLoading(false);
+    }
+  };
+
+  const handleAcceptConnection = async () => {
+    try {
+      setConnectionLoading(true);
+      await api.post(`/connections/accept/${userId}`);
+      setConnectionStatus('connected');
+      toast.success('Connection accepted!');
+    } catch (error) {
+      console.error('Error accepting connection:', error);
+      toast.error(error.response?.data?.message || 'Failed to accept connection');
+    } finally {
+      setConnectionLoading(false);
+    }
+  };
+
+  const handleRemoveConnection = async () => {
+    try {
+      setConnectionLoading(true);
+      await api.delete(`/connections/remove/${userId}`);
+      setConnectionStatus('none');
+      toast.success('Connection removed');
+    } catch (error) {
+      console.error('Error removing connection:', error);
+      toast.error(error.response?.data?.message || 'Failed to remove connection');
+    } finally {
+      setConnectionLoading(false);
+    }
+  };
+
+  const getConnectionButton = () => {
+    if (connectionLoading) {
+      return (
+        <button disabled className="flex-1 bg-gray-400 text-white font-semibold py-3 rounded-xl shadow-lg cursor-not-allowed">
+          Loading...
+        </button>
+      );
+    }
+
+    switch (connectionStatus) {
+      case 'connected':
+        return (
+          <button 
+            onClick={handleRemoveConnection}
+            className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold py-3 rounded-xl shadow-lg transition-all"
+          >
+            Connected
+          </button>
+        );
+      case 'pending':
+        return (
+          <button disabled className="flex-1 bg-gray-400 text-white font-semibold py-3 rounded-xl shadow-lg cursor-not-allowed">
+            Request Sent
+          </button>
+        );
+      case 'received':
+        return (
+          <button 
+            onClick={handleAcceptConnection}
+            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all"
+          >
+            Accept Request
+          </button>
+        );
+      default:
+        return (
+          <button 
+            onClick={handleConnect}
+            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all"
+          >
+            Connect
+          </button>
+        );
     }
   };
 
@@ -78,7 +182,6 @@ const StudentProfile = () => {
   }
 
   const { user, posts, stats } = profileData;
-  const isOwnProfile = currentUser?.id === userId;
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -175,10 +278,16 @@ const StudentProfile = () => {
         {/* Action Buttons */}
         {!isOwnProfile && (
           <div className="flex gap-3 mb-6">
-            <button className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all">
-              Connect
-            </button>
-            <button className="flex-1 bg-white hover:bg-gray-50 text-gray-700 font-semibold py-3 rounded-xl border border-gray-200 shadow-sm transition-all">
+            {getConnectionButton()}
+            <button 
+              onClick={() => connectionStatus === 'connected' ? navigate(`/messages?userId=${userId}`) : toast.error('You need to be connected to send messages')}
+              disabled={connectionStatus !== 'connected'}
+              className={`flex-1 font-semibold py-3 rounded-xl border shadow-sm transition-all ${
+                connectionStatus === 'connected'
+                  ? 'bg-white hover:bg-gray-50 text-gray-700 border-gray-200'
+                  : 'bg-gray-200 text-gray-400 border-gray-200 cursor-not-allowed'
+              }`}
+            >
               Message
             </button>
           </div>

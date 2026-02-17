@@ -57,6 +57,9 @@ app.use('/api/posts', require('./routes/posts'));
 app.use('/api/communities', require('./routes/communities'));
 app.use('/api/admin', require('./routes/admin'));
 app.use('/api/search', require('./routes/search'));
+app.use('/api/connections', require('./routes/connections'));
+app.use('/api/notifications', require('./routes/notifications'));
+app.use('/api/messages', require('./routes/messages'));
 
 console.log('✅ All routes registered successfully');
 

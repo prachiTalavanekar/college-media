@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create axios instance
 const api = axios.create({
   baseURL: process.env.NODE_ENV === 'production' ? '/api' : '/api',
-  timeout: 10000, // 10 second timeout
+  timeout: 30000, // 30 second timeout (increased for media uploads)
   headers: {
     'Content-Type': 'application/json',
   },
@@ -16,6 +16,12 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Increase timeout for file uploads
+    if (config.url?.includes('upload') || config.headers['Content-Type']?.includes('multipart/form-data')) {
+      config.timeout = 60000; // 60 seconds for file uploads
+    }
+    
     return config;
   },
   (error) => {
@@ -25,7 +31,18 @@ api.interceptors.request.use(
 
 // Response interceptor to handle auth errors
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    // Log successful responses for debugging
+    if (response.config.url?.includes('/profile')) {
+      console.log('Profile API response:', {
+        url: response.config.url,
+        method: response.config.method,
+        status: response.status,
+        hasUser: !!response.data?.user
+      });
+    }
+    return response;
+  },
   (error) => {
     // Log the error for debugging
     if (error.code === 'ECONNABORTED') {
@@ -35,10 +52,14 @@ api.interceptors.response.use(
     }
     
     if (error.response?.status === 401) {
+      console.log('401 Unauthorized - clearing auth and redirecting to login');
       // Token expired or invalid
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Only redirect if not already on login page
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

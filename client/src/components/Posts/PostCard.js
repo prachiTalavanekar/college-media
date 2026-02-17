@@ -45,6 +45,11 @@ const PostCard = ({ post }) => {
     return postDate.toLocaleDateString();
   };
 
+  // Safety check for post data
+  if (!post || !post.author) {
+    return null;
+  }
+
   return (
     <div className={`bg-white w-full p-4 transition-all ${getPostTypeColor(post.postType)}`}>
       {/* Pinned Badge */}
@@ -60,15 +65,15 @@ const PostCard = ({ post }) => {
         <div className="flex items-start space-x-3">
           {/* Profile Picture */}
           <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md">
-            {post.author.profileImage ? (
+            {post.author?.profileImage ? (
               <img 
                 src={post.author.profileImage} 
-                alt={post.author.name}
+                alt={post.author.name || 'User'}
                 className="w-12 h-12 rounded-full object-cover"
               />
             ) : (
               <span className="text-white font-bold text-lg">
-                {post.author.name.charAt(0).toUpperCase()}
+                {post.author?.name?.charAt(0)?.toUpperCase() || 'U'}
               </span>
             )}
           </div>
@@ -77,15 +82,15 @@ const PostCard = ({ post }) => {
           <div className="flex-1 min-w-0">
             <div className="flex items-center space-x-2 mb-1">
               <h3 className="font-bold text-gray-900 truncate">
-                {post.author.name}
+                {post.author?.name || 'Unknown User'}
               </h3>
-              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold shadow-sm ${getRoleBadgeColor(post.author.role)}`}>
-                {post.author.role.charAt(0).toUpperCase() + post.author.role.slice(1)}
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold shadow-sm ${getRoleBadgeColor(post.author?.role || 'student')}`}>
+                {post.author?.role ? post.author.role.charAt(0).toUpperCase() + post.author.role.slice(1) : 'Student'}
               </span>
             </div>
             <div className="text-sm text-gray-500">
-              {post.author.department}
-              {post.author.currentCompany && (
+              {post.author?.department || 'Unknown Department'}
+              {post.author?.currentCompany && (
                 <span> • {post.author.currentCompany}</span>
               )}
               <span> • {formatDate(post.createdAt)}</span>
@@ -239,17 +244,17 @@ const PostCard = ({ post }) => {
                 <div key={index} className="flex space-x-3">
                   <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
                     <span className="text-gray-600 font-medium text-sm">
-                      {comment.user.name.charAt(0).toUpperCase()}
+                      {comment.user?.name?.charAt(0)?.toUpperCase() || 'U'}
                     </span>
                   </div>
                   <div className="flex-1">
                     <div className="bg-gray-50 rounded-lg px-3 py-2">
                       <div className="flex items-center space-x-2 mb-1">
                         <span className="font-medium text-sm text-gray-900">
-                          {comment.user.name}
+                          {comment.user?.name || 'Unknown User'}
                         </span>
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${getRoleBadgeColor(comment.user.role)}`}>
-                          {comment.user.role}
+                        <span className={`text-xs px-2 py-0.5 rounded-full ${getRoleBadgeColor(comment.user?.role || 'student')}`}>
+                          {comment.user?.role || 'student'}
                         </span>
                       </div>
                       <p className="text-sm text-gray-800">{comment.content}</p>

@@ -29,8 +29,14 @@ const postSchema = new mongoose.Schema({
   // Post Type
   postType: {
     type: String,
-    enum: ['announcement', 'blog', 'reel', 'story', 'community_post', 'opportunity'],
+    enum: ['announcement', 'blog', 'reel', 'story', 'community_post', 'opportunity', 'event', 'poll'],
     default: 'community_post'
+  },
+  
+  // Important/Highlighted Post (for teachers/admin)
+  isImportant: {
+    type: Boolean,
+    default: false
   },
   
   // Targeting
@@ -69,6 +75,38 @@ const postSchema = new mongoose.Schema({
     requirements: [String],
     contactEmail: String,
     externalLink: String
+  },
+  
+  // Event Specific Fields
+  eventDetails: {
+    title: String,
+    date: Date,
+    time: String,
+    location: String,
+    registrationLink: String
+  },
+  
+  // Poll Specific Fields
+  pollDetails: {
+    question: String,
+    options: [{
+      text: String,
+      votes: [{
+        user: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'User'
+        },
+        votedAt: {
+          type: Date,
+          default: Date.now
+        }
+      }]
+    }],
+    duration: {
+      type: Number,
+      default: 7 // days
+    },
+    endsAt: Date
   },
   
   // Engagement
@@ -166,25 +204,30 @@ postSchema.virtual('commentCount').get(function() {
 postSchema.methods.canUserView = function(user) {
   if (!this.isActive) return false;
   
-  const { departments, courses, batches, roles } = this.targetAudience;
+  // If user is not provided or doesn't have required fields, deny access
+  if (!user || !user.department || !user.course || !user.role) {
+    return false;
+  }
+  
+  const { departments, courses, batches, roles } = this.targetAudience || {};
   
   // Check department
-  if (departments.length > 0 && !departments.includes('All') && !departments.includes(user.department)) {
+  if (departments && departments.length > 0 && !departments.includes('All') && !departments.includes(user.department)) {
     return false;
   }
   
   // Check course
-  if (courses.length > 0 && !courses.includes('All') && !courses.includes(user.course)) {
+  if (courses && courses.length > 0 && !courses.includes('All') && !courses.includes(user.course)) {
     return false;
   }
   
   // Check batch
-  if (batches.length > 0 && !batches.includes(user.batch)) {
+  if (batches && batches.length > 0 && user.batch && !batches.includes(user.batch)) {
     return false;
   }
   
   // Check role
-  if (roles.length > 0 && !roles.includes('all') && !roles.includes(user.role)) {
+  if (roles && roles.length > 0 && !roles.includes('all') && !roles.includes(user.role)) {
     return false;
   }
   

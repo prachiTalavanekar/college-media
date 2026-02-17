@@ -15,35 +15,47 @@ export const OnboardingProvider = ({ children }) => {
   const { user } = useAuth();
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [onboardingCompleted, setOnboardingCompleted] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    // Check if onboarding was completed in this session
-    const sessionOnboardingCompleted = sessionStorage.getItem('onboarding_completed');
+    // Only run once on mount
+    if (isInitialized) return;
+
+    const localOnboardingCompleted = localStorage.getItem('onboarding_completed');
     
-    if (!user && !sessionOnboardingCompleted && !onboardingCompleted) {
-      // Skip splash screen, go directly to onboarding slides
+    if (!user && !localOnboardingCompleted) {
       setShowOnboarding(true);
-    } else if (sessionOnboardingCompleted) {
+      setOnboardingCompleted(false);
+    } else if (localOnboardingCompleted) {
+      setShowOnboarding(false);
       setOnboardingCompleted(true);
     }
 
-    // Clear session storage when user logs in (so onboarding shows again after logout)
-    if (user && sessionOnboardingCompleted) {
-      sessionStorage.removeItem('onboarding_completed');
+    setIsInitialized(true);
+  }, [isInitialized, user]);
+
+  // Separate effect to handle user login/logout
+  useEffect(() => {
+    if (!isInitialized) return;
+
+    if (user) {
+      // User logged in - hide onboarding and clear the flag
+      localStorage.removeItem('onboarding_completed');
+      setShowOnboarding(false);
+      setOnboardingCompleted(false);
     }
-  }, [user, onboardingCompleted]);
+  }, [user, isInitialized]);
 
   const completeOnboarding = () => {
     setShowOnboarding(false);
     setOnboardingCompleted(true);
-    // Mark onboarding as completed for this session
-    sessionStorage.setItem('onboarding_completed', 'true');
+    localStorage.setItem('onboarding_completed', 'true');
   };
 
   const resetOnboarding = () => {
     setOnboardingCompleted(false);
     setShowOnboarding(true);
-    sessionStorage.removeItem('onboarding_completed');
+    localStorage.removeItem('onboarding_completed');
   };
 
   const value = {
