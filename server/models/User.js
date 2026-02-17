@@ -162,7 +162,19 @@ const userSchema = new mongoose.Schema({
   joinedAt: {
     type: Date,
     default: Date.now
-  }
+  },
+  
+  // Profile Views Tracking
+  profileViews: [{
+    viewer: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    viewedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true
 });

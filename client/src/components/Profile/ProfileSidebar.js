@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import api from '../../utils/api';
 import { 
   X, 
   User, 
@@ -17,6 +18,27 @@ import {
 const ProfileSidebar = ({ isOpen, onClose }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const [profileStats, setProfileStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user profile stats from database
+  useEffect(() => {
+    const fetchProfileStats = async () => {
+      if (!user?.id || !isOpen) return;
+      
+      try {
+        setLoading(true);
+        const response = await api.get(`/profile/user/${user.id}`);
+        setProfileStats(response.data.stats);
+      } catch (error) {
+        console.error('Error fetching profile stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileStats();
+  }, [user?.id, isOpen]);
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -69,31 +91,114 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
                 <h2 className="text-xl font-bold text-gray-900 truncate">
                   {user?.name || 'User Name'}
                 </h2>
-                <p className="text-sm text-gray-600 mb-1">
-                  {user?.department || 'Computer Science'} | pursuing degree in {user?.course || 'B.Sc. computer science'}
-                </p>
-                <div className="flex items-center text-sm text-gray-500 mb-2">
-                  <MapPin size={14} className="mr-1" />
-                  <span>Maharashtra, India</span>
-                </div>
-                <div className="flex items-center text-sm text-blue-600">
-                  <Briefcase size={14} className="mr-1" />
-                  <span>Student at University</span>
-                </div>
+                
+                {/* Student Info */}
+                {user?.role === 'student' && (
+                  <>
+                    {user?.department && user?.course && (
+                      <p className="text-sm text-gray-600 mb-1">
+                        {user.department} • {user.course}
+                        {user.batch && ` • ${user.batch}`}
+                      </p>
+                    )}
+                    {user?.currentYear && (
+                      <p className="text-xs text-gray-500 mb-2">
+                        Year {user.currentYear}
+                        {user.currentSemester && ` • Semester ${user.currentSemester}`}
+                      </p>
+                    )}
+                  </>
+                )}
+
+                {/* Alumni Info */}
+                {user?.role === 'alumni' && (
+                  <>
+                    {user?.department && user?.course && (
+                      <p className="text-sm text-gray-600 mb-1">
+                        {user.department} • {user.course}
+                        {user.graduationYear && ` • Class of ${user.graduationYear}`}
+                      </p>
+                    )}
+                    {user?.currentCompany && (
+                      <p className="text-xs text-gray-500 mb-2">
+                        {user.jobTitle && `${user.jobTitle} at `}{user.currentCompany}
+                      </p>
+                    )}
+                  </>
+                )}
+
+                {/* Teacher Info */}
+                {user?.role === 'teacher' && (
+                  <>
+                    {user?.department && (
+                      <p className="text-sm text-gray-600 mb-1">
+                        {user.department} Department
+                        {user.department_head && ' • Head of Department'}
+                      </p>
+                    )}
+                  </>
+                )}
+
+                {/* Principal Info */}
+                {user?.role === 'principal' && (
+                  <p className="text-sm text-gray-600 mb-1">
+                    Principal
+                    {user?.department && ` • ${user.department}`}
+                  </p>
+                )}
+
+                {/* Location */}
+                {user?.location && (
+                  <div className="flex items-center text-sm text-gray-500 mb-2">
+                    <MapPin size={14} className="mr-1" />
+                    <span>{user.location}</span>
+                  </div>
+                )}
+
+                {/* Role Badge */}
+                {user?.role && (
+                  <div className="flex items-center text-sm text-blue-600">
+                    <Briefcase size={14} className="mr-1" />
+                    <span className="capitalize">{user.role}</span>
+                    {user?.mentor && user.role === 'alumni' && (
+                      <span className="ml-2 px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded-full">
+                        Mentor
+                      </span>
+                    )}
+                    {user?.verified_recruiter && user.role === 'alumni' && (
+                      <span className="ml-2 px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded-full">
+                        Verified Recruiter
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">53</div>
-                <div className="text-sm text-gray-500">profile viewers</div>
+            {/* Bio */}
+            {user?.bio && (
+              <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                {user.bio}
+              </p>
+            )}
+
+            {/* Stats from Database */}
+            {!loading && profileStats && (
+              <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {profileStats.profileViewers || 0}
+                  </div>
+                  <div className="text-sm text-gray-500">profile viewers</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">
+                    {profileStats.postCount || 0}
+                  </div>
+                  <div className="text-sm text-gray-500">posts</div>
+                </div>
               </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">95</div>
-                <div className="text-sm text-gray-500">post impressions</div>
-              </div>
-            </div>
+            )}
           </div>
 
           {/* Menu Items */}

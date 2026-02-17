@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePermissions } from '../../hooks/usePermissions';
 import RoleBadge from '../Common/RoleBadge';
+import api from '../../utils/api';
 import { 
   Home, 
   Users, 
@@ -14,12 +15,35 @@ import {
   Shield,
   GraduationCap,
   Briefcase,
-  TrendingUp
+  TrendingUp,
+  Eye,
+  BarChart2
 } from 'lucide-react';
 
 const Sidebar = () => {
   const { user, logout } = useAuth();
   const { can } = usePermissions();
+  const [profileStats, setProfileStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch user profile stats from database
+  useEffect(() => {
+    const fetchProfileStats = async () => {
+      if (!user?.id) return;
+      
+      try {
+        setLoading(true);
+        const response = await api.get(`/profile/user/${user.id}`);
+        setProfileStats(response.data.stats);
+      } catch (error) {
+        console.error('Error fetching profile stats:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfileStats();
+  }, [user?.id]);
 
   // Admin users only see Admin Panel
   const navItems = user?.role === 'admin' ? [
@@ -97,8 +121,8 @@ const Sidebar = () => {
 
         {/* User Info */}
         <div className="p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+          <div className="flex items-center space-x-3 mb-3">
+            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
               {user?.profileImage ? (
                 <img 
                   src={user.profileImage} 
@@ -113,17 +137,99 @@ const Sidebar = () => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">
-                {user?.name}
+                {user?.name || 'User'}
               </p>
-              <p className="text-xs text-gray-500 truncate">
-                {user?.department} • {user?.course}
-              </p>
+              
+              {/* Student Info */}
+              {user?.role === 'student' && (
+                <>
+                  <p className="text-xs text-gray-500 truncate">
+                    {user?.department || 'Department'} • {user?.course || 'Course'}
+                  </p>
+                  {user?.currentYear && (
+                    <p className="text-xs text-gray-400">
+                      Year {user.currentYear}
+                      {user.currentSemester && ` • Sem ${user.currentSemester}`}
+                    </p>
+                  )}
+                </>
+              )}
+
+              {/* Alumni Info */}
+              {user?.role === 'alumni' && (
+                <>
+                  <p className="text-xs text-gray-500 truncate">
+                    {user?.department || 'Department'} • {user?.course || 'Course'}
+                  </p>
+                  {user?.currentCompany && (
+                    <p className="text-xs text-gray-400 truncate">
+                      {user.jobTitle && `${user.jobTitle} at `}{user.currentCompany}
+                    </p>
+                  )}
+                  {user?.graduationYear && (
+                    <p className="text-xs text-gray-400">
+                      Class of {user.graduationYear}
+                    </p>
+                  )}
+                </>
+              )}
+
+              {/* Teacher Info */}
+              {user?.role === 'teacher' && (
+                <p className="text-xs text-gray-500 truncate">
+                  {user?.department || 'Department'} Department
+                  {user?.department_head && ' • HOD'}
+                </p>
+              )}
+
+              {/* Principal Info */}
+              {user?.role === 'principal' && (
+                <p className="text-xs text-gray-500 truncate">
+                  Principal
+                  {user?.department && ` • ${user.department}`}
+                </p>
+              )}
+
               {/* Use the new RoleBadge component */}
               <div className="mt-1">
                 <RoleBadge user={user} size="sm" />
               </div>
             </div>
           </div>
+          
+          {/* Bio */}
+          {user?.bio && (
+            <p className="text-xs text-gray-600 mb-2 line-clamp-2">
+              {user.bio}
+            </p>
+          )}
+          
+          {/* Location */}
+          {user?.location && (
+            <p className="text-xs text-gray-500 mb-3">
+              📍 {user.location}
+            </p>
+          )}
+          
+          {/* Profile Stats from Database */}
+          {!loading && profileStats && (
+            <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100">
+              <div className="text-center">
+                <div className="flex items-center justify-center space-x-1 text-blue-600 mb-1">
+                  <Eye size={14} />
+                  <span className="text-lg font-bold">{profileStats.profileViewers || 0}</span>
+                </div>
+                <p className="text-xs text-gray-500">profile viewers</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center space-x-1 text-purple-600 mb-1">
+                  <BarChart2 size={14} />
+                  <span className="text-lg font-bold">{profileStats.postCount || 0}</span>
+                </div>
+                <p className="text-xs text-gray-500">posts</p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Navigation */}

@@ -35,6 +35,25 @@ router.get('/user/:userId', auth, async (req, res) => {
       return res.status(403).json({ message: 'This profile is private' });
     }
 
+    // Track profile view (only if viewing someone else's profile)
+    if (user._id.toString() !== req.user.id) {
+      // Check if this viewer already viewed this profile recently (within last 24 hours)
+      const recentView = user.profileViews.find(view => 
+        view.viewer && 
+        view.viewer.toString() === req.user.id && 
+        (Date.now() - new Date(view.viewedAt).getTime()) < 24 * 60 * 60 * 1000
+      );
+
+      // Only add new view if no recent view exists
+      if (!recentView) {
+        user.profileViews.push({
+          viewer: req.user.id,
+          viewedAt: new Date()
+        });
+        await user.save();
+      }
+    }
+
     // Get user's posts
     const Post = require('../models/Post');
     const posts = await Post.find({ 
@@ -55,6 +74,14 @@ router.get('/user/:userId', auth, async (req, res) => {
       isActive: true
     });
 
+    // Get unique profile viewers count (count unique viewers)
+    const uniqueViewers = new Set(
+      user.profileViews
+        .filter(view => view.viewer) // Filter out any null viewers
+        .map(view => view.viewer.toString())
+    );
+    const profileViewers = uniqueViewers.size;
+
     // Get connections count (for now, return 0 - will implement later)
     const connectionsCount = 0;
 
@@ -66,6 +93,7 @@ router.get('/user/:userId', auth, async (req, res) => {
       posts: filteredPosts,
       stats: {
         postCount: totalPosts,
+        profileViewers,
         connectionsCount,
         communitiesCount
       }
