@@ -22,17 +22,20 @@ const Messages = () => {
   }, []);
 
   useEffect(() => {
-    if (userIdFromUrl && conversations.length > 0) {
-      const chat = conversations.find(c => c.id === userIdFromUrl);
-      if (chat) {
-        setSelectedChat(chat);
-        fetchConversation(userIdFromUrl);
-      }
+    if (userIdFromUrl) {
+      // Directly fetch conversation with the user from URL
+      fetchConversation(userIdFromUrl);
+      
+      // Poll for new messages every 3 seconds
+      const interval = setInterval(() => {
+        fetchConversation(userIdFromUrl, true);
+      }, 3000);
+      return () => clearInterval(interval);
     }
-  }, [userIdFromUrl, conversations]);
+  }, [userIdFromUrl]);
 
   useEffect(() => {
-    if (selectedChat) {
+    if (selectedChat && !userIdFromUrl) {
       fetchConversation(selectedChat.id);
       // Poll for new messages every 3 seconds
       const interval = setInterval(() => {
@@ -60,7 +63,9 @@ const Messages = () => {
       if (!silent) setLoading(true);
       const response = await api.get(`/messages/conversation/${userId}`);
       setMessages(response.data.messages);
-      if (!selectedChat && response.data.partner) {
+      
+      // Always set selectedChat when we have partner data
+      if (response.data.partner) {
         setSelectedChat({
           id: response.data.partner._id,
           name: response.data.partner.name,
@@ -145,7 +150,7 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="h-screen bg-gray-50 flex flex-col pb-20 md:pb-0">
       {/* Mobile Header */}
       <div className="md:hidden bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-40">
         <div className="flex items-center space-x-3">
@@ -174,7 +179,7 @@ const Messages = () => {
         </div>
       </div>
 
-      <div className="flex-1 flex">
+      <div className="flex-1 flex overflow-hidden">
         {/* Chat List */}
         <div className={`${selectedChat ? 'hidden md:block' : 'block'} w-full md:w-80 bg-white border-r border-gray-200 flex flex-col`}>
           {/* Search */}

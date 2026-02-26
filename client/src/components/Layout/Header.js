@@ -1,14 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Search, MessageCircle } from 'lucide-react';
 import ProfileSidebar from '../Profile/ProfileSidebar';
+import api from '../../utils/api';
 
 const Header = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [showProfileSidebar, setShowProfileSidebar] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+
+  // Fetch unread message count
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+      // Poll for new messages every 10 seconds
+      const interval = setInterval(fetchUnreadCount, 10000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await api.get('/messages/unread-count');
+      setUnreadMessageCount(response.data.unreadCount);
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
 
   // Hide header for admin users
   if (user?.role === 'admin') {
@@ -34,7 +55,7 @@ const Header = () => {
             >
               {user?.profileImage ? (
                 <img 
-                  key={user.profileImage} // Force re-render
+                  key={user.profileImage}
                   src={user.profileImage} 
                   alt={user.name}
                   className="w-full h-full object-cover"
@@ -67,9 +88,11 @@ const Header = () => {
             className="flex-shrink-0 p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full relative"
           >
             <MessageCircle size={24} />
-            <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-              2
-            </span>
+            {unreadMessageCount > 0 && (
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                {unreadMessageCount > 9 ? '9+' : unreadMessageCount}
+              </span>
+            )}
           </button>
         </div>
       </header>

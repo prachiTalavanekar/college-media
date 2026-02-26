@@ -10,10 +10,36 @@ import {
   ExternalLink,
   Building2
 } from 'lucide-react';
+import api from '../../utils/api';
+import { toast } from 'react-hot-toast';
 
-const PostCard = ({ post }) => {
+const PostCard = ({ post, onPostUpdate }) => {
   const [liked, setLiked] = useState(false);
   const [showComments, setShowComments] = useState(false);
+  const [voting, setVoting] = useState(false);
+
+  const handleVote = async (optionIndex) => {
+    if (voting) return;
+    
+    try {
+      setVoting(true);
+      const response = await api.post(`/posts/${post._id}/vote`, {
+        optionIndex
+      });
+      
+      // Update the post data with new vote counts
+      if (onPostUpdate) {
+        onPostUpdate(response.data.post);
+      }
+      
+      toast.success('Vote recorded!');
+    } catch (error) {
+      console.error('Error voting:', error);
+      toast.error(error.response?.data?.message || 'Failed to vote');
+    } finally {
+      setVoting(false);
+    }
+  };
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
@@ -109,6 +135,59 @@ const PostCard = ({ post }) => {
         <p className="post-content text-gray-800 leading-relaxed">
           {post.content}
         </p>
+
+        {/* Poll Details */}
+        {post.postType === 'poll' && post.pollDetails && (
+          <div className="mt-4 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl shadow-sm">
+            <h4 className="font-bold text-blue-900 mb-4 text-lg">
+              {post.pollDetails.question}
+            </h4>
+            
+            <div className="space-y-3">
+              {post.pollDetails.options.map((option, index) => {
+                const totalVotes = post.pollDetails.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0);
+                const optionVotes = option.votes?.length || 0;
+                const percentage = totalVotes > 0 ? Math.round((optionVotes / totalVotes) * 100) : 0;
+                
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleVote(index)}
+                    disabled={voting}
+                    className={`w-full p-3 bg-white border-2 border-blue-200 rounded-xl hover:border-blue-300 transition-all text-left relative overflow-hidden ${
+                      voting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                    }`}
+                  >
+                    <div 
+                      className="absolute inset-0 bg-blue-100 transition-all duration-300"
+                      style={{ width: `${percentage}%` }}
+                    />
+                    <div className="relative flex items-center justify-between">
+                      <span className="font-medium text-gray-900">{option.text}</span>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">{optionVotes} votes</span>
+                        <span className="text-sm font-bold text-blue-600">{percentage}%</span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            
+            <div className="mt-4 pt-3 border-t border-blue-200 text-sm text-blue-600">
+              <div className="flex items-center justify-between">
+                <span>
+                  Total votes: {post.pollDetails.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0)}
+                </span>
+                {post.pollDetails.endsAt && (
+                  <span>
+                    Ends: {new Date(post.pollDetails.endsAt).toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Opportunity Details */}
         {post.postType === 'opportunity' && post.opportunityDetails && (

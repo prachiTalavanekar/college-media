@@ -89,11 +89,19 @@ router.get('/user/:userId', auth, async (req, res) => {
 
     console.log(`Profile route - After filtering: ${filteredPosts.length} posts visible`);
 
-    // Get total post count
-    const totalPosts = await Post.countDocuments({
-      author: req.params.userId,
-      isActive: true
-    });
+    // Get total post count - if viewing own profile, show all active posts
+    // If viewing someone else's profile, show count of posts they can see
+    let totalPosts;
+    if (req.params.userId === req.user.id) {
+      // Own profile - show all active posts
+      totalPosts = await Post.countDocuments({
+        author: req.params.userId,
+        isActive: true
+      });
+    } else {
+      // Someone else's profile - show count of posts viewer can see
+      totalPosts = filteredPosts.length;
+    }
 
     console.log(`Profile route - Total post count: ${totalPosts}`);
 

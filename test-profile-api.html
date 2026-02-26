@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Profile API</title>
+</head>
+<body>
+    <h1>Profile API Test</h1>
+    <button onclick="testProfile()">Test Profile API</button>
+    <div id="result"></div>
+
+    <script>
+        async function testProfile() {
+            try {
+                // First get auth token
+                const loginResponse = await fetch('http://localhost:5000/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'prachi@admin.com',
+                        password: 'prachi1234'
+                    })
+                });
+                
+                const loginData = await loginResponse.json();
+                console.log('Login response:', loginData);
+                
+                if (!loginData.token) {
+                    document.getElementById('result').innerHTML = 'Login failed';
+                    return;
+                }
+                
+                // Find teacher user first
+                const usersResponse = await fetch('http://localhost:5000/api/admin/users', {
+                    headers: {
+                        'Authorization': `Bearer ${loginData.token}`
+                    }
+                });
+                
+                const usersData = await usersResponse.json();
+                const teacher = usersData.users.find(u => u.role === 'teacher');
+                
+                if (!teacher) {
+                    document.getElementById('result').innerHTML = 'No teacher found';
+                    return;
+                }
+                
+                console.log('Teacher found:', teacher.name, teacher._id);
+                
+                // Get teacher profile
+                const profileResponse = await fetch(`http://localhost:5000/api/profile/user/${teacher._id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${loginData.token}`
+                    }
+                });
+                
+                const profileData = await profileResponse.json();
+                console.log('Profile data:', profileData);
+                
+                document.getElementById('result').innerHTML = `
+                    <h2>Teacher: ${teacher.name}</h2>
+                    <p>Total Posts in DB: ${profileData.stats.postCount}</p>
+                    <p>Visible Posts: ${profileData.posts.length}</p>
+                    <h3>Posts:</h3>
+                    ${profileData.posts.map(post => `
+                        <div style="border: 1px solid #ccc; margin: 10px; padding: 10px;">
+                            <p><strong>Content:</strong> ${post.content}</p>
+                            <p><strong>Active:</strong> ${post.isActive}</p>
+                            <p><strong>Target Audience:</strong> ${JSON.stringify(post.targetAudience)}</p>
+                        </div>
+                    `).join('')}
+                `;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('result').innerHTML = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

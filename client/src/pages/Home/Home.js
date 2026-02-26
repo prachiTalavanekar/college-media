@@ -182,6 +182,14 @@ const Home = () => {
     { id: 'community', label: 'Community', icon: Users }
   ], []);
 
+  const handlePostUpdate = (updatedPost) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post._id === updatedPost._id ? updatedPost : post
+      )
+    );
+  };
+
   const filteredPosts = useMemo(() => {
     return posts;
   }, [posts]);
@@ -206,7 +214,7 @@ const Home = () => {
         ) : filteredPosts.length > 0 ? (
           filteredPosts.map(post => (
             <div key={post._id} className="w-full border-b-8 border-gray-100">
-              <PostCard post={post} />
+              <PostCard post={post} onPostUpdate={handlePostUpdate} />
             </div>
           ))
         ) : (

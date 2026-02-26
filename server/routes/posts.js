@@ -68,7 +68,10 @@ router.get('/', auth, requireVerified, async (req, res) => {
     console.log(`Fetching posts - Page: ${page}, Limit: ${limit}, Type: ${type}, User: ${req.user.id}`);
 
     // Build filter based on user's profile and post type
-    let filter = { isActive: true };
+    let filter = { 
+      isActive: true,
+      author: { $ne: req.user.id } // Exclude user's own posts
+    };
     
     if (type !== 'all') {
       filter.postType = type;
@@ -435,6 +438,67 @@ router.post('/:id/report', [
   } catch (error) {
     console.error('Report post error:', error);
     res.status(500).json({ message: 'Server error while reporting post' });
+  }
+});
+
+// @route   POST /api/posts/:id/vote
+// @desc    Vote on a poll post
+// @access  Private
+router.post('/:id/vote', auth, requireVerified, async (req, res) => {
+  try {
+    const { optionIndex } = req.body;
+    
+    if (typeof optionIndex !== 'number' || optionIndex < 0) {
+      return res.status(400).json({ message: 'Invalid option index' });
+    }
+
+    const post = await Post.findById(req.params.id);
+    
+    if (!post) {
+      return res.status(404).json({ message: 'Post not found' });
+    }
+
+    if (post.postType !== 'poll' || !post.pollDetails) {
+      return res.status(400).json({ message: 'This is not a poll post' });
+    }
+
+    if (optionIndex >= post.pollDetails.options.length) {
+      return res.status(400).json({ message: 'Invalid option index' });
+    }
+
+    // Check if poll has expired
+    if (post.pollDetails.endsAt && new Date() > post.pollDetails.endsAt) {
+      return res.status(400).json({ message: 'This poll has expired' });
+    }
+
+    // Check if user has already voted
+    const hasVoted = post.pollDetails.options.some(option => 
+      option.votes.some(vote => vote.user.toString() === req.user.id)
+    );
+
+    if (hasVoted) {
+      return res.status(400).json({ message: 'You have already voted on this poll' });
+    }
+
+    // Add the vote
+    post.pollDetails.options[optionIndex].votes.push({
+      user: req.user.id,
+      votedAt: new Date()
+    });
+
+    await post.save();
+
+    // Populate the post with author details for response
+    await post.populate('author', 'name role department profileImage');
+
+    res.json({
+      message: 'Vote recorded successfully',
+      post
+    });
+
+  } catch (error) {
+    console.error('Vote error:', error);
+    res.status(500).json({ message: 'Server error while voting' });
   }
 });
 

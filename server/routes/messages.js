@@ -19,28 +19,51 @@ async function areUsersConnected(user1Id, user2Id) {
 // @access  Private
 router.get('/conversations', auth, async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user.id.toString(); // Convert to string for comparison
+    
+    console.log('=== CONVERSATIONS REQUEST ===');
+    console.log('User ID:', userId);
 
-    // Get all messages where user is sender or recipient
+    // Get all messages where user is sender or recipient (but not both)
     const messages = await Message.find({
-      $or: [{ sender: userId }, { recipient: userId }]
+      $or: [
+        { sender: userId, recipient: { $ne: userId } },
+        { recipient: userId, sender: { $ne: userId } }
+      ]
     })
       .populate('sender', 'name profileImage role department')
       .populate('recipient', 'name profileImage role department')
       .sort({ createdAt: -1 });
 
+    console.log('Total messages found:', messages.length);
+    messages.forEach(msg => {
+      console.log('  Message:', {
+        sender: msg.sender.name,
+        senderId: msg.sender._id.toString(),
+        recipient: msg.recipient.name,
+        recipientId: msg.recipient._id.toString(),
+        content: msg.content.substring(0, 20)
+      });
+    });
+
     // Group messages by conversation partner
     const conversationsMap = new Map();
 
     messages.forEach(message => {
-      const partnerId = message.sender._id.toString() === userId 
-        ? message.recipient._id.toString() 
-        : message.sender._id.toString();
+      const senderIdStr = message.sender._id.toString();
+      const recipientIdStr = message.recipient._id.toString();
+      
+      // Determine who the conversation partner is
+      const partnerId = senderIdStr === userId ? recipientIdStr : senderIdStr;
+      
+      // Skip if partner is the same as current user (self-messages)
+      if (partnerId === userId) {
+        console.log('  Skipping self-message:', partnerId);
+        return;
+      }
       
       if (!conversationsMap.has(partnerId)) {
-        const partner = message.sender._id.toString() === userId 
-          ? message.recipient 
-          : message.sender;
+        const partner = senderIdStr === userId ? message.recipient : message.sender;
         
         conversationsMap.set(partnerId, {
           partner,
@@ -50,7 +73,7 @@ router.get('/conversations', auth, async (req, res) => {
       }
 
       // Count unread messages from this partner
-      if (message.recipient._id.toString() === userId && !message.read) {
+      if (recipientIdStr === userId && !message.read) {
         conversationsMap.get(partnerId).unreadCount++;
       }
     });
@@ -68,6 +91,11 @@ router.get('/conversations', auth, async (req, res) => {
       online: false // TODO: Implement online status with WebSocket
     }));
 
+    console.log('Final conversations count:', conversations.length);
+    conversations.forEach(conv => {
+      console.log('  Conversation with:', conv.name, '(ID:', conv.id.toString(), ')');
+    });
+
     res.json({ conversations });
 
   } catch (error) {
@@ -81,7 +109,7 @@ router.get('/conversations', auth, async (req, res) => {
 // @access  Private
 router.get('/conversation/:userId', auth, async (req, res) => {
   try {
-    const currentUserId = req.user.id;
+    const currentUserId = req.user.id.toString(); // Convert to string
     const otherUserId = req.params.userId;
 
     // Check if users are connected
@@ -127,10 +155,15 @@ router.get('/conversation/:userId', auth, async (req, res) => {
 router.post('/send', auth, async (req, res) => {
   try {
     const { recipientId, content, messageType = 'text', fileUrl, fileName } = req.body;
-    const senderId = req.user.id;
+    const senderId = req.user.id.toString(); // Convert to string
 
     if (!recipientId || !content) {
       return res.status(400).json({ message: 'Recipient and content are required' });
+    }
+
+    // Prevent sending messages to yourself
+    if (recipientId === senderId) {
+      return res.status(400).json({ message: 'You cannot send messages to yourself' });
     }
 
     // Check if users are connected
@@ -177,7 +210,7 @@ router.put('/:messageId/read', auth, async (req, res) => {
   try {
     const message = await Message.findOne({
       _id: req.params.messageId,
-      recipient: req.user.id
+      recipient: req.user.id.toString() // Convert to string
     });
 
     if (!message) {
@@ -199,7 +232,7 @@ router.put('/:messageId/read', auth, async (req, res) => {
 // @access  Private
 router.get('/unread-count', auth, async (req, res) => {
   try {
-    const unreadCount = await Message.getUnreadCount(req.user.id);
+    const unreadCount = await Message.getUnreadCount(req.user.id.toString()); // Convert to string
     res.json({ unreadCount });
   } catch (error) {
     console.error('Error fetching unread count:', error);
@@ -214,7 +247,7 @@ router.delete('/:messageId', auth, async (req, res) => {
   try {
     const message = await Message.findOne({
       _id: req.params.messageId,
-      sender: req.user.id
+      sender: req.user.id.toString() // Convert to string
     });
 
     if (!message) {
