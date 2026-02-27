@@ -153,4 +153,138 @@ router.delete('/clear-all', auth, async (req, res) => {
   }
 });
 
+// @route   POST /api/notifications/community-join/:action
+// @desc    Handle community join request from notification (approve/reject)
+// @access  Private
+router.post('/community-join/:action', auth, async (req, res) => {
+  try {
+    const { action } = req.params; // 'approve' or 'reject'
+    const { notificationId, communityId, userId, reason } = req.body;
+
+    if (!['approve', 'reject'].includes(action)) {
+      return res.status(400).json({ message: 'Invalid action. Must be approve or reject.' });
+    }
+
+    // Verify the notification belongs to the current user
+    const notification = await Notification.findOne({
+      _id: notificationId,
+      recipient: req.user.id,
+      type: 'community_join_request'
+    });
+
+    if (!notification) {
+      return res.status(404).json({ message: 'Notification not found' });
+    }
+
+    // Import required models
+    const Community = require('../models/Community');
+    const User = require('../models/User');
+
+    const community = await Community.findById(communityId);
+    if (!community || !community.isActive) {
+      return res.status(404).json({ message: 'Community not found' });
+    }
+
+    // Check if user is moderator
+    if (!community.isModerator(req.user.id)) {
+      return res.status(403).json({ message: 'Only moderators can handle join requests' });
+    }
+
+    // Find the join request
+    const requestIndex = community.joinRequests.findIndex(req => 
+      req.user.toString() === userId && req.status === 'pending'
+    );
+
+    if (requestIndex === -1) {
+      return res.status(404).json({ message: 'Join request not found or already processed' });
+    }
+
+    const requestUser = await User.findById(userId);
+    const moderator = await User.findById(req.user.id);
+
+    if (action === 'approve') {
+      // Approve the request
+      community.joinRequests[requestIndex].status = 'approved';
+      community.joinRequests[requestIndex].reviewedBy = req.user.id;
+      community.joinRequests[requestIndex].reviewedAt = new Date();
+      
+      // Add user as member
+      community.addMember(userId);
+      
+      await community.save();
+
+      // Create approval notification
+      await Notification.createNotification({
+        recipient: userId,
+        sender: req.user.id,
+        type: 'community_join_approved',
+        title: 'Community Join Request Approved',
+        message: `Your request to join "${community.name}" has been approved by ${moderator.name}`,
+        link: `/communities/${community._id}`,
+        data: {
+          communityId: community._id,
+          communityName: community.name,
+          approvedBy: moderator.name,
+          approverRole: moderator.role
+        }
+      });
+
+      // Mark the original notification as read
+      await notification.markAsRead();
+
+      res.json({ 
+        message: 'Join request approved successfully',
+        action: 'approved',
+        user: {
+          id: requestUser._id,
+          name: requestUser.name,
+          role: requestUser.role
+        }
+      });
+
+    } else {
+      // Reject the request
+      community.joinRequests[requestIndex].status = 'rejected';
+      community.joinRequests[requestIndex].reviewedBy = req.user.id;
+      community.joinRequests[requestIndex].reviewedAt = new Date();
+      
+      await community.save();
+
+      // Create rejection notification
+      await Notification.createNotification({
+        recipient: userId,
+        sender: req.user.id,
+        type: 'community_join_rejected',
+        title: 'Community Join Request Rejected',
+        message: `Your request to join "${community.name}" has been rejected${reason ? `: ${reason}` : ''}`,
+        link: `/communities`,
+        data: {
+          communityId: community._id,
+          communityName: community.name,
+          rejectedBy: moderator.name,
+          rejectorRole: moderator.role,
+          reason: reason || ''
+        }
+      });
+
+      // Mark the original notification as read
+      await notification.markAsRead();
+
+      res.json({ 
+        message: 'Join request rejected successfully',
+        action: 'rejected',
+        user: {
+          id: requestUser._id,
+          name: requestUser.name,
+          role: requestUser.role
+        }
+      });
+    }
+
+  } catch (error) {
+    console.error('Error handling community join request:', error);
+    res.status(500).json({ message: 'Server error while processing request' });
+  }
+});
+
 module.exports = router;

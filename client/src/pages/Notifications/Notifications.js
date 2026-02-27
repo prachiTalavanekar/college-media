@@ -99,28 +99,59 @@ const Notifications = () => {
       markAsRead(notification._id);
     }
     
+    // Don't navigate for community join requests - they should be handled inline
+    if (notification.type === 'community_join_request') {
+      return;
+    }
+    
     if (notification.link) {
       navigate(notification.link);
+    }
+  };
+
+  const handleCommunityJoinRequest = async (notificationId, action, reason = '') => {
+    try {
+      const notification = notifications.find(n => n._id === notificationId);
+      if (!notification) return;
+
+      const response = await api.post(`/notifications/community-join/${action}`, {
+        notificationId,
+        communityId: notification.data.communityId,
+        userId: notification.sender._id,
+        reason
+      });
+
+      // Remove the notification from the list
+      setNotifications(notifications.filter(n => n._id !== notificationId));
+      setUnreadCount(prev => Math.max(0, prev - 1));
+
+      toast.success(response.data.message);
+    } catch (error) {
+      console.error(`Error ${action}ing join request:`, error);
+      toast.error(error.response?.data?.message || `Failed to ${action} request`);
     }
   };
 
   const filterOptions = [
     { id: 'all', label: 'All', icon: Bell },
     { id: 'unread', label: 'Unread', icon: Bell },
+    { id: 'community_join_request', label: 'Join Requests', icon: Users },
     { id: 'connection_request', label: 'Connections', icon: UserPlus },
-    { id: 'like', label: 'Likes', icon: Heart },
-    { id: 'comment', label: 'Comments', icon: MessageCircle }
+    { id: 'post_like', label: 'Likes', icon: Heart },
+    { id: 'post_comment', label: 'Comments', icon: MessageCircle }
   ];
 
   const getNotificationIcon = (type) => {
     switch (type) {
       case 'connection_request': return UserPlus;
       case 'connection_accepted': return CheckCircle;
-      case 'like': return Heart;
-      case 'comment': return MessageCircle;
+      case 'post_like': return Heart;
+      case 'post_comment': return MessageCircle;
       case 'announcement': return Pin;
       case 'opportunity': return Briefcase;
-      case 'community': return Users;
+      case 'community_join_request': return Users;
+      case 'community_join_approved': return CheckCircle;
+      case 'community_join_rejected': return X;
       case 'verification': return CheckCircle;
       default: return Bell;
     }
@@ -130,11 +161,13 @@ const Notifications = () => {
     switch (type) {
       case 'connection_request': return 'bg-blue-100 text-blue-600';
       case 'connection_accepted': return 'bg-green-100 text-green-600';
-      case 'like': return 'bg-red-100 text-red-600';
-      case 'comment': return 'bg-blue-100 text-blue-600';
+      case 'post_like': return 'bg-red-100 text-red-600';
+      case 'post_comment': return 'bg-blue-100 text-blue-600';
       case 'announcement': return 'bg-yellow-100 text-yellow-600';
       case 'opportunity': return 'bg-green-100 text-green-600';
-      case 'community': return 'bg-purple-100 text-purple-600';
+      case 'community_join_request': return 'bg-purple-100 text-purple-600';
+      case 'community_join_approved': return 'bg-green-100 text-green-600';
+      case 'community_join_rejected': return 'bg-red-100 text-red-600';
       case 'verification': return 'bg-emerald-100 text-emerald-600';
       default: return 'bg-gray-100 text-gray-600';
     }
@@ -271,7 +304,7 @@ const Notifications = () => {
 
                       {/* User Info */}
                       {notification.sender && (
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 mb-2">
                           <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
                             {notification.sender.profileImage ? (
                               <img 
@@ -291,6 +324,47 @@ const Notifications = () => {
                           <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium ${getRoleBadgeColor(notification.sender.role)}`}>
                             {notification.sender.role}
                           </span>
+                        </div>
+                      )}
+
+                      {/* Community Join Request Actions */}
+                      {notification.type === 'community_join_request' && (
+                        <div className="flex items-center space-x-2 mt-3">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCommunityJoinRequest(notification._id, 'approve');
+                            }}
+                            className="px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 transition-colors"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleCommunityJoinRequest(notification._id, 'reject');
+                            }}
+                            className="px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Additional Info for Community Join Requests */}
+                      {notification.type === 'community_join_request' && notification.data && (
+                        <div className="mt-2 p-2 bg-gray-50 rounded-lg">
+                          <div className="text-xs text-gray-600 space-y-1">
+                            {notification.data.userDepartment && (
+                              <div>Department: <span className="font-medium">{notification.data.userDepartment}</span></div>
+                            )}
+                            {notification.data.userCourse && (
+                              <div>Course: <span className="font-medium">{notification.data.userCourse}</span></div>
+                            )}
+                            {notification.data.userBatch && (
+                              <div>Batch: <span className="font-medium">{notification.data.userBatch}</span></div>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>

@@ -18,6 +18,7 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import Home from './pages/Home/Home';
 import Communities from './pages/Communities/Communities';
+import CommunityDetail from './pages/Communities/CommunityDetail';
 import Profile from './pages/Profile/Profile';
 import EditProfile from './pages/Profile/EditProfile';
 import StudentProfile from './pages/Profile/StudentProfile';
@@ -80,6 +81,14 @@ function AppRoutes() {
           <ProtectedRoute>
             <Layout>
               <Communities />
+            </Layout>
+          </ProtectedRoute>
+        } />
+        
+        <Route path="/communities/:id" element={
+          <ProtectedRoute>
+            <Layout>
+              <CommunityDetail />
             </Layout>
           </ProtectedRoute>
         } />

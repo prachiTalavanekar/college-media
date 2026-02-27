@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { 
   Search, 
@@ -13,118 +14,143 @@ import {
   Clock,
   CheckCircle,
   ArrowRight,
-  Sparkles
+  Sparkles,
+  Settings,
+  Eye
 } from 'lucide-react';
+import CreateCommunityModal from '../../components/Communities/CreateCommunityModal';
+import CommunityManagement from '../../components/Communities/CommunityManagement';
+import api from '../../utils/api';
+import { toast } from 'react-hot-toast';
 
 const Communities = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [communities, setCommunities] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showManagement, setShowManagement] = useState(null);
 
-  // Mock communities data
-  const mockCommunities = [
-    {
-      _id: '1',
-      name: 'Computer Science Department',
-      description: 'Official community for CS students and faculty. Share resources, discuss projects, and stay connected.',
-      type: 'department',
-      memberCount: 245,
-      coverImage: null,
-      isJoined: true,
-      eligibility: {
-        departments: ['Computer Science'],
-        courses: ['All'],
-        roles: ['all']
-      },
-      stats: {
-        totalPosts: 89,
-        lastActivity: new Date('2024-01-20'),
-        activeMembers: 156
-      }
-    },
-    {
-      _id: '2',
-      name: 'B.Tech 2021-2025',
-      description: 'Connect with your batchmates and share experiences. From academics to placements, we discuss it all.',
-      type: 'batch',
-      memberCount: 156,
-      coverImage: null,
-      isJoined: true,
-      eligibility: {
-        departments: ['All'],
-        courses: ['B.Tech'],
-        batches: ['2021-2025'],
-        roles: ['student', 'alumni']
-      },
-      stats: {
-        totalPosts: 234,
-        lastActivity: new Date('2024-01-21'),
-        activeMembers: 98
-      }
-    },
-    {
-      _id: '3',
-      name: 'Job Opportunities',
-      description: 'Latest job openings and internship opportunities. Get referrals and career guidance from alumni.',
-      type: 'opportunities',
-      memberCount: 412,
-      coverImage: null,
-      isJoined: false,
-      eligibility: {
-        departments: ['All'],
-        courses: ['All'],
-        roles: ['all']
-      },
-      stats: {
-        totalPosts: 67,
-        lastActivity: new Date('2024-01-21'),
-        activeMembers: 234
-      }
-    },
-    {
-      _id: '4',
-      name: 'Coding Club',
-      description: 'Competitive programming and development discussions. Weekly contests and coding challenges.',
-      type: 'club',
-      memberCount: 89,
-      coverImage: null,
-      isJoined: true,
-      eligibility: {
-        departments: ['All'],
-        courses: ['All'],
-        roles: ['student', 'alumni']
-      },
-      stats: {
-        totalPosts: 145,
-        lastActivity: new Date('2024-01-19'),
-        activeMembers: 67
-      }
-    },
-    {
-      _id: '5',
-      name: 'College Events',
-      description: 'Stay updated with all college events and festivals. Never miss out on any campus activity.',
-      type: 'events',
-      memberCount: 567,
-      coverImage: null,
-      isJoined: false,
-      eligibility: {
-        departments: ['All'],
-        courses: ['All'],
-        roles: ['all']
-      },
-      stats: {
-        totalPosts: 23,
-        lastActivity: new Date('2024-01-18'),
-        activeMembers: 345
-      }
+  useEffect(() => {
+    fetchCommunities();
+  }, [selectedFilter, searchQuery]);
+
+  // Add a refresh function that can be called after approval
+  const refreshCommunities = () => {
+    fetchCommunities();
+  };
+
+  // Expose refresh function globally for debugging
+  window.refreshCommunities = refreshCommunities;
+  
+  // Also add a debug function to check community access
+  window.debugCommunityAccess = async (communityId) => {
+    try {
+      const response = await api.get(`/communities/${communityId}/debug-access`);
+      console.log('Debug Community Access:', response.data.debug);
+      return response.data.debug;
+    } catch (error) {
+      console.error('Debug access error:', error);
+      return null;
     }
-  ];
+  };
+
+  const fetchCommunities = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get('/communities', {
+        params: {
+          type: selectedFilter,
+          search: searchQuery
+        }
+      });
+      
+      console.log('Communities API Response:', response.data); // Debug log
+      console.log('Communities with status:', response.data.communities.map(c => ({
+        name: c.name,
+        isMember: c.isMember,
+        canAccessContent: c.canAccessContent,
+        hasPendingRequest: c.hasPendingRequest
+      }))); // Debug log
+      
+      setCommunities(response.data.communities);
+    } catch (error) {
+      console.error('Error fetching communities:', error);
+      toast.error('Failed to load communities');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleJoinCommunity = async (communityId) => {
+    try {
+      await api.post(`/communities/${communityId}/join`);
+      toast.success('Successfully joined community');
+      fetchCommunities();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to join community');
+    }
+  };
+
+  const handleLeaveCommunity = async (communityId) => {
+    try {
+      await api.post(`/communities/${communityId}/leave`);
+      toast.success('Successfully left community');
+      fetchCommunities();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to leave community');
+    }
+  };
+
+  const handleCommunityClick = (community) => {
+    console.log('Community click - Access flags:', {
+      isMember: community.isMember,
+      isModerator: community.isModerator,
+      canAccessContent: community.canAccessContent,
+      hasPendingRequest: community.hasPendingRequest
+    });
+    
+    // Allow access if user is a member or moderator
+    if (community.isMember || community.isModerator) {
+      console.log('Access granted - navigating to community');
+      navigate(`/communities/${community._id}`);
+    } else if (community.hasPendingRequest) {
+      toast('Your join request is pending approval', {
+        icon: '⏳',
+        style: {
+          background: '#fef3c7',
+          color: '#92400e',
+        },
+      });
+    } else if (community.canJoin) {
+      toast('Click Join to request access to this community', {
+        icon: 'ℹ️',
+        style: {
+          background: '#dbeafe',
+          color: '#1e40af',
+        },
+      });
+    } else {
+      toast.error('You are not eligible to join this community');
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   const communityTypes = [
     { id: 'all', label: 'All', icon: Hash },
     { id: 'department', label: 'Departments', icon: BookOpen },
+    { id: 'subject', label: 'Subjects', icon: BookOpen },
     { id: 'batch', label: 'Batches', icon: Calendar },
+    { id: 'project', label: 'Projects', icon: Trophy },
     { id: 'club', label: 'Clubs', icon: Trophy },
     { id: 'opportunities', label: 'Opportunities', icon: Briefcase },
     { id: 'events', label: 'Events', icon: Calendar }
@@ -133,7 +159,9 @@ const Communities = () => {
   const getTypeIcon = (type) => {
     switch (type) {
       case 'department': return BookOpen;
+      case 'subject': return BookOpen;
       case 'batch': return Calendar;
+      case 'project': return Trophy;
       case 'club': return Trophy;
       case 'opportunities': return Briefcase;
       case 'events': return Calendar;
@@ -144,8 +172,10 @@ const Communities = () => {
   const getTypeColor = (type) => {
     switch (type) {
       case 'department': return 'from-blue-500 to-blue-600';
+      case 'subject': return 'from-indigo-500 to-indigo-600';
       case 'batch': return 'from-purple-500 to-purple-600';
-      case 'club': return 'from-orange-500 to-orange-600';
+      case 'project': return 'from-orange-500 to-orange-600';
+      case 'club': return 'from-pink-500 to-pink-600';
       case 'opportunities': return 'from-green-500 to-green-600';
       case 'events': return 'from-red-500 to-red-600';
       default: return 'from-gray-500 to-gray-600';
@@ -155,23 +185,25 @@ const Communities = () => {
   const getTypeBadgeColor = (type) => {
     switch (type) {
       case 'department': return 'bg-blue-100 text-blue-700 border-blue-200';
+      case 'subject': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
       case 'batch': return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'club': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'project': return 'bg-orange-100 text-orange-700 border-orange-200';
+      case 'club': return 'bg-pink-100 text-pink-700 border-pink-200';
       case 'opportunities': return 'bg-green-100 text-green-700 border-green-200';
       case 'events': return 'bg-red-100 text-red-700 border-red-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
 
-  const filteredCommunities = mockCommunities.filter(community => {
+  const filteredCommunities = communities.filter(community => {
     const matchesSearch = community.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          community.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = selectedFilter === 'all' || community.type === selectedFilter;
     return matchesSearch && matchesFilter;
   });
 
-  const joinedCommunities = filteredCommunities.filter(c => c.isJoined);
-  const availableCommunities = filteredCommunities.filter(c => !c.isJoined);
+  const joinedCommunities = filteredCommunities.filter(c => c.isMember);
+  const availableCommunities = filteredCommunities.filter(c => !c.isMember);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 w-full mobile-overflow-hidden">
@@ -184,11 +216,23 @@ const Communities = () => {
               <p className="text-blue-100 text-sm md:text-base">Connect, collaborate, and grow together</p>
             </div>
             {['teacher', 'principal', 'admin'].includes(user?.role) && (
-              <button className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl font-semibold flex items-center space-x-2 shadow-lg transition-all hover:scale-105">
+              <button 
+                onClick={() => setShowCreateModal(true)}
+                className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl font-semibold flex items-center space-x-2 shadow-lg transition-all hover:scale-105"
+              >
                 <Plus size={18} />
                 <span className="hidden sm:inline">Create</span>
               </button>
             )}
+            
+            {/* Debug refresh button - remove in production */}
+            <button 
+              onClick={refreshCommunities}
+              className="bg-white bg-opacity-20 text-white hover:bg-opacity-30 px-3 py-2 rounded-xl font-semibold text-sm transition-all"
+              title="Refresh Communities"
+            >
+              🔄
+            </button>
           </div>
 
           {/* Search Bar */}
@@ -247,6 +291,11 @@ const Communities = () => {
                   key={community._id} 
                   community={community} 
                   isJoined={true}
+                  onJoin={handleJoinCommunity}
+                  onLeave={handleLeaveCommunity}
+                  onManage={setShowManagement}
+                  onCommunityClick={handleCommunityClick}
+                  currentUser={user}
                 />
               ))}
             </div>
@@ -268,6 +317,11 @@ const Communities = () => {
                   key={community._id} 
                   community={community} 
                   isJoined={false}
+                  onJoin={handleJoinCommunity}
+                  onLeave={handleLeaveCommunity}
+                  onManage={setShowManagement}
+                  onCommunityClick={handleCommunityClick}
+                  currentUser={user}
                 />
               ))}
             </div>
@@ -296,21 +350,65 @@ const Communities = () => {
           </div>
         )}
       </div>
+
+      {/* Modals */}
+      {showCreateModal && (
+        <CreateCommunityModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCommunityCreated={(newCommunity) => {
+            setCommunities(prev => [newCommunity, ...prev]);
+          }}
+        />
+      )}
+
+      {showManagement && (
+        <CommunityManagement
+          communityId={showManagement}
+          onClose={() => setShowManagement(null)}
+        />
+      )}
     </div>
   );
 };
 
-const CommunityCard = ({ community, isJoined }) => {
-  const [joining, setJoining] = useState(false);
+const CommunityCard = ({ community, isJoined, onJoin, onLeave, onManage, onCommunityClick, currentUser }) => {
+  const [actionLoading, setActionLoading] = useState(false);
+  
+  const getTypeIcon = (type) => {
+    switch (type) {
+      case 'department': return BookOpen;
+      case 'subject': return BookOpen;
+      case 'batch': return Calendar;
+      case 'project': return Trophy;
+      case 'club': return Trophy;
+      case 'opportunities': return Briefcase;
+      case 'events': return Calendar;
+      default: return Users;
+    }
+  };
+  
   const TypeIcon = getTypeIcon(community.type);
 
-  const handleJoinToggle = async () => {
-    setJoining(true);
-    // Simulate API call
-    setTimeout(() => {
-      setJoining(false);
-    }, 1000);
+  const handleAction = async () => {
+    if (actionLoading) return;
+    
+    setActionLoading(true);
+    try {
+      if (isJoined) {
+        await onLeave(community._id);
+      } else {
+        await onJoin(community._id);
+      }
+    } catch (error) {
+      console.error('Action failed:', error);
+    } finally {
+      setActionLoading(false);
+    }
   };
+
+  // Check if user has a pending join request
+  const hasPendingRequest = community.hasPendingRequest;
 
   const formatLastActivity = (date) => {
     const now = new Date();
@@ -323,9 +421,16 @@ const CommunityCard = ({ community, isJoined }) => {
     return `Active ${activityDate.toLocaleDateString()}`;
   };
 
+  const canManage = community.isModerator || 
+                   (currentUser && ['teacher', 'principal', 'admin'].includes(currentUser.role) && 
+                    (community.creator === currentUser.id || community.isModerator));
+
   return (
-    <div className="bg-white border-b border-gray-100 hover:bg-gray-50 transition-all duration-200 cursor-pointer">
-      <div className="px-4 py-4">
+    <div className="bg-white border-b border-gray-100 hover:bg-gray-50 transition-all duration-200">
+      <div 
+        className="px-4 py-4 cursor-pointer"
+        onClick={() => onCommunityClick && onCommunityClick(community)}
+      >
         <div className="flex items-start space-x-3 mb-2">
           {/* Icon */}
           <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -359,15 +464,15 @@ const CommunityCard = ({ community, isJoined }) => {
         <div className="flex items-center space-x-4 text-xs text-gray-500 mb-3 pb-3 border-b border-gray-100">
           <div className="flex items-center space-x-1">
             <Users size={14} />
-            <span>{community.memberCount} members</span>
+            <span>{community.memberCount || community.stats?.totalMembers || 0} members</span>
           </div>
           <div className="flex items-center space-x-1">
             <Hash size={14} />
-            <span>{community.stats.totalPosts} posts</span>
+            <span>{community.stats?.totalPosts || 0} posts</span>
           </div>
           <div className="flex items-center space-x-1">
             <TrendingUp size={14} />
-            <span>{community.stats.activeMembers} active</span>
+            <span>{community.stats?.activeMembers || 0} active</span>
           </div>
         </div>
 
@@ -375,64 +480,46 @@ const CommunityCard = ({ community, isJoined }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-1 text-xs text-gray-500">
             <Clock size={12} />
-            <span>{formatLastActivity(community.stats.lastActivity)}</span>
+            <span>{formatLastActivity(community.stats?.lastActivity || community.createdAt)}</span>
           </div>
 
-          <button
-            onClick={handleJoinToggle}
-            disabled={joining}
-            className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all ${
-              isJoined
-                ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
-            }`}
-          >
-            {joining ? (
-              <div className="loading-spinner h-4 w-4"></div>
-            ) : isJoined ? (
-              'Joined'
-            ) : (
-              'Join'
+          <div className="flex items-center space-x-2">
+            {canManage && isJoined && (
+              <button
+                onClick={() => onManage(community._id)}
+                className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                title="Manage Community"
+              >
+                <Settings size={16} />
+              </button>
             )}
-          </button>
+            
+            <button
+              onClick={handleAction}
+              disabled={actionLoading || hasPendingRequest}
+              className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all ${
+                isJoined
+                  ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
+                  : hasPendingRequest
+                  ? 'bg-yellow-50 text-yellow-700 border border-yellow-200 cursor-not-allowed'
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              } ${actionLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {actionLoading ? (
+                <div className="loading-spinner h-4 w-4"></div>
+              ) : isJoined ? (
+                'Joined'
+              ) : hasPendingRequest ? (
+                'Pending'
+              ) : (
+                'Join'
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>
   );
-};
-
-// Helper functions
-const getTypeIcon = (type) => {
-  switch (type) {
-    case 'department': return BookOpen;
-    case 'batch': return Calendar;
-    case 'club': return Trophy;
-    case 'opportunities': return Briefcase;
-    case 'events': return Calendar;
-    default: return Users;
-  }
-};
-
-const getTypeColor = (type) => {
-  switch (type) {
-    case 'department': return 'from-blue-500 to-blue-600';
-    case 'batch': return 'from-purple-500 to-purple-600';
-    case 'club': return 'from-orange-500 to-orange-600';
-    case 'opportunities': return 'from-green-500 to-green-600';
-    case 'events': return 'from-red-500 to-red-600';
-    default: return 'from-gray-500 to-gray-600';
-  }
-};
-
-const getTypeBadgeColor = (type) => {
-  switch (type) {
-    case 'department': return 'bg-blue-100 text-blue-700 border-blue-200';
-    case 'batch': return 'bg-purple-100 text-purple-700 border-purple-200';
-    case 'club': return 'bg-orange-100 text-orange-700 border-orange-200';
-    case 'opportunities': return 'bg-green-100 text-green-700 border-green-200';
-    case 'events': return 'bg-red-100 text-red-700 border-red-200';
-    default: return 'bg-gray-100 text-gray-700 border-gray-200';
-  }
 };
 
 export default Communities;

@@ -22,7 +22,10 @@ const notificationSchema = new mongoose.Schema({
       'post_mention',
       'profile_view',
       'announcement',
-      'system'
+      'system',
+      'community_join_request',
+      'community_join_approved',
+      'community_join_rejected'
     ],
     required: true
   },
