@@ -35,14 +35,36 @@ const userSchema = new mongoose.Schema({
     required: function() {
       return this.role === 'student' || this.role === 'alumni';
     },
-    enum: ['Computer Science', 'Electronics', 'Mechanical', 'Civil', 'Electrical', 'Administration', 'Other']
+    enum: [
+      'Computer Science',
+      'Information Technology',
+      'Accounting & Finance',
+      'Business and Management Studies',
+      'Science',
+      'Arts',
+      'Commerce',
+      'Administration',
+      'Other'
+    ]
   },
   course: {
     type: String,
     required: function() {
       return this.role === 'student' || this.role === 'alumni';
     },
-    enum: ['B.Tech', 'M.Tech', 'BCA', 'MCA', 'MBA', 'B.Sc', 'M.Sc', 'B.Com', 'M.Com', 'BA', 'MA', 'B.E', 'M.E', 'Admin', 'Other']
+    enum: [
+      'BSc Computer Science',
+      'MSc Computer Science',
+      'BAF',
+      'BMS',
+      'BA',
+      'MCom',
+      'BCom',
+      'BSc IT',
+      'MSc IT',
+      'Admin',
+      'Other'
+    ]
   },
   batch: {
     type: String,

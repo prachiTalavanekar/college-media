@@ -22,20 +22,24 @@ const Register = () => {
 
   const departments = [
     'Computer Science',
-    'Electronics',
-    'Mechanical',
-    'Civil',
-    'Electrical',
-    'Other'
+    'Information Technology',
+    'Accounting & Finance',
+    'Business and Management Studies',
+    'Science',
+    'Arts',
+    'Commerce'
   ];
 
   const courses = [
-    'B.Tech',
-    'M.Tech',
-    'BCA',
-    'MCA',
-    'MBA',
-    'Other'
+    'BSc Computer Science',
+    'MSc Computer Science',
+    'BAF',
+    'BMS',
+    'BA',
+    'MCom',
+    'BCom',
+    'BSc IT',
+    'MSc IT'
   ];
 
   const handleChange = (e) => {

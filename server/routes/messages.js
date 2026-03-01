@@ -33,23 +33,21 @@ router.get('/conversations', auth, async (req, res) => {
     })
       .populate('sender', 'name profileImage role department')
       .populate('recipient', 'name profileImage role department')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean(); // Use lean for better performance
 
     console.log('Total messages found:', messages.length);
-    messages.forEach(msg => {
-      console.log('  Message:', {
-        sender: msg.sender.name,
-        senderId: msg.sender._id.toString(),
-        recipient: msg.recipient.name,
-        recipientId: msg.recipient._id.toString(),
-        content: msg.content.substring(0, 20)
-      });
-    });
 
     // Group messages by conversation partner
     const conversationsMap = new Map();
 
     messages.forEach(message => {
+      // Check if sender and recipient are populated
+      if (!message.sender || !message.recipient) {
+        console.log('  Skipping message with missing user data');
+        return;
+      }
+
       const senderIdStr = message.sender._id.toString();
       const recipientIdStr = message.recipient._id.toString();
       
@@ -81,9 +79,9 @@ router.get('/conversations', auth, async (req, res) => {
     // Convert map to array
     const conversations = Array.from(conversationsMap.values()).map(conv => ({
       id: conv.partner._id,
-      name: conv.partner.name,
+      name: conv.partner.name || 'Unknown User',
       profileImage: conv.partner.profileImage,
-      role: conv.partner.role,
+      role: conv.partner.role || 'User',
       department: conv.partner.department,
       lastMessage: conv.lastMessage.content,
       lastMessageTime: conv.lastMessage.createdAt,
@@ -92,15 +90,16 @@ router.get('/conversations', auth, async (req, res) => {
     }));
 
     console.log('Final conversations count:', conversations.length);
-    conversations.forEach(conv => {
-      console.log('  Conversation with:', conv.name, '(ID:', conv.id.toString(), ')');
-    });
 
     res.json({ conversations });
 
   } catch (error) {
     console.error('Error fetching conversations:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: 'Server error', 
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    });
   }
 });
 

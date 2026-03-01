@@ -62,7 +62,11 @@ const Messages = () => {
     try {
       if (!silent) setLoading(true);
       const response = await api.get(`/messages/conversation/${userId}`);
-      setMessages(response.data.messages);
+      // Sort messages by createdAt in ascending order (oldest first)
+      const sortedMessages = response.data.messages.sort((a, b) => 
+        new Date(a.createdAt) - new Date(b.createdAt)
+      );
+      setMessages(sortedMessages);
       
       // Always set selectedChat when we have partner data
       if (response.data.partner) {

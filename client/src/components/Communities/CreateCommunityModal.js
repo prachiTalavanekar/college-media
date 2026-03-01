@@ -36,11 +36,33 @@ const CreateCommunityModal = ({ isOpen, onClose, onCommunityCreated }) => {
     { value: 'batch', label: 'Batch', description: 'For specific batch/year students' },
     { value: 'project', label: 'Project Group', description: 'For project collaboration' },
     { value: 'club', label: 'Club/Society', description: 'For clubs and societies' },
+    { value: 'alumni_mentorship', label: 'Mentorship', description: 'For mentoring students' },
+    { value: 'alumni_jobs', label: 'Job Opportunities', description: 'For job-related discussions' },
     { value: 'general', label: 'General', description: 'General purpose community' }
   ];
 
-  const departments = ['Computer Science', 'Electronics', 'Mechanical', 'Civil', 'Electrical'];
-  const courses = ['B.Tech', 'M.Tech', 'BCA', 'MCA', 'MBA'];
+  const departments = [
+    'Computer Science',
+    'Information Technology',
+    'Accounting & Finance',
+    'Business and Management Studies',
+    'Science',
+    'Arts',
+    'Commerce'
+  ];
+  
+  const courses = [
+    'BSc Computer Science',
+    'MSc Computer Science',
+    'BAF',
+    'BMS',
+    'BA',
+    'MCom',
+    'BCom',
+    'BSc IT',
+    'MSc IT'
+  ];
+  
   const roles = ['student', 'alumni', 'teacher'];
 
   const handleInputChange = (field, value) => {

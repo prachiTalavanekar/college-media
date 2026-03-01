@@ -22,7 +22,16 @@ router.post('/register', [
     if ((req.body.role === 'student' || req.body.role === 'alumni') && !value) {
       throw new Error('Department is required for students and alumni');
     }
-    if (value && !['Computer Science', 'Electronics', 'Mechanical', 'Civil', 'Electrical', 'Other'].includes(value)) {
+    const validDepartments = [
+      'Computer Science',
+      'Information Technology',
+      'Accounting & Finance',
+      'Business and Management Studies',
+      'Science',
+      'Arts',
+      'Commerce'
+    ];
+    if (value && !validDepartments.includes(value)) {
       throw new Error('Invalid department');
     }
     return true;
@@ -31,7 +40,18 @@ router.post('/register', [
     if ((req.body.role === 'student' || req.body.role === 'alumni') && !value) {
       throw new Error('Course is required for students and alumni');
     }
-    if (value && !['B.Tech', 'M.Tech', 'BCA', 'MCA', 'MBA', 'Other'].includes(value)) {
+    const validCourses = [
+      'BSc Computer Science',
+      'MSc Computer Science',
+      'BAF',
+      'BMS',
+      'BA',
+      'MCom',
+      'BCom',
+      'BSc IT',
+      'MSc IT'
+    ];
+    if (value && !validCourses.includes(value)) {
       throw new Error('Invalid course');
     }
     return true;
@@ -46,6 +66,7 @@ router.post('/register', [
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({ 
         message: 'Validation failed', 
         errors: errors.array() 
@@ -63,6 +84,8 @@ router.post('/register', [
       batch,
       role
     } = req.body;
+
+    console.log('Registration attempt:', { name, email, role, department, course });
 
     // Check if user already exists
     const existingUser = await User.findOne({
@@ -116,7 +139,12 @@ router.post('/register', [
 
   } catch (error) {
     console.error('Registration error:', error);
-    res.status(500).json({ message: 'Server error during registration' });
+    console.error('Error details:', error.message);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: 'Server error during registration',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -137,6 +165,8 @@ router.post('/login', [
     }
 
     const { email, password } = req.body;
+
+    console.log('Login attempt for:', email);
 
     // Check if this is admin login
     const isAdminLogin = email.toLowerCase() === process.env.ADMIN_EMAIL?.toLowerCase() && 
@@ -175,12 +205,14 @@ router.post('/login', [
       // Regular user login
       user = await User.findOne({ email: email.toLowerCase() });
       if (!user) {
+        console.log('User not found:', email);
         return res.status(400).json({ message: 'Invalid credentials' });
       }
 
       // Check password
       const isMatch = await user.comparePassword(password);
       if (!isMatch) {
+        console.log('Password mismatch for:', email);
         return res.status(400).json({ message: 'Invalid credentials' });
       }
     }
@@ -188,6 +220,8 @@ router.post('/login', [
     // Update last active
     user.lastActive = new Date();
     await user.save();
+
+    console.log('Login successful for:', user.email, 'Role:', user.role);
 
     // Check if user is blocked
     if (user.verificationStatus === 'blocked') {
@@ -241,7 +275,12 @@ router.post('/login', [
 
   } catch (error) {
     console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error during login' });
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: 'Server error during login',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 

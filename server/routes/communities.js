@@ -35,7 +35,7 @@ router.get('/', auth, requireVerified, async (req, res) => {
     const communities = await Community.find(filter)
       .populate('creator', 'name role')
       .populate('moderators', 'name role')
-      .populate('members.user', 'name role') // Add this population to match detail endpoint
+      .populate('members.user', 'name role')
       .sort({ 'stats.totalMembers': -1, createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -43,10 +43,31 @@ router.get('/', auth, requireVerified, async (req, res) => {
     // Get user to check eligibility and membership
     const user = await User.findById(req.user.id);
 
-    const communitiesWithStatus = communities.map(community => {
+    // Filter communities based on visibility
+    const visibleCommunities = communities.filter(community => {
+      // Creator should always see their own community
+      if (community.creator._id.toString() === user._id.toString()) {
+        return true;
+      }
+      
+      // Members should always see communities they're part of
+      if (community.isMember(req.user.id)) {
+        return true;
+      }
+      
+      // Teacher communities should not be visible to alumni
+      if (community.creatorRole === 'teacher' && user.role === 'alumni') {
+        return false;
+      }
+      
+      // Check custom visibility settings
+      return community.isVisibleTo(user);
+    });
+
+    const communitiesWithStatus = visibleCommunities.map(community => {
       const isMember = community.isMember(req.user.id);
       const isModerator = community.isModerator(req.user.id);
-      const canAccessContent = isMember || isModerator; // Simplified: members and moderators can access
+      const canAccessContent = isMember || isModerator;
       
       return {
         ...community.toObject(),
@@ -64,8 +85,8 @@ router.get('/', auth, requireVerified, async (req, res) => {
       communities: communitiesWithStatus,
       pagination: {
         currentPage: parseInt(page),
-        totalPages: Math.ceil(communities.length / limit),
-        hasMore: communities.length === parseInt(limit)
+        totalPages: Math.ceil(visibleCommunities.length / limit),
+        hasMore: visibleCommunities.length === parseInt(limit)
       }
     });
 
@@ -77,21 +98,21 @@ router.get('/', auth, requireVerified, async (req, res) => {
 
 // @route   POST /api/communities
 // @desc    Create a new community
-// @access  Private (Teachers, Principals, Admins only)
+// @access  Private (Teachers, Principals, Admins, Alumni)
 router.post('/', [
   auth,
   requireVerified,
   canCreateCommunity,
   body('name').trim().isLength({ min: 2, max: 100 }).withMessage('Community name must be between 2 and 100 characters'),
   body('description').trim().isLength({ min: 10, max: 500 }).withMessage('Description must be between 10 and 500 characters'),
-  body('type').isIn(['department', 'course', 'batch', 'club', 'opportunities', 'events', 'general', 'subject', 'project']).withMessage('Invalid community type')
+  body('type').isIn(['department', 'course', 'batch', 'club', 'opportunities', 'events', 'general', 'subject', 'project', 'alumni_mentorship', 'alumni_jobs']).withMessage('Invalid community type')
 ], async (req, res) => {
   try {
-    console.log('Create community request body:', req.body); // Debug log
+    console.log('Create community request body:', req.body);
     
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      console.log('Validation errors:', errors.array()); // Debug log
+      console.log('Validation errors:', errors.array());
       return res.status(400).json({ 
         message: 'Validation failed', 
         errors: errors.array() 
@@ -105,11 +126,15 @@ router.post('/', [
       isPrivate = false,
       requiresApproval = false,
       eligibility = {},
+      visibleTo = {},
       rules = [],
       purpose = '',
       academicSettings = {}
     } = req.body;
 
+    // Get creator info
+    const creator = await User.findById(req.user.id);
+    
     // Check if community with same name already exists
     const existingCommunity = await Community.findOne({ 
       name: { $regex: new RegExp(`^${name}$`, 'i') },
@@ -120,12 +145,31 @@ router.post('/', [
       return res.status(400).json({ message: 'A community with this name already exists' });
     }
 
+    // Set default visibility based on creator role
+    let defaultVisibility = visibleTo;
+    if (creator.role === 'teacher' || creator.role === 'principal') {
+      // Teacher communities: visible to students and teachers only (not alumni)
+      defaultVisibility = {
+        roles: visibleTo.roles || ['student', 'teacher', 'principal'],
+        departments: visibleTo.departments || [],
+        courses: visibleTo.courses || []
+      };
+    } else if (creator.role === 'alumni') {
+      // Alumni communities: visible to students only (customizable)
+      defaultVisibility = {
+        roles: visibleTo.roles || ['student'],
+        departments: visibleTo.departments || [],
+        courses: visibleTo.courses || []
+      };
+    }
+
     // Create community
     const community = new Community({
       name: name.trim(),
       description: description.trim(),
       type,
       creator: req.user.id,
+      creatorRole: creator.role,
       moderators: [{
         user: req.user.id,
         assignedAt: new Date(),
@@ -140,6 +184,7 @@ router.post('/', [
         batches: eligibility.batches || [],
         roles: eligibility.roles || []
       },
+      visibleTo: defaultVisibility,
       rules: rules.map(rule => ({
         title: rule.title?.trim(),
         description: rule.description?.trim(),
@@ -157,7 +202,7 @@ router.post('/', [
     });
 
     // Add creator as first member
-    community.addMember(req.user.id);
+    community.addMember(req.user.id, 'admin');
     
     await community.save();
 

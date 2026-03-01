@@ -85,10 +85,10 @@ const requireRole = (roles) => {
 
 // Middleware to check if user can create communities
 const canCreateCommunity = (req, res, next) => {
-  const allowedRoles = ['teacher', 'principal', 'admin'];
+  const allowedRoles = ['teacher', 'principal', 'admin', 'alumni'];
   if (!allowedRoles.includes(req.user.role)) {
     return res.status(403).json({ 
-      message: 'Only teachers, principals, and admins can create communities' 
+      message: 'Only teachers, principals, admins, and alumni can create communities' 
     });
   }
   next();

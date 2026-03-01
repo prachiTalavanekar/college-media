@@ -16,7 +16,7 @@ const communitySchema = new mongoose.Schema({
   // Community Type
   type: {
     type: String,
-    enum: ['department', 'course', 'batch', 'club', 'opportunities', 'events', 'general', 'subject', 'project'],
+    enum: ['department', 'course', 'batch', 'club', 'opportunities', 'events', 'general', 'subject', 'project', 'alumni_mentorship', 'alumni_jobs'],
     required: true
   },
   
@@ -24,6 +24,11 @@ const communitySchema = new mongoose.Schema({
   creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
+    required: true
+  },
+  creatorRole: {
+    type: String,
+    enum: ['teacher', 'alumni', 'principal', 'admin'],
     required: true
   },
   moderators: [{
@@ -132,16 +137,31 @@ const communitySchema = new mongoose.Schema({
   eligibility: {
     departments: [{
       type: String,
-      enum: ['Computer Science', 'Electronics', 'Mechanical', 'Civil', 'Electrical', 'All']
+      enum: ['Computer Science', 'Information Technology', 'Accounting & Finance', 'Business and Management Studies', 'Science', 'Arts', 'Commerce', 'All']
     }],
     courses: [{
       type: String,
-      enum: ['B.Tech', 'M.Tech', 'BCA', 'MCA', 'MBA', 'All']
+      enum: ['BSc Computer Science', 'MSc Computer Science', 'BAF', 'BMS', 'BA', 'MCom', 'BCom', 'BSc IT', 'MSc IT', 'All']
     }],
     batches: [String],
     roles: [{
       type: String,
       enum: ['student', 'alumni', 'teacher', 'all']
+    }]
+  },
+  
+  // Visibility Control (who can see this community)
+  visibleTo: {
+    roles: [{
+      type: String,
+      enum: ['student', 'alumni', 'teacher', 'principal', 'all'],
+      default: 'all'
+    }],
+    departments: [{
+      type: String
+    }],
+    courses: [{
+      type: String
     }]
   },
   
@@ -333,6 +353,34 @@ communitySchema.index({ 'members.user': 1 });
 communitySchema.virtual('memberCount').get(function() {
   return this.members.length;
 });
+
+// Method to check if community is visible to user
+communitySchema.methods.isVisibleTo = function(user) {
+  // If no visibility restrictions, show to all
+  if (!this.visibleTo || !this.visibleTo.roles || this.visibleTo.roles.length === 0 || this.visibleTo.roles.includes('all')) {
+    return true;
+  }
+  
+  // Check role visibility
+  if (!this.visibleTo.roles.includes(user.role)) {
+    return false;
+  }
+  
+  // If visible to this role, check department/course restrictions
+  if (this.visibleTo.departments && this.visibleTo.departments.length > 0) {
+    if (!this.visibleTo.departments.includes(user.department)) {
+      return false;
+    }
+  }
+  
+  if (this.visibleTo.courses && this.visibleTo.courses.length > 0) {
+    if (!this.visibleTo.courses.includes(user.course)) {
+      return false;
+    }
+  }
+  
+  return true;
+};
 
 // Method to check if user is eligible to join
 communitySchema.methods.canUserJoin = function(user) {
