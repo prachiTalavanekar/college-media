@@ -27,10 +27,11 @@ const CreatePost = () => {
   // Determine default post type based on user role
   const getDefaultPostType = () => {
     const typeParam = searchParams.get('type');
-    if (typeParam === 'photo') return 'community_post';
+    if (typeParam === 'photo') return user?.role === 'student' ? 'blog' : 'community_post';
     if (typeParam) return typeParam;
     
     // Default based on role
+    if (user?.role === 'student') return 'blog';
     return ['teacher', 'principal', 'admin'].includes(user?.role) 
       ? 'announcement' 
       : 'community_post';
@@ -89,11 +90,9 @@ const CreatePost = () => {
     { value: 'poll', label: 'Poll', icon: BarChart3, description: 'Create a poll', color: 'green' }
   ];
 
-  // Post types for students
+  // Post types for students - Only Blog Post for academic content
   const studentPostTypes = [
-    { value: 'community_post', label: 'Community Post', icon: Users, description: 'Share thoughts with your community', color: 'blue' },
-    { value: 'blog', label: 'Blog Post', icon: BookOpen, description: 'Write a detailed article', color: 'blue' },
-    { value: 'opportunity', label: 'Opportunity', icon: Users, description: 'Share job/internship opportunities', color: 'green' }
+    { value: 'blog', label: 'Blog Post', icon: BookOpen, description: 'Write an academic article or tutorial', color: 'blue' }
   ];
 
   const postTypes = ['teacher', 'principal', 'admin'].includes(user?.role) ? teacherPostTypes : studentPostTypes;
@@ -343,11 +342,16 @@ const CreatePost = () => {
     setLoading(true);
 
     try {
+      // For students, automatically set target audience to "all" (visible to everyone)
+      const targetAudience = user?.role === 'student' 
+        ? { departments: ['All'], courses: ['All'], batches: [], roles: ['all'] }
+        : formData.targetAudience;
+
       const postData = {
         content: formData.content.trim(),
         postType: formData.postType,
         isImportant: formData.isImportant,
-        targetAudience: formData.targetAudience,
+        targetAudience: targetAudience,
         media: media,
         ...(formData.postType === 'event' && {
           eventDetails: formData.eventDetails
@@ -479,8 +483,8 @@ const CreatePost = () => {
             </div>
           )}
 
-          {/* Post Type Selection for Students */}
-          {!['teacher', 'principal', 'admin'].includes(user?.role) && (
+          {/* Post Type Selection for Students - Hidden since only one option */}
+          {!['teacher', 'principal', 'admin'].includes(user?.role) && studentPostTypes.length > 1 && (
             <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 w-full">
               <div className="flex items-center gap-2 mb-3">
                 <BookOpen size={18} className="text-blue-600" />
@@ -806,8 +810,8 @@ const CreatePost = () => {
             </div>
           )}
 
-          {/* Opportunity Details */}
-          {formData.postType === 'opportunity' && (
+          {/* Opportunity Details - Only for Teachers/Admins */}
+          {formData.postType === 'opportunity' && ['teacher', 'principal', 'admin'].includes(user?.role) && (
             <div className="bg-blue-50 rounded-2xl p-4 shadow-sm border-2 border-blue-200 w-full">
               <div className="flex items-center gap-2 mb-3">
                 <Users size={18} className="text-blue-600" />
@@ -952,81 +956,83 @@ const CreatePost = () => {
             </div>
           )}
 
-          {/* Target Audience */}
-          <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 w-full">
-            <div className="flex items-center gap-2 mb-3">
-              <Users size={18} className="text-gray-700" />
-              <h3 className="font-semibold text-gray-900">Who can see this?</h3>
-            </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Departments
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {departments.map(dept => (
-                    <button
-                      key={dept}
-                      type="button"
-                      onClick={() => handleAudienceChange('departments', dept)}
-                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
-                        formData.targetAudience.departments.includes(dept)
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {dept}
-                    </button>
-                  ))}
-                </div>
+          {/* Target Audience - Only for Teachers/Admins */}
+          {['teacher', 'principal', 'admin'].includes(user?.role) && (
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 w-full">
+              <div className="flex items-center gap-2 mb-3">
+                <Users size={18} className="text-gray-700" />
+                <h3 className="font-semibold text-gray-900">Who can see this?</h3>
               </div>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Departments
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {departments.map(dept => (
+                      <button
+                        key={dept}
+                        type="button"
+                        onClick={() => handleAudienceChange('departments', dept)}
+                        className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+                          formData.targetAudience.departments.includes(dept)
+                            ? 'bg-blue-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {dept}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Courses
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {courses.map(course => (
-                    <button
-                      key={course}
-                      type="button"
-                      onClick={() => handleAudienceChange('courses', course)}
-                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
-                        formData.targetAudience.courses.includes(course)
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {course}
-                    </button>
-                  ))}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Courses
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {courses.map(course => (
+                      <button
+                        key={course}
+                        type="button"
+                        onClick={() => handleAudienceChange('courses', course)}
+                        className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+                          formData.targetAudience.courses.includes(course)
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {course}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Roles
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {roles.map(role => (
-                    <button
-                      key={role}
-                      type="button"
-                      onClick={() => handleAudienceChange('roles', role)}
-                      className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
-                        formData.targetAudience.roles.includes(role)
-                          ? 'bg-green-600 text-white'
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                    >
-                      {role === 'all' ? 'Everyone' : role.charAt(0).toUpperCase() + role.slice(1)}
-                    </button>
-                  ))}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Roles
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {roles.map(role => (
+                      <button
+                        key={role}
+                        type="button"
+                        onClick={() => handleAudienceChange('roles', role)}
+                        className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+                          formData.targetAudience.roles.includes(role)
+                            ? 'bg-green-600 text-white'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                      >
+                        {role === 'all' ? 'Everyone' : role.charAt(0).toUpperCase() + role.slice(1)}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
+          )}
         </form>
       </div>
     </div>

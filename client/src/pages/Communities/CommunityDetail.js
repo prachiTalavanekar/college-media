@@ -209,21 +209,70 @@ const CommunityDetail = () => {
 
   const handleFileUpload = async (file, type = 'material') => {
     try {
+      console.log('Uploading file:', {
+        name: file.name,
+        type: file.type,
+        size: file.size
+      });
+
+      // Validate file size (50MB max)
+      const maxSize = 50 * 1024 * 1024; // 50MB
+      if (file.size > maxSize) {
+        toast.error('File size must be less than 50MB');
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'text/plain',
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'video/mp4',
+        'video/mpeg'
+      ];
+
+      const isTypeAllowed = allowedTypes.some(type => file.type === type) || 
+                           file.type.startsWith('image/') || 
+                           file.type.startsWith('video/') || 
+                           file.type.startsWith('text/');
+
+      if (!isTypeAllowed) {
+        toast.error('File type not supported. Please upload documents, images, or media files.');
+        return;
+      }
+
       const formData = new FormData();
       formData.append('file', file);
       formData.append('title', file.name);
       formData.append('category', 'lecture');
 
       if (type === 'material') {
+        toast.loading('Uploading study material...', { id: 'upload' });
+        
         const response = await api.post(`/communities/${id}/study-materials`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        toast.success('Study material uploaded successfully');
+        
+        toast.success('Study material uploaded successfully', { id: 'upload' });
         fetchStudyMaterials();
       }
     } catch (error) {
       console.error('Error uploading file:', error);
-      toast.error('Failed to upload file');
+      console.error('Error response:', error.response?.data);
+      
+      const errorMessage = error.response?.data?.message || 
+                          error.response?.data?.error || 
+                          'Failed to upload file';
+      
+      toast.error(errorMessage, { id: 'upload' });
     }
   };
 
@@ -629,11 +678,14 @@ const CommunityDetail = () => {
         ref={fileInputRef}
         type="file"
         className="hidden"
+        accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mpeg"
         onChange={(e) => {
           const file = e.target.files[0];
           if (file) {
             handleFileUpload(file);
           }
+          // Reset input so the same file can be selected again
+          e.target.value = '';
         }}
       />
 

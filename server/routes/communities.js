@@ -5,7 +5,7 @@ const User = require('../models/User');
 const Post = require('../models/Post');
 const Message = require('../models/Message');
 const { auth, requireVerified, canCreateCommunity } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+const { uploadStudyMaterial } = require('../middleware/upload');
 const cloudinary = require('../config/cloudinary');
 
 const router = express.Router();
@@ -803,11 +803,18 @@ router.post('/:id/members/:userId/mute', auth, requireVerified, async (req, res)
 router.post('/:id/study-materials', [
   auth,
   requireVerified,
-  upload.single('file'),
+  uploadStudyMaterial.single('file'),
   body('title').trim().isLength({ min: 1, max: 200 }).withMessage('Title is required'),
   body('category').isIn(['lecture', 'assignment', 'reference', 'syllabus', 'notes', 'other']).withMessage('Invalid category')
 ], async (req, res) => {
   try {
+    console.log('Study material upload request:', {
+      communityId: req.params.id,
+      userId: req.user.id,
+      hasFile: !!req.file,
+      body: req.body
+    });
+
     const community = await Community.findById(req.params.id);
     
     if (!community || !community.isActive) {
@@ -824,14 +831,23 @@ router.post('/:id/study-materials', [
 
     const { title, description, category, isPublic = true } = req.body;
 
+    console.log('Uploading to Cloudinary:', {
+      fileName: req.file.originalname,
+      mimeType: req.file.mimetype,
+      size: req.file.size
+    });
+
     // Upload to Cloudinary
     const b64 = Buffer.from(req.file.buffer).toString('base64');
     const dataURI = `data:${req.file.mimetype};base64,${b64}`;
 
     const result = await cloudinary.uploader.upload(dataURI, {
       folder: 'collegeconnect/study-materials',
-      resource_type: 'auto'
+      resource_type: 'auto',
+      public_id: `${Date.now()}_${req.file.originalname.replace(/\.[^/.]+$/, '')}`
     });
+
+    console.log('Cloudinary upload successful:', result.secure_url);
 
     // Determine file type
     const fileType = req.file.mimetype.includes('pdf') ? 'pdf' :
@@ -857,6 +873,8 @@ router.post('/:id/study-materials', [
 
     await community.save();
 
+    console.log('Study material saved successfully');
+
     res.status(201).json({
       message: 'Study material uploaded successfully',
       material: studyMaterial
@@ -864,7 +882,11 @@ router.post('/:id/study-materials', [
 
   } catch (error) {
     console.error('Upload study material error:', error);
-    res.status(500).json({ message: 'Server error while uploading study material' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: 'Server error while uploading study material',
+      error: error.message 
+    });
   }
 });
 

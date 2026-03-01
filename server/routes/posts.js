@@ -87,9 +87,14 @@ router.get('/', auth, requireVerified, async (req, res) => {
 
     console.log(`Found ${posts.length} posts from database`);
 
-    // Filter posts based on user's eligibility
+    // Filter posts based on user's eligibility and add isLiked flag
     const user = await User.findById(req.user.id);
-    const filteredPosts = posts.filter(post => post.canUserView(user));
+    const filteredPosts = posts.filter(post => post.canUserView(user)).map(post => {
+      const postObj = post.toObject({ virtuals: true });
+      // Add isLiked flag
+      postObj.isLiked = post.likes.some(like => like.user.toString() === req.user.id);
+      return postObj;
+    });
 
     console.log(`After filtering: ${filteredPosts.length} posts visible to user`);
 
@@ -258,7 +263,11 @@ router.get('/:id', auth, requireVerified, async (req, res) => {
       return res.status(403).json({ message: 'You do not have permission to view this post' });
     }
 
-    res.json({ post });
+    // Add isLiked flag
+    const postObj = post.toObject({ virtuals: true });
+    postObj.isLiked = post.likes.some(like => like.user.toString() === req.user.id);
+
+    res.json({ post: postObj });
 
   } catch (error) {
     console.error('Get post error:', error);
@@ -271,35 +280,63 @@ router.get('/:id', auth, requireVerified, async (req, res) => {
 // @access  Private
 router.post('/:id/like', auth, requireVerified, async (req, res) => {
   try {
-    const post = await Post.findById(req.params.id);
+    console.log('Like request:', { postId: req.params.id, userId: req.user.id });
+    
+    const post = await Post.findById(req.params.id).populate('author', 'name');
     
     if (!post || !post.isActive) {
+      console.log('Post not found or inactive');
       return res.status(404).json({ message: 'Post not found' });
     }
 
     // Check if user can view this post
     const user = await User.findById(req.user.id);
     if (!post.canUserView(user)) {
+      console.log('User cannot view post');
       return res.status(403).json({ message: 'You do not have permission to interact with this post' });
     }
 
     // Check if already liked
     const likeIndex = post.likes.findIndex(like => like.user.toString() === req.user.id);
+    const isLiking = likeIndex === -1;
+
+    console.log('Like status:', { likeIndex, isLiking, currentLikes: post.likes.length });
 
     if (likeIndex > -1) {
       // Unlike
       post.likes.splice(likeIndex, 1);
+      console.log('Unliked post');
     } else {
       // Like
       post.likes.push({ user: req.user.id });
+      console.log('Liked post');
+      
+      // Send notification to post author (only when liking, not unliking)
+      if (post.author._id.toString() !== req.user.id) {
+        const Notification = require('../models/Notification');
+        await Notification.createNotification({
+          recipient: post.author._id,
+          sender: req.user.id,
+          type: 'post_like',
+          title: 'New Like on Your Post',
+          message: `${user.name} liked your post`,
+          link: `/posts/${post._id}`,
+          data: {
+            postId: post._id,
+            postContent: post.content.substring(0, 100)
+          }
+        });
+        console.log('Notification sent to post author');
+      }
     }
 
     await post.save();
+    console.log('Post saved, new like count:', post.likes.length);
 
     res.json({
-      message: likeIndex > -1 ? 'Post unliked' : 'Post liked',
+      message: isLiking ? 'Post liked' : 'Post unliked',
       likeCount: post.likes.length,
-      isLiked: likeIndex === -1
+      isLiked: isLiking
     });
 
   } catch (error) {
@@ -326,7 +363,7 @@ router.post('/:id/comment', [
     }
 
     const { content } = req.body;
-    const post = await Post.findById(req.params.id);
+    const post = await Post.findById(req.params.id).populate('author', 'name');
     
     if (!post || !post.isActive) {
       return res.status(404).json({ message: 'Post not found' });
@@ -346,6 +383,24 @@ router.post('/:id/comment', [
 
     post.comments.push(newComment);
     await post.save();
+
+    // Send notification to post author (don't notify if commenting on own post)
+    if (post.author._id.toString() !== req.user.id) {
+      const Notification = require('../models/Notification');
+      await Notification.createNotification({
+        recipient: post.author._id,
+        sender: req.user.id,
+        type: 'post_comment',
+        title: 'New Comment on Your Post',
+        message: `${user.name} commented: "${content.substring(0, 50)}${content.length > 50 ? '...' : ''}"`,
+        link: `/posts/${post._id}`,
+        data: {
+          postId: post._id,
+          commentContent: content,
+          postContent: post.content.substring(0, 100)
+        }
+      });
+    }
 
     // Populate the new comment for response
     await post.populate('comments.user', 'name role profileImage');

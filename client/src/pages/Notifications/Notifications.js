@@ -209,13 +209,13 @@ const Notifications = () => {
   return (
     <div className="min-h-screen bg-gray-50 w-full mobile-overflow-hidden">
       {/* Header */}
-      <div className="page-header md:bg-white md:border-b md:border-gray-200 md:px-6 md:py-6 w-full">
+      <div className="bg-white border-b border-gray-200 px-4 py-4 w-full sticky top-0 z-10">
         <div className="w-full">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <h1 className="text-xl md:text-2xl font-bold text-gray-900">Notifications</h1>
+              <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
               {unreadCount > 0 && (
-                <span className="bg-red-500 text-white text-xs font-medium px-2 py-1 rounded-full">
+                <span className="bg-red-500 text-white text-xs font-bold px-2.5 py-1 rounded-full">
                   {unreadCount}
                 </span>
               )}
@@ -225,19 +225,19 @@ const Notifications = () => {
               {unreadCount > 0 && (
                 <button 
                   onClick={markAllAsRead}
-                  className="mobile-text-sm md:text-sm text-blue-600 hover:text-blue-700 font-medium min-h-[44px] px-2"
+                  className="text-sm text-blue-600 hover:text-blue-700 font-semibold px-3 py-2 hover:bg-blue-50 rounded-lg transition-colors"
                 >
                   Mark all read
                 </button>
               )}
-              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
+              <button className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors">
                 <Settings size={20} />
               </button>
             </div>
           </div>
 
           {/* Filter Tabs */}
-          <div className="mobile-tabs flex space-x-2 overflow-x-auto pb-2">
+          <div className="flex space-x-2 overflow-x-auto pb-2 hide-scrollbar -mx-4 px-4">
             {filterOptions.map((option) => {
               const Icon = option.icon;
               const isActive = filter === option.id;
@@ -246,13 +246,13 @@ const Notifications = () => {
                 <button
                   key={option.id}
                   onClick={() => setFilter(option.id)}
-                  className={`flex items-center space-x-2 px-3 md:px-4 py-2 rounded-lg font-medium mobile-text-sm transition-all whitespace-nowrap min-h-[44px] ${
+                  className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all whitespace-nowrap flex-shrink-0 ${
                     isActive
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
                   }`}
                 >
-                  <Icon size={16} />
+                  <Icon size={18} strokeWidth={2} />
                   <span>{option.label}</span>
                 </button>
               );
@@ -262,21 +262,21 @@ const Notifications = () => {
       </div>
 
       {/* Notifications List */}
-      <div className="w-full mobile-content md:px-6 md:py-6">
+      <div className="w-full py-4 pb-24">
         {filteredNotifications.length > 0 ? (
-          <div className="mobile-space-y-4 md:space-y-2 w-full">
+          <div className="space-y-0 w-full">
             {filteredNotifications.map(notification => {
               const Icon = getNotificationIcon(notification.type);
               
               return (
                 <div
                   key={notification._id}
-                  className={`card hover:shadow-md transition-all cursor-pointer w-full min-h-[80px] ${
-                    !notification.read ? 'bg-blue-50 border-blue-200' : ''
+                  className={`bg-white border-b border-gray-100 hover:bg-gray-50 transition-all cursor-pointer w-full px-4 py-4 ${
+                    !notification.read ? 'bg-blue-50' : ''
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
-                  <div className="flex items-start space-x-3 md:space-x-4 w-full">
+                  <div className="flex items-start space-x-3 w-full">
                     {/* Notification Icon */}
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${getNotificationColor(notification.type)}`}>
                       <Icon size={18} />
