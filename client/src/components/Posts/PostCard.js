@@ -19,9 +19,11 @@ const PostCard = ({ post, onPostUpdate }) => {
   const [showComments, setShowComments] = useState(false);
   const [voting, setVoting] = useState(false);
   const [showFullEvent, setShowFullEvent] = useState(false);
+  const [showFullContent, setShowFullContent] = useState(false);
   const [commentText, setCommentText] = useState('');
   const [commenting, setCommenting] = useState(false);
   const [comments, setComments] = useState(post?.comments || []);
+  const [shareCount, setShareCount] = useState(post?.shareCount || 0);
 
   const handleLike = async () => {
     try {
@@ -70,6 +72,27 @@ const PostCard = ({ post, onPostUpdate }) => {
       toast.error(error.response?.data?.message || 'Failed to add comment');
     } finally {
       setCommenting(false);
+    }
+  };
+
+  const handleShare = async () => {
+    try {
+      // Increment share count locally
+      setShareCount(shareCount + 1);
+      
+      // Copy link to clipboard
+      const postUrl = `${window.location.origin}/post/${post._id}`;
+      await navigator.clipboard.writeText(postUrl);
+      
+      toast.success('Link copied to clipboard!');
+      
+      // TODO: Call API to track share count
+      // await api.post(`/posts/${post._id}/share`);
+    } catch (error) {
+      console.error('Error sharing post:', error);
+      toast.error('Failed to share post');
+      // Revert share count on error
+      setShareCount(shareCount);
     }
   };
 
@@ -187,9 +210,17 @@ const PostCard = ({ post, onPostUpdate }) => {
 
       {/* Content */}
       <div className="mb-4">
-        <p className="post-content text-gray-800 leading-relaxed">
+        <p className={`post-content text-gray-800 leading-relaxed ${!showFullContent ? 'line-clamp-4' : ''}`}>
           {post.content}
         </p>
+        {post.content && post.content.length > 200 && (
+          <button
+            onClick={() => setShowFullContent(!showFullContent)}
+            className="text-blue-600 hover:text-blue-700 font-semibold text-sm mt-2"
+          >
+            {showFullContent ? 'See less' : 'See more'}
+          </button>
+        )}
 
         {/* Poll Details */}
         {post.postType === 'poll' && post.pollDetails && (
@@ -414,18 +445,18 @@ const PostCard = ({ post, onPostUpdate }) => {
       {post.media && post.media.length > 0 && (
         <div className="mb-4 -mx-4">
           {post.media.length === 1 ? (
-            // Single image - full width
+            // Single image - full width with shorter height
             <div className="relative">
               {post.media[0].type === 'image' ? (
                 <img 
                   src={post.media[0].url} 
                   alt="Post media"
-                  className="w-full max-h-96 object-cover"
+                  className="w-full h-64 object-cover"
                 />
               ) : (
                 <video 
                   src={post.media[0].url}
-                  className="w-full max-h-96 object-cover"
+                  className="w-full h-64 object-cover"
                   controls
                 />
               )}
@@ -439,12 +470,12 @@ const PostCard = ({ post, onPostUpdate }) => {
                     <img 
                       src={media.url} 
                       alt="Post media"
-                      className="w-full h-48 object-cover rounded-lg"
+                      className="w-full h-40 object-cover rounded-lg"
                     />
                   ) : (
                     <video 
                       src={media.url}
-                      className="w-full h-48 object-cover rounded-lg"
+                      className="w-full h-40 object-cover rounded-lg"
                       controls
                     />
                   )}
@@ -465,10 +496,31 @@ const PostCard = ({ post, onPostUpdate }) => {
       {/* Engagement Stats */}
       <div className="flex items-center justify-between text-sm text-gray-500 mb-3 pb-3 border-b border-gray-200">
         <div className="flex items-center space-x-4">
-          <span>{likeCount} likes</span>
-          <span>{comments.length} comments</span>
+          {likeCount > 0 && (
+            <button 
+              className="hover:underline cursor-pointer"
+              onClick={() => {/* TODO: Show who liked */}}
+            >
+              <span className="font-medium text-gray-700">{likeCount}</span> {likeCount === 1 ? 'like' : 'likes'}
+            </button>
+          )}
+          {comments.length > 0 && (
+            <button 
+              className="hover:underline cursor-pointer"
+              onClick={() => setShowComments(true)}
+            >
+              <span className="font-medium text-gray-700">{comments.length}</span> {comments.length === 1 ? 'comment' : 'comments'}
+            </button>
+          )}
         </div>
-        <span>2 shares</span>
+        {shareCount > 0 && (
+          <button 
+            className="hover:underline cursor-pointer"
+            onClick={() => {/* TODO: Show who shared */}}
+          >
+            <span className="font-medium text-gray-700">{shareCount}</span> {shareCount === 1 ? 'share' : 'shares'}
+          </button>
+        )}
       </div>
 
       {/* Action Buttons */}
@@ -493,7 +545,10 @@ const PostCard = ({ post, onPostUpdate }) => {
           <span>Comment</span>
         </button>
 
-        <button className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 font-semibold transition-all">
+        <button 
+          onClick={handleShare}
+          className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-gray-600 hover:bg-gray-50 font-semibold transition-all"
+        >
           <Share2 size={20} strokeWidth={2.5} />
           <span>Share</span>
         </button>

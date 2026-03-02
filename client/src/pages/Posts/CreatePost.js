@@ -16,7 +16,9 @@ import {
   Film,
   BarChart3,
   Star,
-  ChevronDown
+  ChevronDown,
+  Briefcase,
+  FileText
 } from 'lucide-react';
 
 const CreatePost = () => {
@@ -95,7 +97,20 @@ const CreatePost = () => {
     { value: 'blog', label: 'Blog Post', icon: BookOpen, description: 'Write an academic article or tutorial', color: 'blue' }
   ];
 
-  const postTypes = ['teacher', 'principal', 'admin'].includes(user?.role) ? teacherPostTypes : studentPostTypes;
+  // Post types for alumni
+  const alumniPostTypes = [
+    { value: 'blog', label: 'Share Knowledge', icon: BookOpen, description: 'Share experiences or updates', color: 'blue' },
+    { value: 'opportunity', label: 'Job Opportunity', icon: Briefcase, description: 'Post jobs/internships/referrals', color: 'green' },
+    { value: 'study_material', label: 'Study Material', icon: FileText, description: 'Share academic resources', color: 'purple' },
+    { value: 'career_guidance', label: 'Career Guidance', icon: Star, description: 'Advice on placements/higher studies', color: 'orange' },
+    { value: 'mentorship', label: 'Offer Mentorship', icon: Users, description: 'Register as a mentor', color: 'pink' }
+  ];
+
+  const postTypes = ['teacher', 'principal', 'admin'].includes(user?.role) 
+    ? teacherPostTypes 
+    : user?.role === 'alumni'
+    ? alumniPostTypes
+    : studentPostTypes;
 
   const departments = ['All', 'Computer Science', 'Electronics', 'Mechanical', 'Civil', 'Electrical'];
   const courses = ['All', 'B.Tech', 'M.Tech', 'BCA', 'MCA', 'MBA'];
@@ -444,6 +459,57 @@ const CreatePost = () => {
 
       <div className="w-full py-4 pb-24 mobile-content space-y-4">
         <form onSubmit={handleSubmit} className="space-y-4 w-full">
+          {/* Post Type Selection for Alumni */}
+          {user?.role === 'alumni' && (
+            <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 w-full">
+              <div className="flex items-center gap-2 mb-3">
+                <Star size={18} className="text-blue-600" />
+                <h3 className="font-semibold text-gray-900">Choose Post Type</h3>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {postTypes.map(type => {
+                  const Icon = type.icon;
+                  const colorClasses = {
+                    blue: 'border-blue-500 bg-blue-50 text-blue-600',
+                    green: 'border-green-500 bg-green-50 text-green-600',
+                    purple: 'border-purple-500 bg-purple-50 text-purple-600',
+                    orange: 'border-orange-500 bg-orange-50 text-orange-600',
+                    pink: 'border-pink-500 bg-pink-50 text-pink-600'
+                  };
+                  return (
+                    <label key={type.value} className="relative group cursor-pointer">
+                      <input
+                        type="radio"
+                        name="postType"
+                        value={type.value}
+                        checked={formData.postType === type.value}
+                        onChange={handleInputChange}
+                        className="sr-only"
+                      />
+                      <div className={`p-4 rounded-xl border-2 transition-all duration-200 ${
+                        formData.postType === type.value
+                          ? colorClasses[type.color]
+                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                      }`}>
+                        <div className="flex items-start space-x-3">
+                          <Icon size={24} className={formData.postType === type.value ? '' : 'text-gray-600'} />
+                          <div className="flex-1">
+                            <div className={`font-semibold text-sm mb-1 ${formData.postType === type.value ? '' : 'text-gray-900'}`}>
+                              {type.label}
+                            </div>
+                            <div className={`text-xs ${formData.postType === type.value ? 'opacity-90' : 'text-gray-600'}`}>
+                              {type.description}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Post Type Dropdown for Teachers */}
           {['teacher', 'principal', 'admin'].includes(user?.role) && (
             <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 w-full">
@@ -810,8 +876,8 @@ const CreatePost = () => {
             </div>
           )}
 
-          {/* Opportunity Details - Only for Teachers/Admins */}
-          {formData.postType === 'opportunity' && ['teacher', 'principal', 'admin'].includes(user?.role) && (
+          {/* Opportunity Details - For Teachers/Admins and Alumni */}
+          {formData.postType === 'opportunity' && ['teacher', 'principal', 'admin', 'alumni'].includes(user?.role) && (
             <div className="bg-blue-50 rounded-2xl p-4 shadow-sm border-2 border-blue-200 w-full">
               <div className="flex items-center gap-2 mb-3">
                 <Users size={18} className="text-blue-600" />
@@ -951,6 +1017,83 @@ const CreatePost = () => {
                       placeholder="https://..."
                     />
                   </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Study Material Details - For Alumni */}
+          {formData.postType === 'study_material' && user?.role === 'alumni' && (
+            <div className="bg-purple-50 rounded-2xl p-4 shadow-sm border-2 border-purple-200 w-full">
+              <div className="flex items-center gap-2 mb-3">
+                <FileText size={18} className="text-purple-600" />
+                <h3 className="font-semibold text-purple-900">Study Material Details</h3>
+              </div>
+              <p className="text-sm text-purple-700 mb-3">
+                Upload study materials, notes, or academic resources to help students. You can attach files using the media upload buttons below.
+              </p>
+            </div>
+          )}
+
+          {/* Career Guidance Details - For Alumni */}
+          {formData.postType === 'career_guidance' && user?.role === 'alumni' && (
+            <div className="bg-orange-50 rounded-2xl p-4 shadow-sm border-2 border-orange-200 w-full">
+              <div className="flex items-center gap-2 mb-3">
+                <Star size={18} className="text-orange-600" />
+                <h3 className="font-semibold text-orange-900">Career Guidance</h3>
+              </div>
+              <p className="text-sm text-orange-700 mb-3">
+                Share your advice on placements, higher studies, career paths, interview tips, or any career-related guidance for students.
+              </p>
+            </div>
+          )}
+
+          {/* Mentorship Details - For Alumni */}
+          {formData.postType === 'mentorship' && user?.role === 'alumni' && (
+            <div className="bg-pink-50 rounded-2xl p-4 shadow-sm border-2 border-pink-200 w-full">
+              <div className="flex items-center gap-2 mb-3">
+                <Users size={18} className="text-pink-600" />
+                <h3 className="font-semibold text-pink-900">Offer Mentorship</h3>
+              </div>
+              <div className="space-y-3">
+                <p className="text-sm text-pink-700">
+                  Register as a mentor to guide students in their academic and career journey. Share your expertise and availability.
+                </p>
+                <div>
+                  <label className="block text-sm font-semibold text-pink-800 mb-1">
+                    Areas of Expertise
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.opportunityDetails.title}
+                    onChange={(e) => handleOpportunityChange('title', e.target.value)}
+                    className="w-full px-4 py-2.5 border-2 border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white"
+                    placeholder="e.g., Web Development, Data Science, Product Management"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-pink-800 mb-1">
+                    Current Role & Company
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.opportunityDetails.company}
+                    onChange={(e) => handleOpportunityChange('company', e.target.value)}
+                    className="w-full px-4 py-2.5 border-2 border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white"
+                    placeholder="e.g., Senior Engineer at Google"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-pink-800 mb-1">
+                    Contact Email
+                  </label>
+                  <input
+                    type="email"
+                    value={formData.opportunityDetails.contactEmail}
+                    onChange={(e) => handleOpportunityChange('contactEmail', e.target.value)}
+                    className="w-full px-4 py-2.5 border-2 border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white"
+                    placeholder="your.email@example.com"
+                  />
                 </div>
               </div>
             </div>

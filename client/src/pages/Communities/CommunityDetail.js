@@ -840,7 +840,8 @@ const CommunityDetail = () => {
         ref={fileInputRef}
         type="file"
         className="hidden"
-        accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif,.mp4,.mpeg"
+        accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt"
+        multiple
         onChange={(e) => {
           const file = e.target.files[0];
           if (file) {
