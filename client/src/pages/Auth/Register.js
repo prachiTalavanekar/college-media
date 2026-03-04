@@ -94,11 +94,11 @@ const Register = () => {
   };
 
   return (
-    <div className="bg-gray-50 px-4 hide-scrollbar" style={{ minHeight: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
+    <div className="bg-gradient-to-br from-oxford-blue-50 to-tan-50 px-4 hide-scrollbar" style={{ minHeight: '100vh', overflowY: 'auto', overflowX: 'hidden' }}>
       <div className="max-w-2xl w-full mx-auto py-4">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-oxford-blue-900 to-oxford-blue-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <span className="text-white font-bold text-2xl">CC</span>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Join CampusConnect</h1>
@@ -304,8 +304,8 @@ const Register = () => {
                     />
                     <div className={`p-3 rounded-lg border-2 cursor-pointer transition-all min-h-[44px] flex items-center justify-center ${
                       formData.role === role.value
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-oxford-blue-500 bg-oxford-blue-50 text-oxford-blue-700 shadow-md'
+                        : 'border-gray-200 hover:border-oxford-blue-300'
                     }`}>
                       <div className="text-center">
                         <div className="text-sm font-medium">{role.label}</div>
@@ -320,7 +320,7 @@ const Register = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-4 md:py-3 px-4 rounded-lg transition-colors disabled:opacity-50 text-base min-h-[44px]"
+              className="w-full bg-gradient-to-r from-oxford-blue-900 to-oxford-blue-700 hover:from-oxford-blue-800 hover:to-oxford-blue-600 text-white font-semibold py-4 md:py-3 px-4 rounded-lg transition-all shadow-lg hover:shadow-xl disabled:opacity-50 text-base min-h-[44px]"
             >
               {loading ? 'Creating Account...' : 'Create Account'}
             </button>
@@ -332,7 +332,7 @@ const Register = () => {
               Already have an account?{' '}
               <Link 
                 to="/login" 
-                className="font-medium text-blue-600 hover:text-blue-500 transition-colors"
+                className="font-medium text-oxford-blue-600 hover:text-oxford-blue-500 transition-colors"
               >
                 Sign in here
               </Link>

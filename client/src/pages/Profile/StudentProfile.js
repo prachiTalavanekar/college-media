@@ -16,6 +16,7 @@ import {
   MessageCircle,
   Share2
 } from 'lucide-react';
+import AboutSection from '../../components/Profile/AboutSection';
 
 const StudentProfile = () => {
   const { userId } = useParams();
@@ -160,7 +161,7 @@ const StudentProfile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-oxford-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -172,7 +173,7 @@ const StudentProfile = () => {
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Profile not found</h2>
           <button
             onClick={() => navigate('/')}
-            className="text-blue-600 hover:text-blue-700"
+            className="text-oxford-blue-600 hover:text-oxford-blue-700"
           >
             Go back home
           </button>
@@ -326,7 +327,7 @@ const StudentProfile = () => {
               onClick={() => setActiveTab('posts')}
               className={`flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
                 activeTab === 'posts'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  ? 'text-oxford-blue-600 border-b-2 border-oxford-blue-600'
                   : 'text-gray-500'
               }`}
             >
@@ -337,7 +338,7 @@ const StudentProfile = () => {
               onClick={() => setActiveTab('about')}
               className={`flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
                 activeTab === 'about'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  ? 'text-oxford-blue-600 border-b-2 border-oxford-blue-600'
                   : 'text-gray-500'
               }`}
             >
@@ -364,7 +365,7 @@ const StudentProfile = () => {
                       <Heart size={18} />
                       <span className="text-sm font-medium">Like</span>
                     </button>
-                    <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600">
+                    <button className="flex items-center gap-2 text-gray-600 hover:text-oxford-blue-600">
                       <MessageCircle size={18} />
                       <span className="text-sm font-medium">Comment</span>
                     </button>
@@ -384,33 +385,8 @@ const StudentProfile = () => {
           </div>
         ) : (
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="font-bold text-gray-900 mb-4">About</h3>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Department</p>
-                <p className="text-gray-900 font-medium">{user.department || 'Not specified'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Course</p>
-                <p className="text-gray-900 font-medium">{user.course || 'Not specified'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Batch</p>
-                <p className="text-gray-900 font-medium">{user.batch || 'Not specified'}</p>
-              </div>
-              {user.location && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Location</p>
-                  <p className="text-gray-900 font-medium">{user.location}</p>
-                </div>
-              )}
-              {user.currentCompany && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Current Company</p>
-                  <p className="text-gray-900 font-medium">{user.currentCompany}</p>
-                </div>
-              )}
-            </div>
+            <h3 className="font-bold text-gray-900 mb-6 text-xl">About</h3>
+            <AboutSection userData={user} />
           </div>
         )}
       </div>

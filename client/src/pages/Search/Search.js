@@ -231,7 +231,7 @@ const Search = () => {
       <div className="max-w-3xl mx-auto px-4 py-6">
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-12 h-12 border-4 border-oxford-blue-600 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : searchQuery.trim().length < 2 ? (
           <div className="text-center py-12">
@@ -255,8 +255,8 @@ const Search = () => {
                       onClick={() => navigate(`/profile/${user._id}`)}
                       className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100"
                     >
-                      <div className="flex items-center gap-4">
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      <div className="flex items-start gap-4">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-oxford-blue-500 to-tan-500 flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {user.profileImage ? (
                             <img src={user.profileImage} alt={user.name} className="w-full h-full object-cover" />
                           ) : (
@@ -264,17 +264,52 @@ const Search = () => {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-gray-900 truncate">{user.name}</h4>
+                          <div className="flex items-center gap-2 mb-1">
+                            <h4 className="font-semibold text-gray-900 truncate">{user.name}</h4>
+                            <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${getRoleBadgeColor(user.role)}`}>
+                              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                            </span>
+                          </div>
                           <p className="text-sm text-gray-600 truncate">
                             {user.department} • {user.course}
                           </p>
-                          {user.currentCompany && (
-                            <p className="text-sm text-gray-500 truncate">{user.currentCompany}</p>
+                          
+                          {/* Show role-specific info from About section */}
+                          {user.role === 'alumni' && user.about?.alumni?.currentPosition && (
+                            <p className="text-sm text-oxford-blue-600 font-medium truncate mt-1">
+                              {user.about.alumni.currentPosition}
+                              {user.about.alumni.currentCompany && ` at ${user.about.alumni.currentCompany}`}
+                            </p>
+                          )}
+                          
+                          {user.role === 'teacher' && user.about?.teacher?.specializations && user.about.teacher.specializations.length > 0 && (
+                            <p className="text-sm text-tan-600 font-medium truncate mt-1">
+                              Specializes in: {user.about.teacher.specializations.slice(0, 2).join(', ')}
+                            </p>
+                          )}
+                          
+                          {user.role === 'student' && user.skills && user.skills.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {user.skills.slice(0, 3).map((skill, idx) => (
+                                <span key={idx} className="px-2 py-0.5 bg-oxford-blue-50 text-oxford-blue-700 rounded text-xs">
+                                  {skill}
+                                </span>
+                              ))}
+                              {user.skills.length > 3 && (
+                                <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
+                                  +{user.skills.length - 3} more
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          
+                          {/* Show bio preview if available */}
+                          {user.about?.bio && (
+                            <p className="text-sm text-gray-500 line-clamp-1 mt-1">
+                              {user.about.bio}
+                            </p>
                           )}
                         </div>
-                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor(user.role)}`}>
-                          {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                        </span>
                       </div>
                     </div>
                   ))}

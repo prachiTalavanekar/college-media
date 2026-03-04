@@ -120,6 +120,78 @@ const userSchema = new mongoose.Schema({
     type: String
   }],
   
+  // Extended About Section - Role-based fields
+  about: {
+    // Common fields for all roles
+    bio: {
+      type: String,
+      maxlength: 1000
+    },
+    achievements: [{
+      title: String,
+      description: String,
+      date: Date
+    }],
+    
+    // Student-specific fields
+    student: {
+      projects: [{
+        title: String,
+        description: String,
+        technologies: [String],
+        link: String,
+        startDate: Date,
+        endDate: Date
+      }],
+      linkedIn: String,
+      github: String,
+      portfolio: String
+    },
+    
+    // Teacher-specific fields
+    teacher: {
+      teachingExperience: [{
+        institution: String,
+        position: String,
+        subject: String,
+        startDate: Date,
+        endDate: Date,
+        current: Boolean
+      }],
+      researchWork: [{
+        title: String,
+        description: String,
+        field: String,
+        year: Number
+      }],
+      publications: [{
+        title: String,
+        journal: String,
+        year: Number,
+        link: String
+      }],
+      specializations: [String]
+    },
+    
+    // Alumni-specific fields
+    alumni: {
+      workExperience: [{
+        company: String,
+        position: String,
+        location: String,
+        startDate: Date,
+        endDate: Date,
+        current: Boolean,
+        description: String
+      }],
+      currentPosition: String,
+      currentCompany: String,
+      industry: String,
+      linkedIn: String,
+      expertise: [String]
+    }
+  },
+  
   // Student Specific
   currentYear: {
     type: Number,

@@ -109,7 +109,7 @@ const Sidebar = () => {
         {/* Logo */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-oxford-blue-600 rounded-xl flex items-center justify-center">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -122,7 +122,7 @@ const Sidebar = () => {
         {/* User Info */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex items-center space-x-3 mb-3">
-            <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+            <div className="w-12 h-12 rounded-full bg-oxford-blue-100 flex items-center justify-center overflow-hidden">
               {user?.profileImage ? (
                 <img 
                   src={user.profileImage} 
@@ -130,7 +130,7 @@ const Sidebar = () => {
                   className="w-12 h-12 rounded-full object-cover"
                 />
               ) : (
-                <span className="text-blue-600 font-semibold text-lg">
+                <span className="text-oxford-blue-600 font-semibold text-lg">
                   {user?.name?.charAt(0)?.toUpperCase()}
                 </span>
               )}
@@ -215,14 +215,14 @@ const Sidebar = () => {
           {!loading && profileStats && (
             <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-gray-100">
               <div className="text-center">
-                <div className="flex items-center justify-center space-x-1 text-blue-600 mb-1">
+                <div className="flex items-center justify-center space-x-1 text-oxford-blue-600 mb-1">
                   <Eye size={14} />
                   <span className="text-lg font-bold">{profileStats.profileViewers || 0}</span>
                 </div>
                 <p className="text-xs text-gray-500">profile viewers</p>
               </div>
               <div className="text-center">
-                <div className="flex items-center justify-center space-x-1 text-purple-600 mb-1">
+                <div className="flex items-center justify-center space-x-1 text-tan-600 mb-1">
                   <BarChart2 size={14} />
                   <span className="text-lg font-bold">{profileStats.postCount || 0}</span>
                 </div>
@@ -244,7 +244,7 @@ const Sidebar = () => {
                 className={({ isActive }) =>
                   `flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700 border-r-2 border-blue-600'
+                      ? 'bg-oxford-blue-50 text-oxford-blue-700 border-r-2 border-oxford-blue-600'
                       : 'text-gray-700 hover:bg-gray-100'
                   }`
                 }

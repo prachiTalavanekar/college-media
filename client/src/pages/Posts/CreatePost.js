@@ -433,7 +433,7 @@ const CreatePost = () => {
           <div className="flex items-center space-x-3">
             <button 
               onClick={() => navigate(-1)}
-              className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="p-2 text-gray-600 hover:text-oxford-blue-600 hover:bg-oxford-blue-50 rounded-xl transition-all duration-200 min-h-[44px] min-w-[44px] flex items-center justify-center"
             >
               <ArrowLeft size={22} />
             </button>

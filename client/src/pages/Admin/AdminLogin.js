@@ -59,10 +59,10 @@ const AdminLogin = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-white rounded-full mb-4 shadow-lg">
-            <Shield className="w-8 h-8 text-blue-600" />
+            <Shield className="w-8 h-8 text-oxford-blue-600" />
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Admin Panel</h1>
-          <p className="text-blue-200">CollegeConnect Administration</p>
+          <p className="text-oxford-blue-200">CollegeConnect Administration</p>
         </div>
 
         {/* Login Form */}
@@ -137,7 +137,7 @@ const AdminLogin = () => {
             </p>
             <button
               onClick={() => navigate('/')}
-              className="text-blue-600 hover:text-blue-700 text-sm font-medium mt-2"
+              className="text-oxford-blue-600 hover:text-oxford-blue-700 text-sm font-medium mt-2"
             >
               ← Back to Main Site
             </button>
@@ -146,7 +146,7 @@ const AdminLogin = () => {
 
         {/* Security Notice */}
         <div className="mt-6 text-center">
-          <p className="text-blue-200 text-sm">
+          <p className="text-oxford-blue-200 text-sm">
             🔒 This is a secure admin area. All activities are logged.
           </p>
         </div>

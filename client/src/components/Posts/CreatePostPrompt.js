@@ -11,7 +11,7 @@ const CreatePostPrompt = () => {
     {
       icon: FileText,
       label: 'Post',
-      color: 'text-blue-600 bg-blue-50 hover:bg-blue-100',
+      color: 'text-oxford-blue-600 bg-oxford-blue-50 hover:bg-oxford-blue-100',
       action: () => navigate('/create?type=post')
     },
     {

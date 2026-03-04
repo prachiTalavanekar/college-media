@@ -51,7 +51,7 @@ const Header = () => {
           <div className="flex-shrink-0">
             <button 
               onClick={() => setShowProfileSidebar(true)}
-              className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border-2 border-blue-200 overflow-hidden"
+              className="w-10 h-10 rounded-full bg-oxford-blue-100 flex items-center justify-center border-2 border-oxford-blue-200 overflow-hidden"
             >
               {user?.profileImage ? (
                 <img 
@@ -63,7 +63,7 @@ const Header = () => {
                   onError={(e) => console.error('Header image failed to load:', user.profileImage, e)}
                 />
               ) : (
-                <span className="text-blue-600 font-semibold text-lg">
+                <span className="text-oxford-blue-600 font-semibold text-lg">
                   {user?.name?.charAt(0)?.toUpperCase() || 'U'}
                 </span>
               )}
@@ -78,7 +78,7 @@ const Header = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-full bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-full bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
               />
             </form>
           </div>

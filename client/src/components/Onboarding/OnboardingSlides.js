@@ -14,8 +14,8 @@ const OnboardingSlides = ({ onComplete }) => {
       title: "Connect with Your Campus",
       subtitle: "Build meaningful connections",
       description: "Join your college community and connect with students, teachers, and alumni from your department and beyond.",
-      gradient: "from-blue-600 via-blue-500 to-blue-400",
-      bgColor: "bg-gradient-to-br from-blue-50 to-slate-50",
+      gradient: "from-oxford-blue-600 via-oxford-blue-500 to-oxford-blue-400",
+      bgColor: "bg-gradient-to-br from-oxford-blue-50 to-slate-50",
       illustration: "👥",
       features: ["Find classmates", "Connect with alumni", "Join study groups"]
     },
@@ -25,8 +25,8 @@ const OnboardingSlides = ({ onComplete }) => {
       title: "Share & Discover",
       subtitle: "Your academic journey matters",
       description: "Share updates, discover opportunities, and stay connected with everything happening on your campus.",
-      gradient: "from-blue-700 via-blue-600 to-blue-500",
-      bgColor: "bg-gradient-to-br from-blue-50 to-indigo-50",
+      gradient: "from-oxford-blue-700 via-oxford-blue-600 to-oxford-blue-500",
+      bgColor: "bg-gradient-to-br from-oxford-blue-50 to-tan-50",
       illustration: "💡",
       features: ["Share achievements", "Discover events", "Academic discussions"]
     },
@@ -36,8 +36,8 @@ const OnboardingSlides = ({ onComplete }) => {
       title: "Safe & Verified",
       subtitle: "Your privacy is protected",
       description: "Only verified college members can join, ensuring a safe and authentic academic environment for everyone.",
-      gradient: "from-blue-800 via-blue-700 to-blue-600",
-      bgColor: "bg-gradient-to-br from-slate-50 to-blue-50",
+      gradient: "from-oxford-blue-800 via-oxford-blue-700 to-oxford-blue-600",
+      bgColor: "bg-gradient-to-br from-slate-50 to-oxford-blue-50",
       illustration: "🛡️",
       features: ["Verified members only", "Privacy controls", "Safe environment"]
     }
@@ -208,7 +208,7 @@ const OnboardingSlides = ({ onComplete }) => {
           transition={{ duration: 0.2 }}
         >
           <motion.div 
-            className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg"
+            className="w-8 h-8 md:w-10 md:h-10 bg-gradient-to-br from-oxford-blue-600 to-oxford-blue-700 rounded-xl flex items-center justify-center shadow-lg"
             whileHover={{ 
               rotate: 5,
               scale: 1.05
@@ -244,7 +244,7 @@ const OnboardingSlides = ({ onComplete }) => {
         {/* Animated Background Decorations - Simplified */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div 
-            className="absolute -top-24 -right-24 w-48 h-48 bg-blue-200/20 rounded-full blur-3xl"
+            className="absolute -top-24 -right-24 w-48 h-48 bg-oxford-blue-200/20 rounded-full blur-3xl"
             animate={{
               scale: [1, 1.05, 1],
               opacity: [0.2, 0.25, 0.2]
@@ -256,7 +256,7 @@ const OnboardingSlides = ({ onComplete }) => {
             }}
           />
           <motion.div 
-            className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-300/10 rounded-full blur-3xl"
+            className="absolute -bottom-32 -left-32 w-64 h-64 bg-tan-300/10 rounded-full blur-3xl"
             animate={{
               scale: [1, 1.03, 1],
               opacity: [0.1, 0.15, 0.1]
@@ -301,7 +301,7 @@ const OnboardingSlides = ({ onComplete }) => {
               
               {/* Simplified floating elements */}
               <motion.div 
-                className="absolute -top-2 -right-2 w-4 h-4 md:w-6 md:h-6 bg-blue-400 rounded-full shadow-lg"
+                className="absolute -top-2 -right-2 w-4 h-4 md:w-6 md:h-6 bg-oxford-blue-400 rounded-full shadow-lg"
                 animate={{
                   scale: [1, 1.1, 1]
                 }}
@@ -312,7 +312,7 @@ const OnboardingSlides = ({ onComplete }) => {
                 }}
               />
               <motion.div 
-                className="absolute -bottom-3 -left-3 w-3 h-3 md:w-4 md:h-4 bg-blue-300 rounded-full shadow-lg"
+                className="absolute -bottom-3 -left-3 w-3 h-3 md:w-4 md:h-4 bg-tan-400 rounded-full shadow-lg"
                 animate={{
                   scale: [1, 1.1, 1]
                 }}
@@ -338,7 +338,7 @@ const OnboardingSlides = ({ onComplete }) => {
                   {currentSlideData.title}
                 </motion.h2>
                 <motion.p 
-                  className="text-base md:text-lg font-semibold text-blue-600 mb-3 md:mb-4"
+                  className="text-base md:text-lg font-semibold text-oxford-blue-600 mb-3 md:mb-4"
                   variants={contentVariants}
                 >
                   {currentSlideData.subtitle}
@@ -368,7 +368,7 @@ const OnboardingSlides = ({ onComplete }) => {
               {/* Call to Action for final slide */}
               {currentSlide === slides.length - 1 && (
                 <motion.div 
-                  className="mt-4 md:mt-6 p-3 md:p-4 bg-blue-50 rounded-xl border border-blue-100"
+                  className="mt-4 md:mt-6 p-3 md:p-4 bg-oxford-blue-50 rounded-xl border border-oxford-blue-100"
                   initial={{ scale: 0, opacity: 0, y: 20 }}
                   animate={{ scale: 1, opacity: 1, y: 0 }}
                   transition={{ 
@@ -379,7 +379,7 @@ const OnboardingSlides = ({ onComplete }) => {
                   }}
                 >
                   <motion.p 
-                    className="text-blue-800 text-xs md:text-sm font-medium text-center"
+                    className="text-oxford-blue-800 text-xs md:text-sm font-medium text-center"
                     animate={{
                       scale: [1, 1.01, 1]
                     }}
@@ -392,7 +392,7 @@ const OnboardingSlides = ({ onComplete }) => {
                     Ready to connect with your campus community?
                   </motion.p>
                   <motion.p 
-                    className="text-blue-600 text-xs text-center mt-1"
+                    className="text-oxford-blue-600 text-xs text-center mt-1"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 1, duration: 0.5 }}
@@ -435,7 +435,7 @@ const OnboardingSlides = ({ onComplete }) => {
               className={`transition-all duration-300 rounded-full ${
                 index === currentSlide 
                   ? `w-6 md:w-8 h-3 bg-gradient-to-r ${currentSlideData.gradient}` 
-                  : 'w-3 h-3 bg-gray-300 hover:bg-blue-200'
+                  : 'w-3 h-3 bg-gray-300 hover:bg-oxford-blue-200'
               }`}
               whileHover={{ 
                 scale: 1.1,
@@ -476,7 +476,7 @@ const OnboardingSlides = ({ onComplete }) => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8, duration: 0.4 }}
         >
-          <span className="text-xs md:text-sm text-blue-600 font-medium">
+          <span className="text-xs md:text-sm text-oxford-blue-600 font-medium">
             {currentSlide + 1} of {slides.length}
           </span>
         </motion.div>

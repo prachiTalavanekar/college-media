@@ -96,7 +96,7 @@ const SplashScreen = ({ onComplete }) => {
     <AnimatePresence>
       {isVisible && (
         <motion.div 
-          className="fixed inset-0 z-50 bg-gradient-to-br from-blue-900 via-blue-700 to-blue-600 flex items-center justify-center mobile-app-container hide-scrollbar no-tap-highlight"
+          className="fixed inset-0 z-50 bg-gradient-to-br from-oxford-blue-900 via-oxford-blue-700 to-oxford-blue-600 flex items-center justify-center mobile-app-container hide-scrollbar no-tap-highlight"
           variants={containerVariants}
           initial="initial"
           animate="animate"
@@ -105,7 +105,7 @@ const SplashScreen = ({ onComplete }) => {
           {/* Animated Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <motion.div 
-              className="absolute top-20 left-10 w-32 h-32 bg-blue-300 rounded-full blur-3xl"
+              className="absolute top-20 left-10 w-32 h-32 bg-oxford-blue-300 rounded-full blur-3xl"
               animate={{
                 scale: [1, 1.2, 1],
                 opacity: [0.3, 0.6, 0.3]
@@ -117,7 +117,7 @@ const SplashScreen = ({ onComplete }) => {
               }}
             />
             <motion.div 
-              className="absolute bottom-32 right-16 w-24 h-24 bg-blue-200 rounded-full blur-2xl"
+              className="absolute bottom-32 right-16 w-24 h-24 bg-tan-200 rounded-full blur-2xl"
               animate={{
                 scale: [1, 1.3, 1],
                 opacity: [0.2, 0.5, 0.2]
@@ -130,7 +130,7 @@ const SplashScreen = ({ onComplete }) => {
               }}
             />
             <motion.div 
-              className="absolute top-1/2 left-1/4 w-16 h-16 bg-blue-400 rounded-full blur-xl"
+              className="absolute top-1/2 left-1/4 w-16 h-16 bg-oxford-blue-400 rounded-full blur-xl"
               animate={{
                 scale: [1, 1.1, 1],
                 opacity: [0.4, 0.7, 0.4]
@@ -161,24 +161,24 @@ const SplashScreen = ({ onComplete }) => {
                     ease: "linear"
                   }}
                 >
-                  <GraduationCap className="w-14 h-14 text-blue-600" />
+                  <GraduationCap className="w-14 h-14 text-oxford-blue-600" />
                 </motion.div>
               </motion.div>
               
               {/* Animated floating particles around logo */}
               <motion.div 
-                className="absolute -top-2 -right-2 w-4 h-4 bg-blue-300 rounded-full"
+                className="absolute -top-2 -right-2 w-4 h-4 bg-oxford-blue-300 rounded-full"
                 variants={particleVariants}
                 animate="animate"
               />
               <motion.div 
-                className="absolute -bottom-1 -left-1 w-3 h-3 bg-blue-400 rounded-full"
+                className="absolute -bottom-1 -left-1 w-3 h-3 bg-tan-400 rounded-full"
                 variants={particleVariants}
                 animate="animate"
                 style={{ animationDelay: '0.5s' }}
               />
               <motion.div 
-                className="absolute top-1/2 -right-3 w-2 h-2 bg-blue-200 rounded-full"
+                className="absolute top-1/2 -right-3 w-2 h-2 bg-oxford-blue-200 rounded-full"
                 variants={particleVariants}
                 animate="animate"
                 style={{ animationDelay: '1s' }}
@@ -201,13 +201,13 @@ const SplashScreen = ({ onComplete }) => {
                 CampusConnect
               </motion.h1>
               <motion.div 
-                className="w-24 h-1 bg-gradient-to-r from-blue-300 to-blue-500 rounded-full mx-auto mb-3"
+                className="w-24 h-1 bg-gradient-to-r from-oxford-blue-300 to-tan-500 rounded-full mx-auto mb-3"
                 initial={{ width: 0 }}
                 animate={{ width: 96 }}
                 transition={{ duration: 1, delay: 0.8 }}
               />
               <motion.p 
-                className="text-blue-100 text-lg font-medium tracking-wide"
+                className="text-oxford-blue-100 text-lg font-medium tracking-wide"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1 }}
@@ -227,7 +227,7 @@ const SplashScreen = ({ onComplete }) => {
                 {[0, 1, 2, 3, 4].map((index) => (
                   <motion.div
                     key={index}
-                    className="w-2 bg-blue-200 rounded-full"
+                    className="w-2 bg-oxford-blue-200 rounded-full"
                     variants={loadingVariants}
                     animate="animate"
                     style={{

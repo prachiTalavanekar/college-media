@@ -39,7 +39,7 @@ router.get('/users', auth, requireVerified, async (req, res) => {
     if (course) filter.course = course;
 
     const users = await User.find(filter)
-      .select('name email role department course batch profileImage currentCompany jobTitle bio verificationStatus')
+      .select('name email role department course batch profileImage currentCompany jobTitle bio verificationStatus about skills')
       .sort({ name: 1 })
       .skip(skip)
       .limit(parseInt(limit));
@@ -136,7 +136,7 @@ router.get('/all', auth, requireVerified, async (req, res) => {
     };
 
     const users = await User.find(userFilter)
-      .select('name email role department course batch profileImage currentCompany jobTitle')
+      .select('name email role department course batch profileImage currentCompany jobTitle about skills')
       .limit(5);
 
     // Search posts (limit to 5)

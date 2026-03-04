@@ -354,7 +354,7 @@ export const PostCard = ({ post }) => {
   
   const cardClasses = `
     post-card 
-    ${can('canPinPosts') ? 'hover:border-blue-500' : ''}
+    ${can('canPinPosts') ? 'hover:border-oxford-blue-500' : ''}
     ${can('canHighlightPosts') ? 'cursor-pointer' : ''}
   `;
   

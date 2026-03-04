@@ -242,4 +242,99 @@ router.delete('/image', auth, async (req, res) => {
   }
 });
 
+// @route   PUT /api/profile/about
+// @desc    Update user about section (role-based)
+// @access  Private
+router.put('/about', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const { bio, achievements, skills, studentData, teacherData, alumniData } = req.body;
+
+    // Initialize about object if it doesn't exist
+    if (!user.about) {
+      user.about = {};
+    }
+
+    // Update common fields
+    if (bio !== undefined) user.about.bio = bio;
+    if (achievements !== undefined) user.about.achievements = achievements;
+    if (skills !== undefined) user.skills = skills;
+
+    // Update role-specific fields
+    if (user.role === 'student' && studentData) {
+      if (!user.about.student) {
+        user.about.student = {};
+      }
+      Object.assign(user.about.student, studentData);
+    }
+
+    if (user.role === 'teacher' && teacherData) {
+      if (!user.about.teacher) {
+        user.about.teacher = {};
+      }
+      Object.assign(user.about.teacher, teacherData);
+    }
+
+    if (user.role === 'alumni' && alumniData) {
+      if (!user.about.alumni) {
+        user.about.alumni = {};
+      }
+      Object.assign(user.about.alumni, alumniData);
+    }
+
+    // Mark the about field as modified
+    user.markModified('about');
+    
+    await user.save();
+
+    res.json({
+      success: true,
+      message: 'About section updated successfully',
+      about: user.about,
+      skills: user.skills
+    });
+
+  } catch (error) {
+    console.error('Error updating about section:', error);
+    res.status(500).json({ 
+      message: 'Server error',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
+// @route   GET /api/profile/about/:userId
+// @desc    Get user about section
+// @access  Private
+router.get('/about/:userId', auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId)
+      .select('about skills role name profileImage department course batch');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json({
+      about: user.about || {},
+      skills: user.skills || [],
+      role: user.role,
+      name: user.name,
+      profileImage: user.profileImage,
+      department: user.department,
+      course: user.course,
+      batch: user.batch
+    });
+
+  } catch (error) {
+    console.error('Error fetching about section:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 module.exports = router;

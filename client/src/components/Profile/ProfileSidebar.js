@@ -74,7 +74,7 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
           {/* Profile Header */}
           <div className="mb-6">
             <div className="flex items-center space-x-4 mb-4">
-              <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center border-3 border-blue-200 flex-shrink-0">
+              <div className="w-16 h-16 rounded-full bg-oxford-blue-100 flex items-center justify-center border-3 border-oxford-blue-200 flex-shrink-0">
                 {user?.profileImage ? (
                   <img 
                     src={user.profileImage} 
@@ -82,7 +82,7 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
                     className="w-16 h-16 rounded-full object-cover"
                   />
                 ) : (
-                  <span className="text-blue-600 font-bold text-2xl">
+                  <span className="text-oxford-blue-600 font-bold text-2xl">
                     {user?.name?.charAt(0)?.toUpperCase()}
                   </span>
                 )}
@@ -157,7 +157,7 @@ const ProfileSidebar = ({ isOpen, onClose }) => {
 
                 {/* Role Badge */}
                 {user?.role && (
-                  <div className="flex items-center text-sm text-blue-600">
+                  <div className="flex items-center text-sm text-oxford-blue-600">
                     <Briefcase size={14} className="mr-1" />
                     <span className="capitalize">{user.role}</span>
                     {user?.mentor && user.role === 'alumni' && (

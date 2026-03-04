@@ -148,7 +148,7 @@ const Messages = () => {
   if (loading && conversations.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-oxford-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -225,7 +225,7 @@ const Messages = () => {
                           className="w-12 h-12 rounded-full object-cover"
                         />
                       ) : (
-                        <span className="text-blue-600 font-semibold text-lg">
+                        <span className="text-oxford-blue-600 font-semibold text-lg">
                           {chat.name.charAt(0).toUpperCase()}
                         </span>
                       )}
@@ -289,7 +289,7 @@ const Messages = () => {
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
-                          <span className="text-blue-600 font-semibold">
+                          <span className="text-oxford-blue-600 font-semibold">
                             {selectedChat.name.charAt(0).toUpperCase()}
                           </span>
                         )}
@@ -338,7 +338,7 @@ const Messages = () => {
                         }`}>
                           <p className="text-sm">{message.content}</p>
                           <p className={`text-xs mt-1 ${
-                            isOwn ? 'text-blue-100' : 'text-gray-500'
+                            isOwn ? 'text-oxford-blue-100' : 'text-gray-500'
                           }`}>
                             {formatTimestamp(message.createdAt)}
                           </p>

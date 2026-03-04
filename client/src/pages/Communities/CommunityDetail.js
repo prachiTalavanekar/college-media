@@ -294,7 +294,7 @@ const CommunityDetail = () => {
   const getFileIcon = (fileType) => {
     switch (fileType) {
       case 'pdf': return <FileText className="w-5 h-5 text-red-600" />;
-      case 'image': return <Image className="w-5 h-5 text-blue-600" />;
+      case 'image': return <Image className="w-5 h-5 text-oxford-blue-600" />;
       default: return <FileText className="w-5 h-5 text-gray-600" />;
     }
   };
@@ -302,7 +302,7 @@ const CommunityDetail = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-oxford-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -314,7 +314,7 @@ const CommunityDetail = () => {
           <h2 className="text-xl font-semibold text-gray-900 mb-2">Community not found</h2>
           <button 
             onClick={() => navigate('/communities')}
-            className="text-blue-600 hover:text-blue-700"
+            className="text-oxford-blue-600 hover:text-oxford-blue-700"
           >
             Back to Communities
           </button>
@@ -336,7 +336,7 @@ const CommunityDetail = () => {
           </button>
           
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-oxford-blue-100 rounded-lg flex items-center justify-center">
               {community.coverImage ? (
                 <img 
                   src={community.coverImage} 
@@ -344,7 +344,7 @@ const CommunityDetail = () => {
                   className="w-10 h-10 rounded-lg object-cover"
                 />
               ) : (
-                <BookOpen className="w-5 h-5 text-blue-600" />
+                <BookOpen className="w-5 h-5 text-oxford-blue-600" />
               )}
             </div>
             
@@ -374,7 +374,7 @@ const CommunityDetail = () => {
             {community.isModerator && (
               <button 
                 onClick={() => setShowUploadModal(true)}
-                className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                className="p-2 text-oxford-blue-600 hover:bg-oxford-blue-50 rounded-lg transition-colors"
                 title="Upload Content"
               >
                 <Upload size={20} />
@@ -398,7 +398,7 @@ const CommunityDetail = () => {
                 onClick={() => setActiveTab(tab)}
                 className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-oxford-blue-600 text-oxford-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -415,7 +415,7 @@ const CommunityDetail = () => {
                 onClick={() => setActiveTab(tab)}
                 className={`py-3 px-1 border-b-2 font-medium text-sm transition-colors ${
                   activeTab === tab
-                    ? 'border-blue-600 text-blue-600'
+                    ? 'border-oxford-blue-600 text-oxford-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -461,7 +461,7 @@ const CommunityDetail = () => {
                             ? 'bg-green-100 text-green-700'
                             : message.sender.role === 'admin'
                             ? 'bg-red-100 text-red-700'
-                            : 'bg-blue-100 text-blue-700'
+                            : 'bg-oxford-blue-100 text-oxford-blue-700'
                         }`}>
                           {message.sender.role}
                         </span>
@@ -492,7 +492,7 @@ const CommunityDetail = () => {
                     
                     <div className={`rounded-lg p-3 ${
                       message.type === 'announcement' 
-                        ? 'bg-blue-50 border border-blue-200' 
+                        ? 'bg-oxford-blue-50 border border-oxford-blue-200' 
                         : 'bg-gray-50'
                     }`}>
                       <p className="text-gray-900">{message.content}</p>
@@ -502,7 +502,7 @@ const CommunityDetail = () => {
                     <div className="flex items-center space-x-3 mt-2">
                       <button
                         onClick={() => handleReaction(message._id, 'like')}
-                        className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 transition-colors"
+                        className="flex items-center space-x-1 text-gray-500 hover:text-oxford-blue-600 transition-colors"
                       >
                         <Heart className="w-4 h-4" />
                         <span className="text-xs">
@@ -510,13 +510,13 @@ const CommunityDetail = () => {
                         </span>
                       </button>
                       
-                      <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 transition-colors">
+                      <button className="flex items-center space-x-1 text-gray-500 hover:text-oxford-blue-600 transition-colors">
                         <MessageCircle className="w-4 h-4" />
                         <span className="text-xs">Reply</span>
                       </button>
                       
                       {(community.isModerator || message.sender._id === user.id) && (
-                        <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-600 transition-colors">
+                        <button className="flex items-center space-x-1 text-gray-500 hover:text-oxford-blue-600 transition-colors">
                           <Share2 className="w-4 h-4" />
                           <span className="text-xs">Share</span>
                         </button>
@@ -553,7 +553,7 @@ const CommunityDetail = () => {
                   <button 
                     onClick={sendMessage}
                     disabled={!newMessage.trim()}
-                    className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    className="p-2 bg-oxford-blue-600 text-white rounded-lg hover:bg-oxford-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   >
                     <Send size={20} />
                   </button>
@@ -576,7 +576,7 @@ const CommunityDetail = () => {
               {community.isModerator && (
                 <button 
                   onClick={() => setShowUploadModal(true)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 bg-oxford-blue-600 text-white rounded-lg hover:bg-oxford-blue-700 transition-colors"
                 >
                   <Plus size={16} />
                   <span>Upload</span>
@@ -615,7 +615,7 @@ const CommunityDetail = () => {
                       href={material.fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm"
+                      className="flex items-center space-x-1 text-oxford-blue-600 hover:text-oxford-blue-700 text-sm"
                     >
                       <Download size={14} />
                       <span>Download</span>
@@ -645,7 +645,7 @@ const CommunityDetail = () => {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-semibold text-gray-900">Assignments</h2>
               {community.isModerator && (
-                <button className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <button className="flex items-center space-x-2 px-4 py-2 bg-oxford-blue-600 text-white rounded-lg hover:bg-oxford-blue-700 transition-colors">
                   <Plus size={16} />
                   <span>Create Assignment</span>
                 </button>
@@ -673,7 +673,7 @@ const CommunityDetail = () => {
                     <span className="text-sm text-gray-500">
                       {assignment.submissions?.length || 0} submissions
                     </span>
-                    <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+                    <button className="text-oxford-blue-600 hover:text-oxford-blue-700 text-sm font-medium">
                       View Details
                     </button>
                   </div>
@@ -704,7 +704,7 @@ const CommunityDetail = () => {
               {community.isModerator && (
                 <button 
                   onClick={() => setShowOpportunityModal(true)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 bg-oxford-blue-600 text-white rounded-lg hover:bg-oxford-blue-700 transition-colors"
                 >
                   <Plus size={16} />
                   <span>Post Opportunity</span>
@@ -720,7 +720,7 @@ const CommunityDetail = () => {
                       <h3 className="font-semibold text-gray-900 text-lg">{opportunity.title}</h3>
                       <p className="text-sm text-gray-600 mt-1">{opportunity.company}</p>
                       <div className="flex items-center space-x-3 mt-2">
-                        <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                        <span className="px-2 py-1 bg-oxford-blue-100 text-oxford-blue-700 text-xs font-medium rounded-full">
                           {opportunity.type}
                         </span>
                         <span className="text-xs text-gray-500">
@@ -737,7 +737,7 @@ const CommunityDetail = () => {
                       href={opportunity.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center space-x-2 text-blue-600 hover:text-blue-700 font-medium"
+                      className="inline-flex items-center space-x-2 text-oxford-blue-600 hover:text-oxford-blue-700 font-medium"
                     >
                       <span>Apply Now</span>
                       <ArrowRight size={16} />
@@ -770,7 +770,7 @@ const CommunityDetail = () => {
               {community.isModerator && (
                 <button 
                   onClick={() => setShowUploadModal(true)}
-                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  className="flex items-center space-x-2 px-4 py-2 bg-oxford-blue-600 text-white rounded-lg hover:bg-oxford-blue-700 transition-colors"
                 >
                   <Plus size={16} />
                   <span>Upload Resource</span>
@@ -809,7 +809,7 @@ const CommunityDetail = () => {
                       href={resource.fileUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm"
+                      className="flex items-center space-x-1 text-oxford-blue-600 hover:text-oxford-blue-700 text-sm"
                     >
                       <Download size={14} />
                       <span>Download</span>
@@ -866,7 +866,7 @@ const CommunityDetail = () => {
                 }}
                 className="w-full flex items-center space-x-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                <FileText className="w-5 h-5 text-blue-600" />
+                <FileText className="w-5 h-5 text-oxford-blue-600" />
                 <span>Upload Study Material</span>
               </button>
               

@@ -10,8 +10,11 @@ import {
   Grid,
   User as UserIcon,
   Heart,
-  MessageCircle
+  MessageCircle,
+  Edit2
 } from 'lucide-react';
+import AboutSection from '../../components/Profile/AboutSection';
+import EditAboutModal from '../../components/Profile/EditAboutModal';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -19,6 +22,7 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState('posts');
   const [loading, setLoading] = useState(true);
   const [profileData, setProfileData] = useState(null);
+  const [showEditAboutModal, setShowEditAboutModal] = useState(false);
 
   // Fetch profile data when component mounts
   useEffect(() => {
@@ -78,7 +82,7 @@ const Profile = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-oxford-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -234,7 +238,7 @@ const Profile = () => {
               onClick={() => setActiveTab('posts')}
               className={`flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
                 activeTab === 'posts'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  ? 'text-oxford-blue-600 border-b-2 border-oxford-blue-600'
                   : 'text-gray-500'
               }`}
             >
@@ -245,7 +249,7 @@ const Profile = () => {
               onClick={() => setActiveTab('about')}
               className={`flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
                 activeTab === 'about'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
+                  ? 'text-oxford-blue-600 border-b-2 border-oxford-blue-600'
                   : 'text-gray-500'
               }`}
             >
@@ -281,7 +285,7 @@ const Profile = () => {
                       <Heart size={18} />
                       <span className="text-sm font-medium">Like</span>
                     </button>
-                    <button className="flex items-center gap-2 text-gray-600 hover:text-blue-600">
+                    <button className="flex items-center gap-2 text-gray-600 hover:text-oxford-blue-600">
                       <MessageCircle size={18} />
                       <span className="text-sm font-medium">Comment</span>
                     </button>
@@ -297,34 +301,40 @@ const Profile = () => {
           </div>
         ) : (
           <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="font-bold text-gray-900 mb-4">About</h3>
-            <div className="space-y-4">
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Department</p>
-                <p className="text-gray-900 font-medium">{user?.department || 'Computer Science'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Course</p>
-                <p className="text-gray-900 font-medium">{user?.course || 'B.Tech'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Batch</p>
-                <p className="text-gray-900 font-medium">{user?.batch || '2023-2026'}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1">Location</p>
-                <p className="text-gray-900 font-medium">{user?.location || 'Not specified'}</p>
-              </div>
-              {user?.bio && (
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">Bio</p>
-                  <p className="text-gray-700">{user.bio}</p>
-                </div>
-              )}
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="font-bold text-gray-900 text-xl">About</h3>
+              <button
+                onClick={() => setShowEditAboutModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-oxford-blue-600 text-white rounded-xl hover:bg-oxford-blue-700 transition-colors font-semibold"
+              >
+                <Edit2 size={18} />
+                Edit
+              </button>
             </div>
+            <AboutSection userData={profileData?.user || user} />
           </div>
         )}
       </div>
+
+      {/* Edit About Modal */}
+      {showEditAboutModal && (
+        <EditAboutModal
+          isOpen={showEditAboutModal}
+          onClose={() => setShowEditAboutModal(false)}
+          userData={profileData?.user || user}
+          onUpdate={(updatedData) => {
+            // Update the profile data with new about section
+            setProfileData(prev => ({
+              ...prev,
+              user: {
+                ...prev.user,
+                about: updatedData.about,
+                skills: updatedData.skills
+              }
+            }));
+          }}
+        />
+      )}
     </div>
   );
 };

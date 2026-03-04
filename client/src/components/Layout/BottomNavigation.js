@@ -15,7 +15,7 @@ const BottomNavigation = () => {
             to="/admin"
             className={({ isActive }) =>
               `flex flex-col items-center py-2 px-6 transition-all ${
-                isActive ? 'text-blue-600' : 'text-gray-500'
+                isActive ? 'text-oxford-blue-600' : 'text-gray-500'
               }`
             }
           >
@@ -24,10 +24,10 @@ const BottomNavigation = () => {
                 <Shield 
                   size={24} 
                   strokeWidth={isActive ? 2.5 : 2}
-                  className={isActive ? 'text-blue-600' : 'text-gray-500'}
+                  className={isActive ? 'text-oxford-blue-600' : 'text-gray-500'}
                 />
                 <span className={`text-xs font-semibold mt-1 ${
-                  isActive ? 'text-blue-600' : 'text-gray-500'
+                  isActive ? 'text-oxford-blue-600' : 'text-gray-500'
                 }`}>
                   Admin Panel
                 </span>
@@ -82,7 +82,7 @@ const BottomNavigation = () => {
                 to={item.path}
                 className="flex flex-col items-center"
               >
-                <div className="w-14 h-14 -mt-8 bg-gradient-to-br from-blue-600 to-blue-500 rounded-2xl shadow-lg shadow-blue-200 flex items-center justify-center hover:shadow-xl transition-shadow">
+                <div className="w-14 h-14 -mt-8 bg-gradient-to-br from-oxford-blue-600 to-oxford-blue-500 rounded-2xl shadow-lg shadow-oxford-blue-200 flex items-center justify-center hover:shadow-xl transition-shadow">
                   <Icon size={28} className="text-white" strokeWidth={2.5} />
                 </div>
                 <span className="text-xs font-semibold text-gray-600 mt-1">
@@ -99,7 +99,7 @@ const BottomNavigation = () => {
               end={item.exact}
               className={({ isActive }) =>
                 `flex flex-col items-center py-2 px-3 transition-all ${
-                  isActive ? 'text-blue-600' : 'text-gray-500'
+                  isActive ? 'text-oxford-blue-600' : 'text-gray-500'
                 }`
               }
             >
@@ -108,10 +108,10 @@ const BottomNavigation = () => {
                   <Icon 
                     size={24} 
                     strokeWidth={isActive ? 2.5 : 2}
-                    className={isActive ? 'text-blue-600' : 'text-gray-500'}
+                    className={isActive ? 'text-oxford-blue-600' : 'text-gray-500'}
                   />
                   <span className={`text-xs font-semibold mt-1 ${
-                    isActive ? 'text-blue-600' : 'text-gray-500'
+                    isActive ? 'text-oxford-blue-600' : 'text-gray-500'
                   }`}>
                     {item.label}
                   </span>
