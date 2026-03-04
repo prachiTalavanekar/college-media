@@ -122,18 +122,18 @@ const PostCard = ({ post, onPostUpdate }) => {
   const getRoleBadgeColor = (role) => {
     switch (role) {
       case 'admin': return 'bg-red-100 text-red-800';
-      case 'principal': return 'bg-indigo-100 text-indigo-800';
-      case 'teacher': return 'bg-green-100 text-green-800';
-      case 'alumni': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-blue-100 text-blue-800';
+      case 'principal': return 'bg-oxford-blue-100 text-oxford-blue-800';
+      case 'teacher': return 'bg-tan-100 text-tan-800';
+      case 'alumni': return 'bg-oxford-blue-50 text-oxford-blue-700';
+      default: return 'bg-oxford-blue-100 text-oxford-blue-800';
     }
   };
 
   const getPostTypeColor = (type) => {
     switch (type) {
       case 'announcement': return 'bg-red-50';
-      case 'opportunity': return 'bg-green-50';
-      case 'blog': return 'bg-blue-50';
+      case 'opportunity': return 'bg-tan-50';
+      case 'blog': return 'bg-oxford-blue-50';
       default: return 'bg-white';
     }
   };
@@ -168,7 +168,7 @@ const PostCard = ({ post, onPostUpdate }) => {
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-start space-x-3">
           {/* Profile Picture */}
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0 shadow-md">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-oxford-blue-400 to-oxford-blue-600 flex items-center justify-center flex-shrink-0 shadow-md">
             {post.author?.profileImage ? (
               <img 
                 src={post.author.profileImage} 
@@ -216,7 +216,7 @@ const PostCard = ({ post, onPostUpdate }) => {
         {post.content && post.content.length > 200 && (
           <button
             onClick={() => setShowFullContent(!showFullContent)}
-            className="text-blue-600 hover:text-blue-700 font-semibold text-sm mt-2"
+            className="text-oxford-blue-600 hover:text-oxford-blue-700 font-semibold text-sm mt-2"
           >
             {showFullContent ? 'See less' : 'See more'}
           </button>
@@ -224,8 +224,8 @@ const PostCard = ({ post, onPostUpdate }) => {
 
         {/* Poll Details */}
         {post.postType === 'poll' && post.pollDetails && (
-          <div className="mt-4 p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl shadow-sm">
-            <h4 className="font-bold text-blue-900 mb-4 text-lg">
+          <div className="mt-4 p-4 bg-gradient-to-br from-oxford-blue-50 to-oxford-blue-100 border-2 border-oxford-blue-200 rounded-2xl shadow-sm">
+            <h4 className="font-bold text-oxford-blue-900 mb-4 text-lg">
               {post.pollDetails.question}
             </h4>
             
@@ -240,19 +240,19 @@ const PostCard = ({ post, onPostUpdate }) => {
                     key={index}
                     onClick={() => handleVote(index)}
                     disabled={voting}
-                    className={`w-full p-3 bg-white border-2 border-blue-200 rounded-xl hover:border-blue-300 transition-all text-left relative overflow-hidden ${
+                    className={`w-full p-3 bg-white border-2 border-oxford-blue-200 rounded-xl hover:border-oxford-blue-300 transition-all text-left relative overflow-hidden ${
                       voting ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                     }`}
                   >
                     <div 
-                      className="absolute inset-0 bg-blue-100 transition-all duration-300"
+                      className="absolute inset-0 bg-oxford-blue-100 transition-all duration-300"
                       style={{ width: `${percentage}%` }}
                     />
                     <div className="relative flex items-center justify-between">
                       <span className="font-medium text-gray-900">{option.text}</span>
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-gray-600">{optionVotes} votes</span>
-                        <span className="text-sm font-bold text-blue-600">{percentage}%</span>
+                        <span className="text-sm font-bold text-oxford-blue-600">{percentage}%</span>
                       </div>
                     </div>
                   </button>
@@ -260,7 +260,7 @@ const PostCard = ({ post, onPostUpdate }) => {
               })}
             </div>
             
-            <div className="mt-4 pt-3 border-t border-blue-200 text-sm text-blue-600">
+            <div className="mt-4 pt-3 border-t border-oxford-blue-200 text-sm text-oxford-blue-600">
               <div className="flex items-center justify-between">
                 <span>
                   Total votes: {post.pollDetails.options.reduce((sum, opt) => sum + (opt.votes?.length || 0), 0)}
@@ -309,17 +309,17 @@ const PostCard = ({ post, onPostUpdate }) => {
                 {/* See More Button */}
                 <button
                   onClick={() => setShowFullEvent(true)}
-                  className="w-full py-2 text-purple-600 hover:text-purple-700 font-semibold text-sm hover:bg-purple-50 rounded-lg transition-colors"
+                  className="w-full py-2 text-oxford-blue-600 hover:text-oxford-blue-700 font-semibold text-sm hover:bg-oxford-blue-50 rounded-lg transition-colors"
                 >
                   See More
                 </button>
               </div>
             ) : (
               // Full Event Card
-              <div className="p-5 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-2xl shadow-sm">
+              <div className="p-5 bg-gradient-to-br from-tan-50 to-tan-100 border-2 border-tan-200 rounded-2xl shadow-sm">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h4 className="font-bold text-purple-900 mb-3 text-xl">
+                    <h4 className="font-bold text-tan-900 mb-3 text-xl">
                       {post.eventDetails.title}
                     </h4>
                     
@@ -327,14 +327,14 @@ const PostCard = ({ post, onPostUpdate }) => {
                       {/* Date and Time */}
                       {post.eventDetails.date && (
                         <div className="flex items-start space-x-3">
-                          <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <Calendar size={20} className="text-purple-600" />
+                          <div className="w-10 h-10 bg-tan-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Calendar size={20} className="text-tan-600" />
                           </div>
                           <div className="flex-1">
-                            <div className="text-xs text-purple-600 font-semibold uppercase mb-1">
+                            <div className="text-xs text-tan-600 font-semibold uppercase mb-1">
                               Date & Time
                             </div>
-                            <div className="text-purple-900 font-semibold">
+                            <div className="text-tan-900 font-semibold">
                               {new Date(post.eventDetails.date).toLocaleDateString('en-US', {
                                 weekday: 'long',
                                 year: 'numeric',
@@ -343,7 +343,7 @@ const PostCard = ({ post, onPostUpdate }) => {
                               })}
                             </div>
                             {post.eventDetails.time && (
-                              <div className="text-purple-700 font-medium mt-1">
+                              <div className="text-tan-700 font-medium mt-1">
                                 {post.eventDetails.time}
                               </div>
                             )}
@@ -354,14 +354,14 @@ const PostCard = ({ post, onPostUpdate }) => {
                       {/* Location */}
                       {post.eventDetails.location && (
                         <div className="flex items-start space-x-3">
-                          <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                            <MapPin size={20} className="text-purple-600" />
+                          <div className="w-10 h-10 bg-tan-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <MapPin size={20} className="text-tan-600" />
                           </div>
                           <div className="flex-1">
-                            <div className="text-xs text-purple-600 font-semibold uppercase mb-1">
+                            <div className="text-xs text-tan-600 font-semibold uppercase mb-1">
                               Location
                             </div>
-                            <div className="text-purple-900 font-semibold">
+                            <div className="text-tan-900 font-semibold">
                               {post.eventDetails.location}
                             </div>
                           </div>
@@ -370,7 +370,7 @@ const PostCard = ({ post, onPostUpdate }) => {
                     </div>
                   </div>
                   
-                  <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md whitespace-nowrap ml-3">
+                  <span className="bg-gradient-to-r from-tan-500 to-tan-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md whitespace-nowrap ml-3">
                     EVENT
                   </span>
                 </div>
@@ -381,7 +381,7 @@ const PostCard = ({ post, onPostUpdate }) => {
                     href={post.eventDetails.registrationLink}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-center mb-3"
+                    className="block w-full bg-gradient-to-r from-tan-600 to-tan-700 hover:from-tan-700 hover:to-tan-800 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all text-center mb-3"
                   >
                     <div className="flex items-center justify-center space-x-2">
                       <span>Register Now</span>
@@ -393,7 +393,7 @@ const PostCard = ({ post, onPostUpdate }) => {
                 {/* Show Less Button */}
                 <button
                   onClick={() => setShowFullEvent(false)}
-                  className="w-full py-2 text-purple-600 hover:text-purple-700 font-semibold text-sm hover:bg-white rounded-lg transition-colors"
+                  className="w-full py-2 text-tan-600 hover:text-tan-700 font-semibold text-sm hover:bg-white rounded-lg transition-colors"
                 >
                   Show Less
                 </button>
@@ -404,13 +404,13 @@ const PostCard = ({ post, onPostUpdate }) => {
 
         {/* Opportunity Details */}
         {post.postType === 'opportunity' && post.opportunityDetails && (
-          <div className="mt-4 p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl shadow-sm">
+          <div className="mt-4 p-4 bg-gradient-to-br from-tan-50 to-tan-100 border-2 border-tan-200 rounded-2xl shadow-sm">
             <div className="flex items-start justify-between mb-3">
               <div>
-                <h4 className="font-bold text-green-900 mb-1 text-lg">
+                <h4 className="font-bold text-tan-900 mb-1 text-lg">
                   {post.opportunityDetails.title}
                 </h4>
-                <div className="flex items-center space-x-4 text-sm text-green-700">
+                <div className="flex items-center space-x-4 text-sm text-tan-700">
                   <div className="flex items-center space-x-1">
                     <Building2 size={16} />
                     <span className="font-medium">{post.opportunityDetails.company}</span>
@@ -421,19 +421,19 @@ const PostCard = ({ post, onPostUpdate }) => {
                   </div>
                 </div>
               </div>
-              <span className="bg-gradient-to-r from-green-500 to-emerald-500 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
+              <span className="bg-gradient-to-r from-tan-500 to-tan-600 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-md">
                 {post.opportunityDetails.type}
               </span>
             </div>
             
             {post.opportunityDetails.applicationDeadline && (
-              <div className="flex items-center space-x-1 text-sm text-green-600 mb-3 font-medium">
+              <div className="flex items-center space-x-1 text-sm text-tan-600 mb-3 font-medium">
                 <Calendar size={16} />
                 <span>Apply by: {new Date(post.opportunityDetails.applicationDeadline).toLocaleDateString()}</span>
               </div>
             )}
 
-            <button className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2">
+            <button className="w-full bg-gradient-to-r from-tan-600 to-tan-700 hover:from-tan-700 hover:to-tan-800 text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center space-x-2">
               <span>Apply Now</span>
               <ExternalLink size={18} />
             </button>
@@ -559,8 +559,8 @@ const PostCard = ({ post, onPostUpdate }) => {
         <div className="mt-4 pt-4 border-t border-gray-200">
           {/* Comment Input */}
           <div className="flex space-x-3 mb-4">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <span className="text-blue-600 font-medium text-sm">
+            <div className="w-8 h-8 rounded-full bg-oxford-blue-100 flex items-center justify-center flex-shrink-0">
+              <span className="text-oxford-blue-600 font-medium text-sm">
                 U
               </span>
             </div>
@@ -572,12 +572,12 @@ const PostCard = ({ post, onPostUpdate }) => {
                 onKeyPress={(e) => e.key === 'Enter' && handleComment()}
                 placeholder="Write a comment..."
                 disabled={commenting}
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50"
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent disabled:opacity-50"
               />
               <button
                 onClick={handleComment}
                 disabled={!commentText.trim() || commenting}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+                className="px-4 py-2 bg-oxford-blue-600 text-white rounded-lg hover:bg-oxford-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
               >
                 {commenting ? 'Posting...' : 'Post'}
               </button>

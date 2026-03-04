@@ -274,12 +274,12 @@ export const getRoleBadge = (user) => {
   const badges = {
     student: {
       label: 'Student',
-      color: 'bg-blue-100 text-blue-800',
+      color: 'bg-oxford-blue-100 text-oxford-blue-800',
       icon: '🎓'
     },
     alumni: {
       label: user.mentor ? 'Alumni Mentor' : 'Alumni',
-      color: 'bg-purple-100 text-purple-800',
+      color: 'bg-tan-100 text-tan-800',
       icon: user.mentor ? '🎯' : '🎓'
     },
     teacher: {

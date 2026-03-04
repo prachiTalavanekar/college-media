@@ -159,13 +159,13 @@ const Notifications = () => {
 
   const getNotificationColor = (type) => {
     switch (type) {
-      case 'connection_request': return 'bg-blue-100 text-blue-600';
+      case 'connection_request': return 'bg-oxford-blue-100 text-oxford-blue-600';
       case 'connection_accepted': return 'bg-green-100 text-green-600';
       case 'post_like': return 'bg-red-100 text-red-600';
-      case 'post_comment': return 'bg-blue-100 text-blue-600';
+      case 'post_comment': return 'bg-oxford-blue-100 text-oxford-blue-600';
       case 'announcement': return 'bg-yellow-100 text-yellow-600';
       case 'opportunity': return 'bg-green-100 text-green-600';
-      case 'community_join_request': return 'bg-purple-100 text-purple-600';
+      case 'community_join_request': return 'bg-tan-100 text-tan-600';
       case 'community_join_approved': return 'bg-green-100 text-green-600';
       case 'community_join_rejected': return 'bg-red-100 text-red-600';
       case 'verification': return 'bg-emerald-100 text-emerald-600';
@@ -177,8 +177,8 @@ const Notifications = () => {
     switch (role) {
       case 'admin': return 'bg-red-100 text-red-800';
       case 'teacher': return 'bg-green-100 text-green-800';
-      case 'alumni': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-blue-100 text-blue-800';
+      case 'alumni': return 'bg-tan-100 text-tan-800';
+      default: return 'bg-oxford-blue-100 text-oxford-blue-800';
     }
   };
 
@@ -225,7 +225,7 @@ const Notifications = () => {
               {unreadCount > 0 && (
                 <button 
                   onClick={markAllAsRead}
-                  className="text-sm text-blue-600 hover:text-blue-700 font-semibold px-3 py-2 hover:bg-blue-50 rounded-lg transition-colors"
+                  className="text-sm text-oxford-blue-600 hover:text-oxford-blue-700 font-semibold px-3 py-2 hover:bg-oxford-blue-50 rounded-lg transition-colors"
                 >
                   Mark all read
                 </button>
@@ -248,7 +248,7 @@ const Notifications = () => {
                   onClick={() => setFilter(option.id)}
                   className={`flex items-center space-x-2 px-4 py-2.5 rounded-lg font-semibold text-sm transition-all whitespace-nowrap flex-shrink-0 ${
                     isActive
-                      ? 'bg-blue-600 text-white shadow-md'
+                      ? 'bg-oxford-blue-600 text-white shadow-md'
                       : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
                   }`}
                 >
@@ -272,7 +272,7 @@ const Notifications = () => {
                 <div
                   key={notification._id}
                   className={`bg-white border-b border-gray-100 hover:bg-gray-50 transition-all cursor-pointer w-full px-4 py-4 ${
-                    !notification.read ? 'bg-blue-50' : ''
+                    !notification.read ? 'bg-oxford-blue-50' : ''
                   }`}
                   onClick={() => handleNotificationClick(notification)}
                 >
@@ -293,7 +293,7 @@ const Notifications = () => {
                             {formatTime(notification.createdAt)}
                           </span>
                           {!notification.read && (
-                            <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                            <div className="w-2 h-2 bg-oxford-blue-600 rounded-full"></div>
                           )}
                         </div>
                       </div>

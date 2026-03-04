@@ -139,7 +139,7 @@ const StudentProfile = () => {
         return (
           <button 
             onClick={handleConnect}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all"
+            className="flex-1 bg-oxford-blue-600 hover:bg-oxford-blue-700 text-white font-semibold py-3 rounded-xl shadow-lg transition-all"
           >
             Connect
           </button>
@@ -152,8 +152,8 @@ const StudentProfile = () => {
       case 'admin': return 'bg-red-100 text-red-800';
       case 'principal': return 'bg-indigo-100 text-indigo-800';
       case 'teacher': return 'bg-green-100 text-green-800';
-      case 'alumni': return 'bg-purple-100 text-purple-800';
-      default: return 'bg-blue-100 text-blue-800';
+      case 'alumni': return 'bg-tan-100 text-tan-800';
+      default: return 'bg-oxford-blue-100 text-oxford-blue-800';
     }
   };
 

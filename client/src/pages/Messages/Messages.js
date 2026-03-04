@@ -213,11 +213,11 @@ const Messages = () => {
                     fetchConversation(chat.id);
                   }}
                   className={`w-full p-4 flex items-center space-x-3 hover:bg-gray-50 transition-colors border-b border-gray-100 ${
-                    selectedChat?.id === chat.id ? 'bg-blue-50 border-blue-200' : ''
+                    selectedChat?.id === chat.id ? 'bg-oxford-blue-50 border-oxford-blue-200' : ''
                   }`}
                 >
                   <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-oxford-blue-100 flex items-center justify-center">
                       {chat.profileImage ? (
                         <img 
                           src={chat.profileImage} 
@@ -252,7 +252,7 @@ const Messages = () => {
                         {chat.role} {chat.department && `• ${chat.department}`}
                       </p>
                       {chat.unreadCount > 0 && (
-                        <span className="bg-blue-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
+                        <span className="bg-oxford-blue-500 text-white text-xs rounded-full px-2 py-1 min-w-[20px] text-center">
                           {chat.unreadCount}
                         </span>
                       )}
@@ -281,7 +281,7 @@ const Messages = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
                     <div className="relative">
-                      <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                      <div className="w-10 h-10 rounded-full bg-oxford-blue-100 flex items-center justify-center">
                         {selectedChat.profileImage ? (
                           <img 
                             src={selectedChat.profileImage} 
@@ -333,7 +333,7 @@ const Messages = () => {
                       >
                         <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
                           isOwn 
-                            ? 'bg-blue-500 text-white' 
+                            ? 'bg-oxford-blue-500 text-white' 
                             : 'bg-gray-100 text-gray-900'
                         }`}>
                           <p className="text-sm">{message.content}</p>
@@ -385,7 +385,7 @@ const Messages = () => {
                     className={`p-2 rounded-full transition-colors ${
                       sending || !messageText.trim()
                         ? 'bg-gray-300 cursor-not-allowed'
-                        : 'bg-blue-500 hover:bg-blue-600'
+                        : 'bg-oxford-blue-500 hover:bg-oxford-blue-600'
                     } text-white`}
                   >
                     <Send size={18} />

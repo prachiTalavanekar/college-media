@@ -135,7 +135,7 @@ const EditProfile = () => {
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="p-2 text-blue-600 hover:bg-blue-50 rounded-full disabled:opacity-50"
+            className="p-2 text-oxford-blue-600 hover:bg-oxford-blue-50 rounded-full disabled:opacity-50"
           >
             <Save size={24} />
           </button>
@@ -160,7 +160,7 @@ const EditProfile = () => {
                   </span>
                 )}
               </div>
-              <label className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-blue-700 shadow-lg">
+              <label className="absolute bottom-0 right-0 w-10 h-10 bg-oxford-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-oxford-blue-700 shadow-lg">
                 <Camera size={20} className="text-white" />
                 <input
                   type="file"
@@ -316,7 +316,7 @@ const EditProfile = () => {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+          className="w-full bg-oxford-blue-600 hover:bg-oxford-blue-700 text-white font-semibold py-4 rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all"
         >
           {loading ? 'Saving...' : 'Save Changes'}
         </button>

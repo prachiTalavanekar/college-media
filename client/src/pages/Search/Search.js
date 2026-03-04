@@ -105,8 +105,8 @@ const Search = () => {
   const getRoleBadgeColor = (role) => {
     switch (role) {
       case 'teacher': return 'bg-green-100 text-green-800';
-      case 'alumni': return 'bg-purple-100 text-purple-800';
-      case 'student': return 'bg-blue-100 text-blue-800';
+      case 'alumni': return 'bg-tan-100 text-tan-800';
+      case 'student': return 'bg-oxford-blue-100 text-oxford-blue-800';
       default: return 'bg-gray-100 text-gray-800';
     }
   };

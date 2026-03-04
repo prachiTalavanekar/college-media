@@ -140,7 +140,7 @@ const Communities = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-12 h-12 border-4 border-oxford-blue-600 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -171,26 +171,26 @@ const Communities = () => {
 
   const getTypeColor = (type) => {
     switch (type) {
-      case 'department': return 'from-blue-500 to-blue-600';
-      case 'subject': return 'from-indigo-500 to-indigo-600';
-      case 'batch': return 'from-purple-500 to-purple-600';
-      case 'project': return 'from-orange-500 to-orange-600';
-      case 'club': return 'from-pink-500 to-pink-600';
-      case 'opportunities': return 'from-green-500 to-green-600';
-      case 'events': return 'from-red-500 to-red-600';
+      case 'department': return 'from-oxford-blue-500 to-oxford-blue-600';
+      case 'subject': return 'from-oxford-blue-400 to-oxford-blue-500';
+      case 'batch': return 'from-tan-500 to-tan-600';
+      case 'project': return 'from-oxford-blue-600 to-oxford-blue-700';
+      case 'club': return 'from-tan-400 to-tan-500';
+      case 'opportunities': return 'from-oxford-blue-700 to-oxford-blue-800';
+      case 'events': return 'from-tan-600 to-tan-700';
       default: return 'from-gray-500 to-gray-600';
     }
   };
 
   const getTypeBadgeColor = (type) => {
     switch (type) {
-      case 'department': return 'bg-blue-100 text-blue-700 border-blue-200';
-      case 'subject': return 'bg-indigo-100 text-indigo-700 border-indigo-200';
-      case 'batch': return 'bg-purple-100 text-purple-700 border-purple-200';
-      case 'project': return 'bg-orange-100 text-orange-700 border-orange-200';
-      case 'club': return 'bg-pink-100 text-pink-700 border-pink-200';
-      case 'opportunities': return 'bg-green-100 text-green-700 border-green-200';
-      case 'events': return 'bg-red-100 text-red-700 border-red-200';
+      case 'department': return 'bg-oxford-blue-100 text-oxford-blue-700 border-oxford-blue-200';
+      case 'subject': return 'bg-oxford-blue-50 text-oxford-blue-600 border-oxford-blue-100';
+      case 'batch': return 'bg-tan-100 text-tan-700 border-tan-200';
+      case 'project': return 'bg-oxford-blue-200 text-oxford-blue-800 border-oxford-blue-300';
+      case 'club': return 'bg-tan-50 text-tan-600 border-tan-100';
+      case 'opportunities': return 'bg-oxford-blue-300 text-oxford-blue-900 border-oxford-blue-400';
+      case 'events': return 'bg-tan-200 text-tan-800 border-tan-300';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
   };
@@ -208,17 +208,17 @@ const Communities = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 w-full mobile-overflow-hidden">
       {/* Header with Gradient */}
-      <div className="bg-gradient-to-r from-blue-600 to-blue-500 px-4 py-6 md:py-8 w-full page-header shadow-lg">
+      <div className="bg-gradient-to-r from-oxford-blue-900 to-oxford-blue-800 px-4 py-6 md:py-8 w-full page-header shadow-lg">
         <div className="w-full">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">Communities</h1>
-              <p className="text-blue-100 text-sm md:text-base">Connect, collaborate, and grow together</p>
+              <p className="text-oxford-blue-100 text-sm md:text-base">Connect, collaborate, and grow together</p>
             </div>
             {['teacher', 'principal', 'admin', 'alumni'].includes(user?.role) && (
               <button 
                 onClick={() => setShowCreateModal(true)}
-                className="bg-white text-blue-600 hover:bg-blue-50 px-4 py-2 rounded-xl font-semibold flex items-center space-x-2 shadow-lg transition-all hover:scale-105"
+                className="bg-white text-oxford-blue-900 hover:bg-tan-50 px-4 py-2 rounded-xl font-semibold flex items-center space-x-2 shadow-lg transition-all hover:scale-105"
               >
                 <Plus size={18} />
                 <span className="hidden sm:inline">Create</span>
@@ -245,7 +245,7 @@ const Communities = () => {
               placeholder="Search communities..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-white border-0 rounded-xl shadow-md focus:ring-2 focus:ring-white focus:ring-opacity-50 text-gray-900 placeholder-gray-400"
+              className="w-full pl-12 pr-4 py-3 bg-white border-0 rounded-xl shadow-md focus:ring-2 focus:ring-tan-400 focus:ring-opacity-50 text-gray-900 placeholder-gray-400"
             />
           </div>
 
@@ -261,8 +261,8 @@ const Communities = () => {
                   onClick={() => setSelectedFilter(type.id)}
                   className={`flex items-center space-x-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap flex-shrink-0 ${
                     isActive
-                      ? 'bg-white text-blue-700 shadow-lg'
-                      : 'bg-white bg-opacity-15 backdrop-blur-sm text-white hover:bg-opacity-25 border border-white border-opacity-20'
+                      ? 'bg-tan-400 text-oxford-blue-900 shadow-lg'
+                      : 'bg-white bg-opacity-15 backdrop-blur-sm text-white hover:bg-tan-400 hover:bg-opacity-25 border border-white border-opacity-20'
                   }`}
                 >
                   <Icon size={16} strokeWidth={2} />
@@ -279,9 +279,9 @@ const Communities = () => {
         {joinedCommunities.length > 0 && (
           <div className="w-full mb-6">
             <div className="flex items-center space-x-2 mb-3 px-4">
-              <CheckCircle className="w-5 h-5 text-green-600" />
+              <CheckCircle className="w-5 h-5 text-tan-600" />
               <h2 className="text-base md:text-lg font-semibold text-gray-900">My Communities</h2>
-              <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+              <span className="px-2 py-1 bg-tan-100 text-tan-700 text-xs font-semibold rounded-full">
                 {joinedCommunities.length}
               </span>
             </div>
@@ -306,7 +306,7 @@ const Communities = () => {
         {availableCommunities.length > 0 && (
           <div className="w-full">
             <div className="flex items-center space-x-2 mb-3 px-4">
-              <Sparkles className="w-5 h-5 text-purple-600" />
+              <Sparkles className="w-5 h-5 text-oxford-blue-600" />
               <h2 className="text-base md:text-lg font-semibold text-gray-900">
                 {joinedCommunities.length > 0 ? 'Discover More' : 'All Communities'}
               </h2>
@@ -343,7 +343,7 @@ const Communities = () => {
                 setSearchQuery('');
                 setSelectedFilter('all');
               }}
-              className="btn-primary"
+              className="bg-oxford-blue-600 hover:bg-oxford-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all"
             >
               Clear Filters
             </button>
@@ -487,7 +487,7 @@ const CommunityCard = ({ community, isJoined, onJoin, onLeave, onManage, onCommu
             {canManage && isJoined && (
               <button
                 onClick={() => onManage(community._id)}
-                className="p-1.5 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                className="p-1.5 text-gray-600 hover:text-oxford-blue-600 hover:bg-oxford-blue-50 rounded-lg transition-colors"
                 title="Manage Community"
               >
                 <Settings size={16} />
@@ -499,10 +499,10 @@ const CommunityCard = ({ community, isJoined, onJoin, onLeave, onManage, onCommu
               disabled={actionLoading || hasPendingRequest}
               className={`px-4 py-1.5 rounded-lg font-medium text-sm transition-all ${
                 isJoined
-                  ? 'bg-green-50 text-green-700 border border-green-200 hover:bg-green-100'
+                  ? 'bg-tan-50 text-tan-700 border border-tan-200 hover:bg-tan-100'
                   : hasPendingRequest
                   ? 'bg-yellow-50 text-yellow-700 border border-yellow-200 cursor-not-allowed'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                  : 'bg-oxford-blue-600 text-white hover:bg-oxford-blue-700'
               } ${actionLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {actionLoading ? (

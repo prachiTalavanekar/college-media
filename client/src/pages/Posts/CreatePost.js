@@ -443,7 +443,7 @@ const CreatePost = () => {
           <button
             onClick={handleSubmit}
             disabled={loading || !formData.content.trim()}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm md:text-base"
+            className="bg-oxford-blue-600 hover:bg-oxford-blue-700 text-white font-semibold px-6 py-2.5 rounded-xl shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm md:text-base"
           >
             {loading ? (
               <span className="flex items-center gap-2">
@@ -463,18 +463,18 @@ const CreatePost = () => {
           {user?.role === 'alumni' && (
             <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 w-full">
               <div className="flex items-center gap-2 mb-3">
-                <Star size={18} className="text-blue-600" />
+                <Star size={18} className="text-oxford-blue-600" />
                 <h3 className="font-semibold text-gray-900">Choose Post Type</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {postTypes.map(type => {
                   const Icon = type.icon;
                   const colorClasses = {
-                    blue: 'border-blue-500 bg-blue-50 text-blue-600',
-                    green: 'border-green-500 bg-green-50 text-green-600',
-                    purple: 'border-purple-500 bg-purple-50 text-purple-600',
-                    orange: 'border-orange-500 bg-orange-50 text-orange-600',
-                    pink: 'border-pink-500 bg-pink-50 text-pink-600'
+                    blue: 'border-oxford-blue-500 bg-oxford-blue-50 text-oxford-blue-600',
+                    green: 'border-tan-500 bg-tan-50 text-tan-600',
+                    purple: 'border-oxford-blue-400 bg-oxford-blue-50 text-oxford-blue-500',
+                    orange: 'border-tan-600 bg-tan-100 text-tan-700',
+                    pink: 'border-tan-400 bg-tan-50 text-tan-500'
                   };
                   return (
                     <label key={type.value} className="relative group cursor-pointer">
@@ -521,7 +521,7 @@ const CreatePost = () => {
                   name="postType"
                   value={formData.postType}
                   onChange={handleInputChange}
-                  className="w-full px-4 py-3 pr-10 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white appearance-none text-base font-medium"
+                  className="w-full px-4 py-3 pr-10 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent bg-white appearance-none text-base font-medium"
                 >
                   {postTypes.map(type => (
                     <option key={type.value} value={type.value}>
@@ -533,17 +533,17 @@ const CreatePost = () => {
               </div>
               
               {/* Mark as Important Checkbox */}
-              <label className="flex items-center space-x-3 mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-xl cursor-pointer hover:bg-yellow-100 transition-colors">
+              <label className="flex items-center space-x-3 mt-4 p-3 bg-tan-50 border border-tan-200 rounded-xl cursor-pointer hover:bg-tan-100 transition-colors">
                 <input
                   type="checkbox"
                   name="isImportant"
                   checked={formData.isImportant}
                   onChange={handleInputChange}
-                  className="w-5 h-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+                  className="w-5 h-5 text-tan-600 border-gray-300 rounded focus:ring-tan-500"
                 />
                 <div className="flex items-center space-x-2">
-                  <Star className="w-5 h-5 text-yellow-600" fill="currentColor" />
-                  <span className="text-sm font-semibold text-yellow-900">Mark as Important / Highlight</span>
+                  <Star className="w-5 h-5 text-tan-600" fill="currentColor" />
+                  <span className="text-sm font-semibold text-tan-900">Mark as Important / Highlight</span>
                 </div>
               </label>
             </div>
@@ -553,7 +553,7 @@ const CreatePost = () => {
           {!['teacher', 'principal', 'admin'].includes(user?.role) && studentPostTypes.length > 1 && (
             <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 w-full">
               <div className="flex items-center gap-2 mb-3">
-                <BookOpen size={18} className="text-blue-600" />
+                <BookOpen size={18} className="text-oxford-blue-600" />
                 <h3 className="font-semibold text-gray-900">Choose Post Type</h3>
               </div>
               <div className="grid grid-cols-1 gap-3">
@@ -571,10 +571,10 @@ const CreatePost = () => {
                       />
                       <div className={`p-4 rounded-xl border-2 transition-all duration-200 flex items-center space-x-3 ${
                         formData.postType === type.value
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 hover:border-blue-300 bg-white'
+                          ? 'border-oxford-blue-500 bg-oxford-blue-50'
+                          : 'border-gray-200 hover:border-oxford-blue-300 bg-white'
                       }`}>
-                        <Icon size={20} className={formData.postType === type.value ? 'text-blue-600' : 'text-gray-600'} />
+                        <Icon size={20} className={formData.postType === type.value ? 'text-oxford-blue-600' : 'text-gray-600'} />
                         <div className="flex-1">
                           <div className="font-semibold text-gray-900 text-sm">{type.label}</div>
                           <div className="text-xs text-gray-600">{type.description}</div>
@@ -590,7 +590,7 @@ const CreatePost = () => {
           {/* Content */}
           <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200 w-full">
             <div className="flex items-start space-x-3 mb-3 pb-3 border-b border-gray-100">
-              <div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0">
+              <div className="w-12 h-12 rounded-full bg-oxford-blue-100 flex items-center justify-center flex-shrink-0">
                 {user?.profileImage ? (
                   <img 
                     src={user.profileImage} 
@@ -598,7 +598,7 @@ const CreatePost = () => {
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 ) : (
-                  <span className="text-blue-600 font-bold text-lg">
+                  <span className="text-oxford-blue-600 font-bold text-lg">
                     {user?.name?.charAt(0)?.toUpperCase()}
                   </span>
                 )}
@@ -608,7 +608,7 @@ const CreatePost = () => {
                 <div className="text-xs text-gray-500 flex items-center gap-1">
                   <span>{user?.department}</span>
                   <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                  <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                  <span className="px-2 py-0.5 bg-oxford-blue-100 text-oxford-blue-700 rounded-full text-xs font-medium">
                     {user?.role}
                   </span>
                 </div>
@@ -663,7 +663,7 @@ const CreatePost = () => {
 
             {/* Media Upload */}
             <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100 overflow-x-auto">
-              <label className="flex items-center gap-2 px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-xl cursor-pointer transition-all text-sm border border-blue-200">
+              <label className="flex items-center gap-2 px-3 py-2 text-oxford-blue-600 hover:bg-oxford-blue-50 rounded-xl cursor-pointer transition-all text-sm border border-oxford-blue-200">
                 <Image size={18} />
                 <span>Photo</span>
                 <input
@@ -676,7 +676,7 @@ const CreatePost = () => {
                 />
               </label>
               
-              <label className="flex items-center gap-2 px-3 py-2 text-purple-600 hover:bg-purple-50 rounded-xl cursor-pointer transition-all text-sm border border-purple-200">
+              <label className="flex items-center gap-2 px-3 py-2 text-tan-600 hover:bg-tan-50 rounded-xl cursor-pointer transition-all text-sm border border-tan-200">
                 <Video size={18} />
                 <span>Video</span>
                 <input
@@ -720,22 +720,22 @@ const CreatePost = () => {
 
           {/* Event Details */}
           {formData.postType === 'event' && (
-            <div className="bg-purple-50 rounded-2xl p-4 shadow-sm border-2 border-purple-200 w-full">
+            <div className="bg-tan-50 rounded-2xl p-4 shadow-sm border-2 border-tan-200 w-full">
               <div className="flex items-center gap-2 mb-3">
-                <Calendar size={18} className="text-purple-600" />
-                <h3 className="font-semibold text-purple-900">Event Details</h3>
+                <Calendar size={18} className="text-tan-600" />
+                <h3 className="font-semibold text-tan-900">Event Details</h3>
               </div>
               
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-semibold text-purple-800 mb-1">
+                  <label className="block text-sm font-semibold text-tan-800 mb-1">
                     Event Title *
                   </label>
                   <input
                     type="text"
                     value={formData.eventDetails.title}
                     onChange={(e) => handleEventChange('title', e.target.value)}
-                    className="w-full px-4 py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                    className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                     placeholder="e.g., Tech Fest 2024"
                     required
                   />
@@ -743,53 +743,53 @@ const CreatePost = () => {
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-semibold text-purple-800 mb-1">
+                    <label className="block text-sm font-semibold text-tan-800 mb-1">
                       Date *
                     </label>
                     <input
                       type="date"
                       value={formData.eventDetails.date}
                       onChange={(e) => handleEventChange('date', e.target.value)}
-                      className="w-full px-4 py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                      className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-purple-800 mb-1">
+                    <label className="block text-sm font-semibold text-tan-800 mb-1">
                       Time
                     </label>
                     <input
                       type="time"
                       value={formData.eventDetails.time}
                       onChange={(e) => handleEventChange('time', e.target.value)}
-                      className="w-full px-4 py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                      className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-purple-800 mb-1">
+                  <label className="block text-sm font-semibold text-tan-800 mb-1">
                     Location
                   </label>
                   <input
                     type="text"
                     value={formData.eventDetails.location}
                     onChange={(e) => handleEventChange('location', e.target.value)}
-                    className="w-full px-4 py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                    className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                     placeholder="e.g., Main Auditorium"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-purple-800 mb-1">
+                  <label className="block text-sm font-semibold text-tan-800 mb-1">
                     Registration Link
                   </label>
                   <input
                     type="url"
                     value={formData.eventDetails.registrationLink}
                     onChange={(e) => handleEventChange('registrationLink', e.target.value)}
-                    className="w-full px-4 py-2.5 border-2 border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
+                    className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                     placeholder="https://..."
                   />
                 </div>
@@ -799,29 +799,29 @@ const CreatePost = () => {
 
           {/* Poll Details */}
           {formData.postType === 'poll' && (
-            <div className="bg-green-50 rounded-2xl p-4 shadow-sm border-2 border-green-200 w-full">
+            <div className="bg-oxford-blue-50 rounded-2xl p-4 shadow-sm border-2 border-oxford-blue-200 w-full">
               <div className="flex items-center gap-2 mb-3">
-                <BarChart3 size={18} className="text-green-600" />
-                <h3 className="font-semibold text-green-900">Poll Details</h3>
+                <BarChart3 size={18} className="text-oxford-blue-600" />
+                <h3 className="font-semibold text-oxford-blue-900">Poll Details</h3>
               </div>
               
               <div className="space-y-3">
                 <div>
-                  <label className="block text-sm font-semibold text-green-800 mb-1">
+                  <label className="block text-sm font-semibold text-oxford-blue-800 mb-1">
                     Poll Question *
                   </label>
                   <input
                     type="text"
                     value={formData.pollDetails.question}
                     onChange={(e) => handlePollChange('question', e.target.value)}
-                    className="w-full px-4 py-2.5 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                    className="w-full px-4 py-2.5 border-2 border-oxford-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-oxford-blue-500 bg-white"
                     placeholder="Ask a question..."
                     required
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-green-800 mb-2">
+                  <label className="block text-sm font-semibold text-oxford-blue-800 mb-2">
                     Options (min 2, max 6)
                   </label>
                   {formData.pollDetails.options.map((option, index) => (
@@ -830,7 +830,7 @@ const CreatePost = () => {
                         type="text"
                         value={option}
                         onChange={(e) => updatePollOption(index, e.target.value)}
-                        className="w-full px-4 py-2.5 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                        className="w-full px-4 py-2.5 border-2 border-oxford-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-oxford-blue-500 bg-white"
                         placeholder={`Option ${index + 1}`}
                       />
                       {formData.pollDetails.options.length > 2 && (
@@ -848,7 +848,7 @@ const CreatePost = () => {
                     <button
                       type="button"
                       onClick={addPollOption}
-                      className="flex items-center gap-2 text-green-700 text-sm font-semibold px-4 py-2 bg-green-100 hover:bg-green-200 rounded-xl transition-all"
+                      className="flex items-center gap-2 text-oxford-blue-700 text-sm font-semibold px-4 py-2 bg-oxford-blue-100 hover:bg-oxford-blue-200 rounded-xl transition-all"
                     >
                       <Plus size={18} />
                       <span>Add Option</span>
@@ -857,13 +857,13 @@ const CreatePost = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-green-800 mb-1">
+                  <label className="block text-sm font-semibold text-oxford-blue-800 mb-1">
                     Poll Duration (days)
                   </label>
                   <select
                     value={formData.pollDetails.duration}
                     onChange={(e) => handlePollChange('duration', parseInt(e.target.value))}
-                    className="w-full px-4 py-2.5 border-2 border-green-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                    className="w-full px-4 py-2.5 border-2 border-oxford-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-oxford-blue-500 bg-white"
                   >
                     <option value={1}>1 day</option>
                     <option value={3}>3 days</option>
@@ -878,37 +878,37 @@ const CreatePost = () => {
 
           {/* Opportunity Details - For Teachers/Admins and Alumni */}
           {formData.postType === 'opportunity' && ['teacher', 'principal', 'admin', 'alumni'].includes(user?.role) && (
-            <div className="bg-blue-50 rounded-2xl p-4 shadow-sm border-2 border-blue-200 w-full">
+            <div className="bg-tan-50 rounded-2xl p-4 shadow-sm border-2 border-tan-200 w-full">
               <div className="flex items-center gap-2 mb-3">
-                <Users size={18} className="text-blue-600" />
-                <h3 className="font-semibold text-blue-900">Opportunity Details</h3>
+                <Users size={18} className="text-tan-600" />
+                <h3 className="font-semibold text-tan-900">Opportunity Details</h3>
               </div>
               
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-semibold text-blue-800 mb-1">
+                    <label className="block text-sm font-semibold text-tan-800 mb-1">
                       Job Title *
                     </label>
                     <input
                       type="text"
                       value={formData.opportunityDetails.title}
                       onChange={(e) => handleOpportunityChange('title', e.target.value)}
-                      className="w-full px-4 py-2.5 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                       placeholder="e.g., Software Engineer"
                       required
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-blue-800 mb-1">
+                    <label className="block text-sm font-semibold text-tan-800 mb-1">
                       Company *
                     </label>
                     <input
                       type="text"
                       value={formData.opportunityDetails.company}
                       onChange={(e) => handleOpportunityChange('company', e.target.value)}
-                      className="w-full px-4 py-2.5 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                       placeholder="e.g., Google"
                       required
                     />
@@ -917,26 +917,26 @@ const CreatePost = () => {
 
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-sm font-semibold text-blue-800 mb-1">
+                    <label className="block text-sm font-semibold text-tan-800 mb-1">
                       Location
                     </label>
                     <input
                       type="text"
                       value={formData.opportunityDetails.location}
                       onChange={(e) => handleOpportunityChange('location', e.target.value)}
-                      className="w-full px-4 py-2.5 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                       placeholder="Bangalore"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-blue-800 mb-1">
+                    <label className="block text-sm font-semibold text-tan-800 mb-1">
                       Type
                     </label>
                     <select
                       value={formData.opportunityDetails.type}
                       onChange={(e) => handleOpportunityChange('type', e.target.value)}
-                      className="w-full px-4 py-2.5 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                     >
                       <option value="job">Full-time</option>
                       <option value="internship">Internship</option>
@@ -945,20 +945,20 @@ const CreatePost = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-blue-800 mb-1">
+                    <label className="block text-sm font-semibold text-tan-800 mb-1">
                       Deadline
                     </label>
                     <input
                       type="date"
                       value={formData.opportunityDetails.applicationDeadline}
                       onChange={(e) => handleOpportunityChange('applicationDeadline', e.target.value)}
-                      className="w-full px-4 py-2.5 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-blue-800 mb-2">
+                  <label className="block text-sm font-semibold text-tan-800 mb-2">
                     Requirements
                   </label>
                   {formData.opportunityDetails.requirements.map((req, index) => (
@@ -967,7 +967,7 @@ const CreatePost = () => {
                         type="text"
                         value={req}
                         onChange={(e) => updateRequirement(index, e.target.value)}
-                        className="w-full px-4 py-2.5 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                        className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                         placeholder="e.g., 3+ years in React"
                       />
                       {formData.opportunityDetails.requirements.length > 1 && (
@@ -984,7 +984,7 @@ const CreatePost = () => {
                   <button
                     type="button"
                     onClick={addRequirement}
-                    className="flex items-center gap-2 text-blue-700 text-sm font-semibold px-4 py-2 bg-blue-100 hover:bg-blue-200 rounded-xl transition-all"
+                    className="flex items-center gap-2 text-tan-700 text-sm font-semibold px-4 py-2 bg-tan-100 hover:bg-tan-200 rounded-xl transition-all"
                   >
                     <Plus size={18} />
                     <span>Add Requirement</span>
@@ -993,27 +993,27 @@ const CreatePost = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-semibold text-blue-800 mb-1">
+                    <label className="block text-sm font-semibold text-tan-800 mb-1">
                       Contact Email
                     </label>
                     <input
                       type="email"
                       value={formData.opportunityDetails.contactEmail}
                       onChange={(e) => handleOpportunityChange('contactEmail', e.target.value)}
-                      className="w-full px-4 py-2.5 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                       placeholder="hr@company.com"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-semibold text-blue-800 mb-1">
+                    <label className="block text-sm font-semibold text-tan-800 mb-1">
                       Application Link
                     </label>
                     <input
                       type="url"
                       value={formData.opportunityDetails.externalLink}
                       onChange={(e) => handleOpportunityChange('externalLink', e.target.value)}
-                      className="w-full px-4 py-2.5 border-2 border-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+                      className="w-full px-4 py-2.5 border-2 border-tan-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-tan-500 bg-white"
                       placeholder="https://..."
                     />
                   </div>
@@ -1024,12 +1024,12 @@ const CreatePost = () => {
 
           {/* Study Material Details - For Alumni */}
           {formData.postType === 'study_material' && user?.role === 'alumni' && (
-            <div className="bg-purple-50 rounded-2xl p-4 shadow-sm border-2 border-purple-200 w-full">
+            <div className="bg-oxford-blue-50 rounded-2xl p-4 shadow-sm border-2 border-oxford-blue-200 w-full">
               <div className="flex items-center gap-2 mb-3">
-                <FileText size={18} className="text-purple-600" />
-                <h3 className="font-semibold text-purple-900">Study Material Details</h3>
+                <FileText size={18} className="text-oxford-blue-600" />
+                <h3 className="font-semibold text-oxford-blue-900">Study Material Details</h3>
               </div>
-              <p className="text-sm text-purple-700 mb-3">
+              <p className="text-sm text-oxford-blue-700 mb-3">
                 Upload study materials, notes, or academic resources to help students. You can attach files using the media upload buttons below.
               </p>
             </div>
@@ -1037,12 +1037,12 @@ const CreatePost = () => {
 
           {/* Career Guidance Details - For Alumni */}
           {formData.postType === 'career_guidance' && user?.role === 'alumni' && (
-            <div className="bg-orange-50 rounded-2xl p-4 shadow-sm border-2 border-orange-200 w-full">
+            <div className="bg-tan-50 rounded-2xl p-4 shadow-sm border-2 border-tan-200 w-full">
               <div className="flex items-center gap-2 mb-3">
-                <Star size={18} className="text-orange-600" />
-                <h3 className="font-semibold text-orange-900">Career Guidance</h3>
+                <Star size={18} className="text-tan-600" />
+                <h3 className="font-semibold text-tan-900">Career Guidance</h3>
               </div>
-              <p className="text-sm text-orange-700 mb-3">
+              <p className="text-sm text-tan-700 mb-3">
                 Share your advice on placements, higher studies, career paths, interview tips, or any career-related guidance for students.
               </p>
             </div>
@@ -1050,48 +1050,48 @@ const CreatePost = () => {
 
           {/* Mentorship Details - For Alumni */}
           {formData.postType === 'mentorship' && user?.role === 'alumni' && (
-            <div className="bg-pink-50 rounded-2xl p-4 shadow-sm border-2 border-pink-200 w-full">
+            <div className="bg-oxford-blue-50 rounded-2xl p-4 shadow-sm border-2 border-oxford-blue-200 w-full">
               <div className="flex items-center gap-2 mb-3">
-                <Users size={18} className="text-pink-600" />
-                <h3 className="font-semibold text-pink-900">Offer Mentorship</h3>
+                <Users size={18} className="text-oxford-blue-600" />
+                <h3 className="font-semibold text-oxford-blue-900">Offer Mentorship</h3>
               </div>
               <div className="space-y-3">
-                <p className="text-sm text-pink-700">
+                <p className="text-sm text-oxford-blue-700">
                   Register as a mentor to guide students in their academic and career journey. Share your expertise and availability.
                 </p>
                 <div>
-                  <label className="block text-sm font-semibold text-pink-800 mb-1">
+                  <label className="block text-sm font-semibold text-oxford-blue-800 mb-1">
                     Areas of Expertise
                   </label>
                   <input
                     type="text"
                     value={formData.opportunityDetails.title}
                     onChange={(e) => handleOpportunityChange('title', e.target.value)}
-                    className="w-full px-4 py-2.5 border-2 border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white"
+                    className="w-full px-4 py-2.5 border-2 border-oxford-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-oxford-blue-500 bg-white"
                     placeholder="e.g., Web Development, Data Science, Product Management"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-pink-800 mb-1">
+                  <label className="block text-sm font-semibold text-oxford-blue-800 mb-1">
                     Current Role & Company
                   </label>
                   <input
                     type="text"
                     value={formData.opportunityDetails.company}
                     onChange={(e) => handleOpportunityChange('company', e.target.value)}
-                    className="w-full px-4 py-2.5 border-2 border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white"
+                    className="w-full px-4 py-2.5 border-2 border-oxford-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-oxford-blue-500 bg-white"
                     placeholder="e.g., Senior Engineer at Google"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-pink-800 mb-1">
+                  <label className="block text-sm font-semibold text-oxford-blue-800 mb-1">
                     Contact Email
                   </label>
                   <input
                     type="email"
                     value={formData.opportunityDetails.contactEmail}
                     onChange={(e) => handleOpportunityChange('contactEmail', e.target.value)}
-                    className="w-full px-4 py-2.5 border-2 border-pink-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-pink-500 bg-white"
+                    className="w-full px-4 py-2.5 border-2 border-oxford-blue-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-oxford-blue-500 bg-white"
                     placeholder="your.email@example.com"
                   />
                 </div>
@@ -1120,7 +1120,7 @@ const CreatePost = () => {
                         onClick={() => handleAudienceChange('departments', dept)}
                         className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
                           formData.targetAudience.departments.includes(dept)
-                            ? 'bg-blue-600 text-white'
+                            ? 'bg-oxford-blue-600 text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
@@ -1142,7 +1142,7 @@ const CreatePost = () => {
                         onClick={() => handleAudienceChange('courses', course)}
                         className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
                           formData.targetAudience.courses.includes(course)
-                            ? 'bg-purple-600 text-white'
+                            ? 'bg-tan-600 text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >
@@ -1164,7 +1164,7 @@ const CreatePost = () => {
                         onClick={() => handleAudienceChange('roles', role)}
                         className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
                           formData.targetAudience.roles.includes(role)
-                            ? 'bg-green-600 text-white'
+                            ? 'bg-oxford-blue-700 text-white'
                             : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                         }`}
                       >

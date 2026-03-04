@@ -127,7 +127,7 @@ const Profile = () => {
             </div>
             <button
               onClick={() => navigate('/profile/edit')}
-              className="absolute bottom-0 right-0 w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700"
+              className="absolute bottom-0 right-0 w-10 h-10 bg-oxford-blue-600 rounded-full flex items-center justify-center shadow-lg hover:bg-oxford-blue-700"
             >
               <Edit size={18} className="text-white" />
             </button>
@@ -145,10 +145,10 @@ const Profile = () => {
           <div className="flex items-center justify-center gap-2 mb-3">
             <span className={`px-3 py-1 text-sm font-semibold rounded-full capitalize ${
               user?.role === 'admin' ? 'bg-red-100 text-red-700' :
-              user?.role === 'principal' ? 'bg-indigo-100 text-indigo-700' :
+              user?.role === 'principal' ? 'bg-oxford-blue-200 text-oxford-blue-800' :
               user?.role === 'teacher' ? 'bg-green-100 text-green-700' :
-              user?.role === 'alumni' ? 'bg-purple-100 text-purple-700' :
-              'bg-blue-100 text-blue-700'
+              user?.role === 'alumni' ? 'bg-tan-100 text-tan-700' :
+              'bg-oxford-blue-100 text-oxford-blue-700'
             }`}>
               {user?.role || 'Student'}
             </span>
@@ -174,7 +174,7 @@ const Profile = () => {
         <div className="mb-6">
           <button
             onClick={() => navigate('/profile/edit')}
-            className="w-full bg-blue-50 hover:bg-blue-100 text-blue-600 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+            className="w-full bg-oxford-blue-50 hover:bg-oxford-blue-100 text-oxford-blue-600 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
           >
             <Edit size={18} />
             Edit Profile
