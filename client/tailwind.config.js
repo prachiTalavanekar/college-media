@@ -8,17 +8,17 @@ module.exports = {
       colors: {
         // Oxford Blue palette
         'oxford-blue': {
-          50: '#f0f4ff',
-          100: '#e0e9ff',
-          200: '#c7d6ff',
-          300: '#a5b8ff',
-          400: '#8191ff',
-          500: '#5d6aff',
-          600: '#4c52f5',
-          700: '#3d42e1',
-          800: '#3238b6',
-          900: '#1e3a8a', // Main Oxford Blue
-          950: '#1a2e73',
+          50: '#e6eaf0',
+          100: '#ccd5e0',
+          200: '#99abc1',
+          300: '#6681a2',
+          400: '#335783',
+          500: '#002d64',
+          600: '#002147', // Main Oxford Blue
+          700: '#001a38',
+          800: '#00132a',
+          900: '#000c1b',
+          950: '#00060d',
         },
         // Tan/Beige palette
         'tan': {

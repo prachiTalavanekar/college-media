@@ -282,10 +282,10 @@ const PostCard = ({ post, onPostUpdate }) => {
               // Compact Event Preview
               <div className="space-y-2">
                 {/* Compact Event Info */}
-                <div className="flex items-center justify-between p-3 bg-purple-50 border border-purple-200 rounded-lg">
+                <div className="flex items-center justify-between p-3 bg-oxford-blue-50 border border-oxford-blue-200 rounded-lg">
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Calendar size={20} className="text-purple-600" />
+                    <div className="w-10 h-10 bg-oxford-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Calendar size={20} className="text-oxford-blue-600" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-bold text-purple-900 text-sm truncate">

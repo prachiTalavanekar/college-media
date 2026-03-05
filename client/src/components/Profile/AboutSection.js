@@ -35,23 +35,26 @@ const AboutSection = ({ userData }) => {
       {/* Bio */}
       {about?.bio && (
         <div>
-          <h3 className="text-lg font-bold text-gray-900 mb-3">About</h3>
-          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">{about.bio}</p>
+          <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <FileText size={18} className="text-oxford-blue-600" />
+            About
+          </h3>
+          <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm">{about.bio}</p>
         </div>
       )}
 
       {/* Skills */}
       {skills && skills.length > 0 && (
         <div>
-          <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <Code size={20} className="text-oxford-blue-600" />
+          <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <Code size={18} className="text-oxford-blue-600" />
             Skills
           </h3>
           <div className="flex flex-wrap gap-2">
             {skills.map((skill, index) => (
               <span
                 key={index}
-                className="px-3 py-1.5 bg-oxford-blue-100 text-oxford-blue-700 rounded-full text-sm font-medium"
+                className="px-4 py-2 bg-gradient-to-r from-oxford-blue-50 to-oxford-blue-100 text-oxford-blue-700 rounded-lg text-sm font-semibold border border-oxford-blue-200"
               >
                 {skill}
               </span>
@@ -63,24 +66,24 @@ const AboutSection = ({ userData }) => {
       {/* Achievements */}
       {about?.achievements && about.achievements.length > 0 && (
         <div>
-          <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-            <Award size={20} className="text-oxford-blue-600" />
+          <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <Award size={18} className="text-oxford-blue-600" />
             Achievements
           </h3>
           <div className="space-y-3">
             {about.achievements.map((achievement, index) => (
-              <div key={index} className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                <div className="flex items-start justify-between mb-2">
-                  <h4 className="font-semibold text-gray-900">{achievement.title}</h4>
+              <div key={index} className="p-4 bg-gradient-to-r from-oxford-blue-50 to-tan-50 rounded-xl border-2 border-oxford-blue-200">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <h4 className="font-semibold text-gray-900 text-sm flex-1">{achievement.title}</h4>
                   {achievement.date && (
-                    <span className="text-sm text-gray-500 flex items-center gap-1">
-                      <Calendar size={14} />
+                    <span className="text-xs text-gray-500 flex items-center gap-1 flex-shrink-0">
+                      <Calendar size={12} />
                       {formatDate(achievement.date)}
                     </span>
                   )}
                 </div>
                 {achievement.description && (
-                  <p className="text-gray-600 text-sm">{achievement.description}</p>
+                  <p className="text-gray-600 text-xs leading-relaxed">{achievement.description}</p>
                 )}
               </div>
             ))}
@@ -94,35 +97,35 @@ const AboutSection = ({ userData }) => {
           {/* Projects */}
           {about.student.projects && about.student.projects.length > 0 && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <Code size={20} className="text-oxford-blue-600" />
+              <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <Code size={18} className="text-oxford-blue-600" />
                 Projects
               </h3>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {about.student.projects.map((project, index) => (
-                  <div key={index} className="p-4 bg-oxford-blue-50 rounded-xl border-2 border-oxford-blue-200">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-semibold text-gray-900">{project.title}</h4>
+                  <div key={index} className="p-4 bg-gradient-to-br from-oxford-blue-50 to-oxford-blue-100 rounded-xl border-2 border-oxford-blue-200">
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h4 className="font-semibold text-gray-900 text-sm flex-1">{project.title}</h4>
                       {project.link && (
                         <a
                           href={project.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-oxford-blue-600 hover:text-oxford-blue-700"
+                          className="text-oxford-blue-600 hover:text-oxford-blue-700 flex-shrink-0"
                         >
-                          <LinkIcon size={18} />
+                          <LinkIcon size={16} />
                         </a>
                       )}
                     </div>
                     {project.description && (
-                      <p className="text-gray-600 text-sm mb-3">{project.description}</p>
+                      <p className="text-gray-600 text-xs mb-3 leading-relaxed">{project.description}</p>
                     )}
                     {project.technologies && project.technologies.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-2">
+                      <div className="flex flex-wrap gap-1.5 mb-2">
                         {project.technologies.map((tech, techIndex) => (
                           <span
                             key={techIndex}
-                            className="px-2 py-1 bg-oxford-blue-100 text-oxford-blue-700 rounded text-xs font-medium"
+                            className="px-2.5 py-1 bg-white text-oxford-blue-700 rounded-md text-xs font-semibold border border-oxford-blue-300"
                           >
                             {tech}
                           </span>
@@ -130,8 +133,8 @@ const AboutSection = ({ userData }) => {
                       </div>
                     )}
                     {(project.startDate || project.endDate) && (
-                      <div className="text-sm text-gray-500 flex items-center gap-1">
-                        <Calendar size={14} />
+                      <div className="text-xs text-gray-500 flex items-center gap-1">
+                        <Calendar size={12} />
                         {formatDate(project.startDate)} - {project.endDate ? formatDate(project.endDate) : 'Present'}
                       </div>
                     )}
@@ -144,28 +147,28 @@ const AboutSection = ({ userData }) => {
           {/* Social Links */}
           {(about.student.linkedIn || about.student.github || about.student.portfolio) && (
             <div>
-              <h3 className="text-lg font-bold text-gray-900 mb-3">Links</h3>
-              <div className="flex flex-wrap gap-3">
-                {about.student.linkedIn && (
-                  <a
-                    href={about.student.linkedIn}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-oxford-blue-600 text-white rounded-xl hover:bg-oxford-blue-700 transition-colors"
-                  >
-                    <Linkedin size={18} />
-                    LinkedIn
-                  </a>
-                )}
+              <h3 className="text-base font-bold text-gray-900 mb-3">Links</h3>
+              <div className="flex flex-col gap-2">
                 {about.student.github && (
                   <a
                     href={about.student.github}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-xl hover:bg-gray-900 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 bg-gray-900 text-white rounded-xl hover:bg-gray-800 transition-all shadow-md hover:shadow-lg"
                   >
                     <Github size={18} />
-                    GitHub
+                    <span className="font-semibold text-sm">GitHub</span>
+                  </a>
+                )}
+                {about.student.linkedIn && (
+                  <a
+                    href={about.student.linkedIn}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-4 py-3 bg-[#0077B5] text-white rounded-xl hover:bg-[#006399] transition-all shadow-md hover:shadow-lg"
+                  >
+                    <Linkedin size={18} />
+                    <span className="font-semibold text-sm">LinkedIn</span>
                   </a>
                 )}
                 {about.student.portfolio && (
@@ -173,10 +176,10 @@ const AboutSection = ({ userData }) => {
                     href={about.student.portfolio}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2 px-4 py-2 bg-tan-600 text-white rounded-xl hover:bg-tan-700 transition-colors"
+                    className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-tan-600 to-tan-500 text-white rounded-xl hover:from-tan-700 hover:to-tan-600 transition-all shadow-md hover:shadow-lg"
                   >
                     <LinkIcon size={18} />
-                    Portfolio
+                    <span className="font-semibold text-sm">Portfolio</span>
                   </a>
                 )}
               </div>

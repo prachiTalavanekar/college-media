@@ -88,7 +88,7 @@ select:focus {
 
 /* Gradient backgrounds */
 .gradient-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #002147 0%, #1e3a8a 100%);
 }
 
 .gradient-secondary {
@@ -513,7 +513,7 @@ select:focus {
 
 .border-gradient {
   border: 1px solid;
-  border-image: linear-gradient(45deg, #667eea, #764ba2) 1;
+  border-image: linear-gradient(45deg, #002147, #1e3a8a) 1;
 }
 
 /* Hide scrollbar utility class */

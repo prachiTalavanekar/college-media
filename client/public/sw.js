@@ -1,10 +1,9 @@
 // Service Worker for CampusConnect PWA
-const CACHE_NAME = 'campusconnect-v6';
+const CACHE_NAME = 'campusconnect-v9';
 const urlsToCache = [
+  '/',
   '/manifest.json',
-  '/favicon.ico',
-  '/logo192.png',
-  '/logo512.png'
+  '/favicon.ico'
 ];
 
 // Install event - cache resources with error handling

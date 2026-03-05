@@ -17,13 +17,13 @@ const CreatePostPrompt = () => {
     {
       icon: Image,
       label: 'Photo',
-      color: 'text-green-600 bg-green-50 hover:bg-green-100',
+      color: 'text-oxford-blue-600 bg-oxford-blue-50 hover:bg-oxford-blue-100',
       action: () => navigate('/create?type=photo')
     },
     {
       icon: Video,
       label: 'Reel',
-      color: 'text-purple-600 bg-purple-50 hover:bg-purple-100',
+      color: 'text-tan-600 bg-tan-50 hover:bg-tan-100',
       action: () => navigate('/create?type=reel')
     }
   ];

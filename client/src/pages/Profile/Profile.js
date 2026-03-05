@@ -100,161 +100,174 @@ const Profile = () => {
   const userPosts = profileData?.posts || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Cover Image */}
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
+      {/* Modern Cover with Gradient - Reduced Height */}
       <div className="relative">
-        <div className="h-40 bg-gradient-to-r from-blue-500 to-blue-600">
+        <div className="h-40 bg-gradient-to-br from-oxford-blue-900 via-oxford-blue-800 to-oxford-blue-700 relative overflow-hidden">
+          {/* Decorative Pattern */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-5 right-10 w-32 h-32 bg-tan-400 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-3 left-10 w-24 h-24 bg-tan-300 rounded-full blur-2xl"></div>
+            <div className="absolute top-1/2 left-1/3 w-16 h-16 bg-white rounded-full blur-xl opacity-30"></div>
+          </div>
+          
+          {/* Edit Button - Top Right */}
           <button
             onClick={() => navigate('/profile/edit')}
-            className="absolute top-4 right-4 p-2 bg-white rounded-full shadow-lg hover:bg-gray-100"
+            className="absolute top-4 right-4 p-3 bg-white/95 backdrop-blur-sm rounded-2xl shadow-lg hover:bg-white hover:scale-105 transition-all"
           >
-            <Edit size={20} className="text-gray-700" />
+            <Edit size={20} className="text-oxford-blue-700" />
           </button>
         </div>
 
-        {/* Profile Picture */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-16">
+        {/* Profile Picture - Adjusted Position */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-20">
           <div className="relative">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center border-4 border-white shadow-xl overflow-hidden">
-              {user?.profileImage ? (
-                <img 
-                  key={user.profileImage}
-                  src={user.profileImage} 
-                  alt={user.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <span className="text-white font-bold text-4xl">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'P'}
-                </span>
-              )}
+            {/* Glow Effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-tan-400 to-tan-600 rounded-full blur-xl opacity-40 animate-pulse"></div>
+            
+            {/* Profile Image Container */}
+            <div className="relative w-40 h-40 rounded-full bg-white p-2 shadow-2xl">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-oxford-blue-600 to-oxford-blue-500 flex items-center justify-center overflow-hidden ring-4 ring-white">
+                {user?.profileImage ? (
+                  <img 
+                    key={user.profileImage}
+                    src={user.profileImage} 
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white font-bold text-6xl">
+                    {user?.name?.charAt(0)?.toUpperCase() || 'P'}
+                  </span>
+                )}
+              </div>
             </div>
+            
+            {/* Edit Badge - Better Positioned */}
             <button
               onClick={() => navigate('/profile/edit')}
-              className="absolute bottom-0 right-0 w-10 h-10 bg-oxford-blue-600 rounded-full flex items-center justify-center shadow-lg hover:bg-oxford-blue-700"
+              className="absolute bottom-2 right-2 w-12 h-12 bg-gradient-to-br from-tan-500 to-tan-600 rounded-full flex items-center justify-center shadow-xl hover:shadow-2xl transition-all hover:scale-110 ring-4 ring-white"
             >
-              <Edit size={18} className="text-white" />
+              <Edit size={20} className="text-white" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* Profile Info */}
-      <div className="mt-20 px-4">
-        <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+      {/* Profile Content - Adjusted Spacing */}
+      <div className="mt-24 px-4">
+        {/* Name and Role - Centered */}
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-3 tracking-tight">
             {user?.name || 'User'}
           </h1>
           
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className={`px-3 py-1 text-sm font-semibold rounded-full capitalize ${
-              user?.role === 'admin' ? 'bg-red-100 text-red-700' :
-              user?.role === 'principal' ? 'bg-oxford-blue-200 text-oxford-blue-800' :
-              user?.role === 'teacher' ? 'bg-green-100 text-green-700' :
-              user?.role === 'alumni' ? 'bg-tan-100 text-tan-700' :
-              'bg-oxford-blue-100 text-oxford-blue-700'
+          {/* Badges - Better Spacing */}
+          <div className="flex items-center justify-center gap-3 mb-6 flex-wrap px-4">
+            <span className={`px-5 py-2 text-sm font-bold rounded-full capitalize shadow-md ${
+              user?.role === 'admin' ? 'bg-gradient-to-r from-red-500 to-red-600 text-white' :
+              user?.role === 'principal' ? 'bg-gradient-to-r from-oxford-blue-500 to-oxford-blue-600 text-white' :
+              user?.role === 'teacher' ? 'bg-gradient-to-r from-green-500 to-green-600 text-white' :
+              user?.role === 'alumni' ? 'bg-gradient-to-r from-tan-500 to-tan-600 text-white' :
+              'bg-gradient-to-r from-oxford-blue-500 to-oxford-blue-600 text-white'
             }`}>
               {user?.role || 'Student'}
             </span>
             {user?.verificationStatus === 'verified' && (
-              <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full">
+              <span className="px-5 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-bold rounded-full shadow-md flex items-center gap-2">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
                 Verified
               </span>
             )}
           </div>
 
-          <div className="flex items-center justify-center gap-2 text-gray-600 text-sm mb-2">
-            <GraduationCap size={16} />
-            <span>{user?.course || 'Other'} • {user?.department || 'Computer Science'}</span>
-          </div>
+          {/* Info Cards - Stacked with Icons */}
+          <div className="flex flex-col gap-3 max-w-md mx-auto px-4">
+            <div className="flex items-center gap-3 text-gray-700 bg-white rounded-2xl px-5 py-4 shadow-md hover:shadow-lg transition-shadow">
+              <div className="w-10 h-10 bg-gradient-to-br from-oxford-blue-500 to-oxford-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <GraduationCap size={20} className="text-white" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="text-xs text-gray-500 font-medium mb-0.5">Course & Department</p>
+                <p className="text-sm font-bold text-gray-900">{user?.course || 'Other'} • {user?.department || 'Computer Science'}</p>
+              </div>
+            </div>
 
-          <div className="flex items-center justify-center gap-2 text-gray-600 text-sm">
-            <Calendar size={16} />
-            <span>Batch {user?.batch || '2023-2026'}</span>
+            <div className="flex items-center gap-3 text-gray-700 bg-white rounded-2xl px-5 py-4 shadow-md hover:shadow-lg transition-shadow">
+              <div className="w-10 h-10 bg-gradient-to-br from-tan-500 to-tan-600 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Calendar size={20} className="text-white" />
+              </div>
+              <div className="text-left flex-1">
+                <p className="text-xs text-gray-500 font-medium mb-0.5">Batch</p>
+                <p className="text-sm font-bold text-gray-900">{user?.batch || '2023-2026'}</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Edit Profile Button */}
-        <div className="mb-6">
+        {/* Edit Profile Button - More Prominent */}
+        <div className="mb-8 max-w-md mx-auto px-4">
           <button
             onClick={() => navigate('/profile/edit')}
-            className="w-full bg-oxford-blue-50 hover:bg-oxford-blue-100 text-oxford-blue-600 font-semibold py-3 rounded-xl flex items-center justify-center gap-2 transition-all"
+            className="w-full bg-gradient-to-r from-oxford-blue-600 to-oxford-blue-500 hover:from-oxford-blue-700 hover:to-oxford-blue-600 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-3 transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]"
           >
-            <Edit size={18} />
-            Edit Profile
-          </button>
-          
-          {/* Debug Button - Remove after testing */}
-          <button
-            onClick={() => {
-              console.log('=== DEBUG INFO ===');
-              console.log('Current user from context:', user);
-              console.log('User ID:', user?.id);
-              console.log('User from localStorage:', JSON.parse(localStorage.getItem('user') || '{}'));
-              console.log('Profile data:', profileData);
-              alert(`User: ${user?.name}\nRole: ${user?.role}\nID: ${user?.id}`);
-            }}
-            className="w-full mt-2 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 font-semibold py-2 rounded-xl text-sm"
-          >
-            🐛 Debug User Info
-          </button>
-          
-          {/* Force Logout Button */}
-          <button
-            onClick={() => {
-              console.log('=== FORCE LOGOUT ===');
-              localStorage.clear();
-              sessionStorage.clear();
-              window.location.href = '/login';
-            }}
-            className="w-full mt-2 bg-red-50 hover:bg-red-100 text-red-700 font-semibold py-2 rounded-xl text-sm"
-          >
-            🚪 Force Logout & Clear All Data
+            <Edit2 size={20} />
+            <span className="text-base">Edit Profile</span>
           </button>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
+        {/* Stats Cards - Compact Design */}
+        <div className="grid grid-cols-3 gap-3 mb-8 max-w-md mx-auto px-4">
           {stats.map((stat, index) => (
-            <div key={index} className="bg-white rounded-xl p-4 text-center shadow-sm">
-              <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-              <div className="text-sm text-gray-500">{stat.label}</div>
+            <div key={index} className="bg-white rounded-2xl p-4 text-center shadow-md hover:shadow-lg transition-all hover:scale-105">
+              <div className="text-3xl font-black bg-gradient-to-br from-oxford-blue-600 to-oxford-blue-500 bg-clip-text text-transparent mb-1.5">
+                {stat.value}
+              </div>
+              <div className="text-[10px] text-gray-600 font-bold uppercase tracking-wide leading-tight">{stat.label}</div>
             </div>
           ))}
         </div>
 
-        {/* Contact Info */}
-        <div className="bg-white rounded-xl p-4 mb-6 shadow-sm">
-          <div className="flex items-center gap-3 text-gray-600">
-            <Mail size={18} />
-            <span className="text-sm">{user?.email || 'No email'}</span>
+        {/* Contact Info Card - Redesigned */}
+        <div className="bg-white rounded-2xl p-5 mb-8 shadow-md hover:shadow-lg transition-shadow max-w-md mx-auto mx-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-oxford-blue-500 to-oxford-blue-600 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-md">
+              <Mail size={20} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-gray-500 font-bold uppercase tracking-wide mb-1">Email Address</p>
+              <p className="text-sm text-gray-900 font-semibold truncate">{user?.email || 'No email'}</p>
+            </div>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm mb-4">
-          <div className="grid grid-cols-2">
+        {/* Tabs - Modern Pill Design */}
+        <div className="bg-white rounded-2xl shadow-md p-2 mb-6 max-w-md mx-auto mx-4">
+          <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setActiveTab('posts')}
-              className={`flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
+              className={`flex items-center justify-center gap-2 py-3.5 font-bold rounded-xl transition-all ${
                 activeTab === 'posts'
-                  ? 'text-oxford-blue-600 border-b-2 border-oxford-blue-600'
-                  : 'text-gray-500'
+                  ? 'bg-gradient-to-r from-oxford-blue-600 to-oxford-blue-500 text-white shadow-lg scale-105'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               <Grid size={18} />
-              Posts
+              <span>Posts</span>
             </button>
             <button
               onClick={() => setActiveTab('about')}
-              className={`flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
+              className={`flex items-center justify-center gap-2 py-3.5 font-bold rounded-xl transition-all ${
                 activeTab === 'about'
-                  ? 'text-oxford-blue-600 border-b-2 border-oxford-blue-600'
-                  : 'text-gray-500'
+                  ? 'bg-gradient-to-r from-oxford-blue-600 to-oxford-blue-500 text-white shadow-lg scale-105'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               <UserIcon size={18} />
-              About
+              <span>About</span>
             </button>
           </div>
         </div>
@@ -300,18 +313,20 @@ const Profile = () => {
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="font-bold text-gray-900 text-xl">About</h3>
-              <button
-                onClick={() => setShowEditAboutModal(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-oxford-blue-600 text-white rounded-xl hover:bg-oxford-blue-700 transition-colors font-semibold"
-              >
-                <Edit2 size={18} />
-                Edit
-              </button>
+          <div className="max-w-md mx-auto px-4">
+            <div className="bg-white rounded-2xl p-6 shadow-md">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="font-bold text-gray-900 text-xl">About</h3>
+                <button
+                  onClick={() => setShowEditAboutModal(true)}
+                  className="flex items-center gap-2 px-4 py-2.5 bg-oxford-blue-600 text-white rounded-xl hover:bg-oxford-blue-700 transition-colors font-semibold shadow-md hover:shadow-lg"
+                >
+                  <Edit2 size={16} />
+                  <span>Edit</span>
+                </button>
+              </div>
+              <AboutSection userData={profileData?.user || user} />
             </div>
-            <AboutSection userData={profileData?.user || user} />
           </div>
         )}
       </div>

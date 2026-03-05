@@ -205,13 +205,13 @@ const RBACDemo = () => {
             </ProtectedAction>
 
             <ProtectedAction action="canPostAnnouncement">
-              <button className="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 transition-colors font-medium">
+              <button className="w-full bg-oxford-blue-600 text-white px-4 py-3 rounded-lg hover:bg-oxford-blue-700 transition-colors font-medium">
                 Post Announcement (You have permission!)
               </button>
             </ProtectedAction>
 
             <ProtectedAction action="canPostOpportunities">
-              <button className="w-full bg-purple-600 text-white px-4 py-3 rounded-lg hover:bg-purple-700 transition-colors font-medium">
+              <button className="w-full bg-oxford-blue-600 text-white px-4 py-3 rounded-lg hover:bg-oxford-blue-700 transition-colors font-medium">
                 Post Job Opportunity (You have permission!)
               </button>
             </ProtectedAction>

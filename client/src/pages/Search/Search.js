@@ -112,9 +112,9 @@ const Search = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
       {/* Search Header */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-gray-200/50 px-4 py-4 sticky top-0 z-10 shadow-sm">
+      <div className="bg-white/95 backdrop-blur-lg border-b border-gray-200 px-4 py-4 sticky top-0 z-10 shadow-sm">
         <form onSubmit={handleSearch} className="max-w-3xl mx-auto">
           <div className="relative">
             <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
@@ -123,7 +123,7 @@ const Search = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for people, posts..."
-              className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white shadow-sm"
+              className="w-full pl-12 pr-12 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent bg-white shadow-sm"
             />
             {searchQuery && (
               <button
@@ -147,8 +147,8 @@ const Search = () => {
             onClick={() => handleTabChange('all')}
             className={`px-4 py-2 rounded-xl font-semibold transition-all ${
               activeTab === 'all'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                : 'bg-white text-gray-600 hover:bg-gray-50'
+                ? 'bg-gradient-to-r from-oxford-blue-600 to-oxford-blue-500 text-white shadow-lg'
+                : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
             }`}
           >
             All
@@ -157,8 +157,8 @@ const Search = () => {
             onClick={() => handleTabChange('users')}
             className={`px-4 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 ${
               activeTab === 'users'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                : 'bg-white text-gray-600 hover:bg-gray-50'
+                ? 'bg-gradient-to-r from-oxford-blue-600 to-oxford-blue-500 text-white shadow-lg'
+                : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
             }`}
           >
             <Users size={18} />
@@ -168,8 +168,8 @@ const Search = () => {
             onClick={() => handleTabChange('posts')}
             className={`px-4 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 ${
               activeTab === 'posts'
-                ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg'
-                : 'bg-white text-gray-600 hover:bg-gray-50'
+                ? 'bg-gradient-to-r from-oxford-blue-600 to-oxford-blue-500 text-white shadow-lg'
+                : 'bg-white text-gray-600 hover:bg-gray-50 border border-gray-200'
             }`}
           >
             <FileText size={18} />
@@ -178,7 +178,7 @@ const Search = () => {
           {activeTab === 'users' && (
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="px-4 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 bg-white text-gray-600 hover:bg-gray-50"
+              className="px-4 py-2 rounded-xl font-semibold transition-all flex items-center gap-2 bg-white text-gray-600 hover:bg-gray-50 border border-gray-200"
             >
               <Filter size={18} />
               Filters
@@ -188,12 +188,12 @@ const Search = () => {
 
         {/* Filters */}
         {showFilters && activeTab === 'users' && (
-          <div className="mt-4 p-4 bg-white rounded-xl shadow-md max-w-3xl mx-auto animate-fadeIn">
+          <div className="mt-4 p-4 bg-white rounded-xl shadow-md max-w-3xl mx-auto animate-fadeIn border border-gray-200">
             <div className="grid grid-cols-3 gap-3">
               <select
                 value={filters.role}
                 onChange={(e) => setFilters({ ...filters, role: e.target.value })}
-                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-oxford-blue-500"
               >
                 <option value="">All Roles</option>
                 <option value="student">Student</option>
@@ -203,7 +203,7 @@ const Search = () => {
               <select
                 value={filters.department}
                 onChange={(e) => setFilters({ ...filters, department: e.target.value })}
-                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-oxford-blue-500"
               >
                 <option value="">All Departments</option>
                 <option value="Computer Science">Computer Science</option>
@@ -253,10 +253,10 @@ const Search = () => {
                     <div
                       key={user._id}
                       onClick={() => navigate(`/profile/${user._id}`)}
-                      className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100"
+                      className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 hover:border-oxford-blue-200"
                     >
                       <div className="flex items-start gap-4">
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-oxford-blue-500 to-tan-500 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-oxford-blue-600 to-oxford-blue-500 flex items-center justify-center flex-shrink-0 overflow-hidden ring-2 ring-oxford-blue-100">
                           {user.profileImage ? (
                             <img src={user.profileImage} alt={user.name} className="w-full h-full object-cover" />
                           ) : (
@@ -331,7 +331,7 @@ const Search = () => {
                       className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all border border-gray-100"
                     >
                       <div className="flex items-start gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-oxford-blue-600 to-oxford-blue-500 flex items-center justify-center flex-shrink-0 overflow-hidden">
                           {post.author.profileImage ? (
                             <img src={post.author.profileImage} alt={post.author.name} className="w-full h-full object-cover" />
                           ) : (

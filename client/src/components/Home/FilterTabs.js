@@ -14,7 +14,7 @@ const FilterTabs = ({ tabs, activeTab, onTabChange }) => {
               onClick={() => onTabChange(tab.id)}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap flex-shrink-0 ${
                 isActive
-                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md shadow-blue-200'
+                  ? 'bg-gradient-to-r from-oxford-blue-600 to-oxford-blue-500 text-white shadow-md shadow-oxford-blue-200'
                   : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >

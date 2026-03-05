@@ -150,11 +150,11 @@ const StudentProfile = () => {
 
   const getRoleBadgeColor = (role) => {
     switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'principal': return 'bg-indigo-100 text-indigo-800';
-      case 'teacher': return 'bg-green-100 text-green-800';
-      case 'alumni': return 'bg-tan-100 text-tan-800';
-      default: return 'bg-oxford-blue-100 text-oxford-blue-800';
+      case 'admin': return 'bg-gradient-to-r from-red-500 to-red-600 text-white';
+      case 'principal': return 'bg-gradient-to-r from-oxford-blue-500 to-oxford-blue-600 text-white';
+      case 'teacher': return 'bg-gradient-to-r from-green-500 to-green-600 text-white';
+      case 'alumni': return 'bg-gradient-to-r from-tan-500 to-tan-600 text-white';
+      default: return 'bg-gradient-to-r from-oxford-blue-500 to-oxford-blue-600 text-white';
     }
   };
 
@@ -185,15 +185,15 @@ const StudentProfile = () => {
   const { user, posts, stats } = profileData;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white pb-20">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-10 shadow-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate(-1)}
             className="p-2 hover:bg-gray-100 rounded-full transition-colors"
           >
-            <ArrowLeft size={24} />
+            <ArrowLeft size={24} className="text-gray-700" />
           </button>
           <div>
             <h1 className="text-lg font-bold text-gray-900">{user.name}</h1>
@@ -204,22 +204,35 @@ const StudentProfile = () => {
 
       {/* Cover Image */}
       <div className="relative">
-        <div className="h-40 bg-gradient-to-r from-blue-500 to-purple-600"></div>
+        <div className="h-40 bg-gradient-to-br from-oxford-blue-900 via-oxford-blue-800 to-oxford-blue-700 relative overflow-hidden">
+          {/* Decorative Pattern */}
+          <div className="absolute inset-0 opacity-20">
+            <div className="absolute top-5 right-10 w-32 h-32 bg-tan-400 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute bottom-3 left-10 w-24 h-24 bg-tan-300 rounded-full blur-2xl"></div>
+          </div>
+        </div>
 
         {/* Profile Picture */}
         <div className="absolute left-1/2 transform -translate-x-1/2 -bottom-16">
-          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center border-4 border-white shadow-xl overflow-hidden">
-            {user.profileImage ? (
-              <img 
-                src={user.profileImage} 
-                alt={user.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-white font-bold text-4xl">
-                {user.name?.charAt(0)?.toUpperCase()}
-              </span>
-            )}
+          <div className="relative">
+            {/* Glow Effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-tan-400 to-tan-600 rounded-full blur-xl opacity-40 animate-pulse"></div>
+            
+            <div className="relative w-32 h-32 rounded-full bg-white p-1.5 shadow-2xl">
+              <div className="w-full h-full rounded-full bg-gradient-to-br from-oxford-blue-600 to-oxford-blue-500 flex items-center justify-center overflow-hidden ring-4 ring-white">
+                {user.profileImage ? (
+                  <img 
+                    src={user.profileImage} 
+                    alt={user.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-white font-bold text-4xl">
+                    {user.name?.charAt(0)?.toUpperCase()}
+                  </span>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -231,42 +244,47 @@ const StudentProfile = () => {
             {user.name}
           </h1>
           
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <span className={`px-3 py-1 rounded-full text-sm font-semibold ${getRoleBadgeColor(user.role)}`}>
+          <div className="flex items-center justify-center gap-2 mb-3 flex-wrap">
+            <span className={`px-4 py-1.5 rounded-full text-sm font-bold shadow-md ${getRoleBadgeColor(user.role)}`}>
               {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
             </span>
             {user.verificationStatus === 'verified' && (
-              <span className="px-3 py-1 bg-green-100 text-green-700 text-sm font-semibold rounded-full">
+              <span className="px-4 py-1.5 bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-bold rounded-full shadow-md flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                </svg>
                 Verified
               </span>
             )}
           </div>
 
-          <div className="flex items-center justify-center gap-2 text-gray-600 text-sm mb-2">
-            <GraduationCap size={16} />
-            <span>{user.course || 'Other'} • {user.department || 'Computer Science'}</span>
+          <div className="space-y-2 max-w-md mx-auto">
+            <div className="flex items-center justify-center gap-2 text-gray-700 text-sm">
+              <GraduationCap size={16} className="text-oxford-blue-600" />
+              <span className="font-medium">{user.course || 'Other'} • {user.department || 'Computer Science'}</span>
+            </div>
+
+            {user.batch && (
+              <div className="flex items-center justify-center gap-2 text-gray-700 text-sm">
+                <Calendar size={16} className="text-tan-600" />
+                <span className="font-medium">Batch {user.batch}</span>
+              </div>
+            )}
+
+            {user.currentCompany && (
+              <div className="flex items-center justify-center gap-2 text-gray-700 text-sm">
+                <Building2 size={16} className="text-oxford-blue-600" />
+                <span className="font-medium">{user.jobTitle} at {user.currentCompany}</span>
+              </div>
+            )}
+
+            {user.location && (
+              <div className="flex items-center justify-center gap-2 text-gray-700 text-sm">
+                <MapPin size={16} className="text-tan-600" />
+                <span className="font-medium">{user.location}</span>
+              </div>
+            )}
           </div>
-
-          {user.batch && (
-            <div className="flex items-center justify-center gap-2 text-gray-600 text-sm mb-2">
-              <Calendar size={16} />
-              <span>Batch {user.batch}</span>
-            </div>
-          )}
-
-          {user.currentCompany && (
-            <div className="flex items-center justify-center gap-2 text-gray-600 text-sm mb-2">
-              <Building2 size={16} />
-              <span>{user.jobTitle} at {user.currentCompany}</span>
-            </div>
-          )}
-
-          {user.location && (
-            <div className="flex items-center justify-center gap-2 text-gray-600 text-sm">
-              <MapPin size={16} />
-              <span>{user.location}</span>
-            </div>
-          )}
         </div>
 
         {/* Bio */}
@@ -295,18 +313,18 @@ const StudentProfile = () => {
         )}
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <div className="text-2xl font-bold text-gray-900">{stats?.postCount || 0}</div>
-            <div className="text-sm text-gray-500">Posts</div>
+        <div className="grid grid-cols-3 gap-3 mb-6 max-w-md mx-auto">
+          <div className="bg-white rounded-2xl p-4 text-center shadow-md hover:shadow-lg transition-all">
+            <div className="text-3xl font-black bg-gradient-to-br from-oxford-blue-600 to-oxford-blue-500 bg-clip-text text-transparent mb-1.5">{stats?.postCount || 0}</div>
+            <div className="text-[10px] text-gray-600 font-bold uppercase tracking-wide">Posts</div>
           </div>
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <div className="text-2xl font-bold text-gray-900">{stats?.connectionsCount || 0}</div>
-            <div className="text-sm text-gray-500">Connections</div>
+          <div className="bg-white rounded-2xl p-4 text-center shadow-md hover:shadow-lg transition-all">
+            <div className="text-3xl font-black bg-gradient-to-br from-oxford-blue-600 to-oxford-blue-500 bg-clip-text text-transparent mb-1.5">{stats?.connectionsCount || 0}</div>
+            <div className="text-[10px] text-gray-600 font-bold uppercase tracking-wide">Connections</div>
           </div>
-          <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-            <div className="text-2xl font-bold text-gray-900">{stats?.communitiesCount || 0}</div>
-            <div className="text-sm text-gray-500">Communities</div>
+          <div className="bg-white rounded-2xl p-4 text-center shadow-md hover:shadow-lg transition-all">
+            <div className="text-3xl font-black bg-gradient-to-br from-oxford-blue-600 to-oxford-blue-500 bg-clip-text text-transparent mb-1.5">{stats?.communitiesCount || 0}</div>
+            <div className="text-[10px] text-gray-600 font-bold uppercase tracking-wide">Communities</div>
           </div>
         </div>
 
@@ -321,36 +339,36 @@ const StudentProfile = () => {
         )}
 
         {/* Tabs */}
-        <div className="bg-white rounded-xl shadow-sm mb-4">
-          <div className="grid grid-cols-2">
+        <div className="bg-white rounded-2xl shadow-md p-2 mb-4 max-w-md mx-auto">
+          <div className="grid grid-cols-2 gap-2">
             <button
               onClick={() => setActiveTab('posts')}
-              className={`flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
+              className={`flex items-center justify-center gap-2 py-3.5 font-bold rounded-xl transition-all ${
                 activeTab === 'posts'
-                  ? 'text-oxford-blue-600 border-b-2 border-oxford-blue-600'
-                  : 'text-gray-500'
+                  ? 'bg-gradient-to-r from-oxford-blue-600 to-oxford-blue-500 text-white shadow-lg scale-105'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               <Grid size={18} />
-              Posts
+              <span>Posts</span>
             </button>
             <button
               onClick={() => setActiveTab('about')}
-              className={`flex items-center justify-center gap-2 py-4 font-semibold transition-all ${
+              className={`flex items-center justify-center gap-2 py-3.5 font-bold rounded-xl transition-all ${
                 activeTab === 'about'
-                  ? 'text-oxford-blue-600 border-b-2 border-oxford-blue-600'
-                  : 'text-gray-500'
+                  ? 'bg-gradient-to-r from-oxford-blue-600 to-oxford-blue-500 text-white shadow-lg scale-105'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
               }`}
             >
               <UserIcon size={18} />
-              About
+              <span>About</span>
             </button>
           </div>
         </div>
 
         {/* Tab Content */}
         {activeTab === 'posts' ? (
-          <div className="space-y-4">
+          <div className="space-y-4 max-w-md mx-auto">
             {posts && posts.length > 0 ? (
               posts.map((post) => (
                 <div key={post._id} className="bg-white rounded-xl p-4 shadow-sm">
@@ -384,9 +402,11 @@ const StudentProfile = () => {
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h3 className="font-bold text-gray-900 mb-6 text-xl">About</h3>
-            <AboutSection userData={user} />
+          <div className="max-w-md mx-auto">
+            <div className="bg-white rounded-2xl p-6 shadow-md">
+              <h3 className="font-bold text-gray-900 mb-6 text-xl">About</h3>
+              <AboutSection userData={user} />
+            </div>
           </div>
         )}
       </div>

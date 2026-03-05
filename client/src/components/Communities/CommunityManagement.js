@@ -232,28 +232,28 @@ const OverviewTab = ({ analytics, community }) => (
     
     {/* Stats Grid */}
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div className="bg-blue-50 p-4 rounded-lg">
+      <div className="bg-oxford-blue-50 p-4 rounded-lg">
         <div className="flex items-center space-x-2">
-          <Users className="w-5 h-5 text-blue-600" />
-          <span className="text-sm font-medium text-blue-600">Total Members</span>
+          <Users className="w-5 h-5 text-oxford-blue-600" />
+          <span className="text-sm font-medium text-oxford-blue-600">Total Members</span>
         </div>
-        <p className="text-2xl font-bold text-blue-900 mt-1">{analytics?.totalMembers || 0}</p>
+        <p className="text-2xl font-bold text-oxford-blue-900 mt-1">{analytics?.totalMembers || 0}</p>
       </div>
       
-      <div className="bg-green-50 p-4 rounded-lg">
+      <div className="bg-oxford-blue-50 p-4 rounded-lg">
         <div className="flex items-center space-x-2">
-          <Eye className="w-5 h-5 text-green-600" />
-          <span className="text-sm font-medium text-green-600">Active Members</span>
+          <Eye className="w-5 h-5 text-oxford-blue-600" />
+          <span className="text-sm font-medium text-oxford-blue-600">Active Members</span>
         </div>
-        <p className="text-2xl font-bold text-green-900 mt-1">{analytics?.activeMembers || 0}</p>
+        <p className="text-2xl font-bold text-oxford-blue-900 mt-1">{analytics?.activeMembers || 0}</p>
       </div>
       
-      <div className="bg-purple-50 p-4 rounded-lg">
+      <div className="bg-tan-50 p-4 rounded-lg">
         <div className="flex items-center space-x-2">
-          <FileText className="w-5 h-5 text-purple-600" />
-          <span className="text-sm font-medium text-purple-600">Posts</span>
+          <FileText className="w-5 h-5 text-tan-600" />
+          <span className="text-sm font-medium text-tan-600">Posts</span>
         </div>
-        <p className="text-2xl font-bold text-purple-900 mt-1">{analytics?.totalPosts || 0}</p>
+        <p className="text-2xl font-bold text-tan-900 mt-1">{analytics?.totalPosts || 0}</p>
       </div>
       
       <div className="bg-orange-50 p-4 rounded-lg">
