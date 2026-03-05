@@ -106,14 +106,15 @@ const EditAboutModal = ({ isOpen, onClose, userData, onUpdate }) => {
   };
 
   // Skills handlers
+  const [skillInput, setSkillInput] = useState('');
+
   const addSkill = () => {
-    const skillInput = document.getElementById('skillInput');
-    if (skillInput && skillInput.value.trim()) {
+    if (skillInput.trim()) {
       setFormData(prev => ({
         ...prev,
-        skills: [...prev.skills, skillInput.value.trim()]
+        skills: [...prev.skills, skillInput.trim()]
       }));
-      skillInput.value = '';
+      setSkillInput('');
     }
   };
 
@@ -220,37 +221,48 @@ const EditAboutModal = ({ isOpen, onClose, userData, onUpdate }) => {
             </label>
             <div className="flex gap-2 mb-3">
               <input
-                id="skillInput"
                 type="text"
+                value={skillInput}
+                onChange={(e) => setSkillInput(e.target.value)}
                 className="flex-1 px-4 py-2 border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-oxford-blue-500"
-                placeholder="Add a skill"
-                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSkill())}
+                placeholder="Add a skill (e.g., Python, Java, React)"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addSkill();
+                  }
+                }}
               />
               <button
                 type="button"
                 onClick={addSkill}
-                className="px-4 py-2 bg-oxford-blue-600 text-white rounded-xl hover:bg-oxford-blue-700 transition-colors"
+                className="px-4 py-2 bg-oxford-blue-600 text-white rounded-xl hover:bg-oxford-blue-700 transition-colors font-semibold"
               >
                 Add
               </button>
             </div>
-            <div className="flex flex-wrap gap-2">
-              {formData.skills.map((skill, index) => (
-                <span
-                  key={index}
-                  className="px-3 py-1 bg-oxford-blue-100 text-oxford-blue-700 rounded-full text-sm flex items-center gap-2"
-                >
-                  {skill}
-                  <button
-                    type="button"
-                    onClick={() => removeSkill(index)}
-                    className="hover:text-oxford-blue-900"
+            {formData.skills.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {formData.skills.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="px-3 py-1.5 bg-oxford-blue-100 text-oxford-blue-700 rounded-full text-sm font-semibold flex items-center gap-2"
                   >
-                    <X size={14} />
-                  </button>
-                </span>
-              ))}
-            </div>
+                    {skill}
+                    <button
+                      type="button"
+                      onClick={() => removeSkill(index)}
+                      className="hover:text-oxford-blue-900 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            {formData.skills.length === 0 && (
+              <p className="text-sm text-gray-500 italic">No skills added yet. Add your skills above.</p>
+            )}
           </div>
 
           {/* Role-specific sections */}

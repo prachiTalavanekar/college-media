@@ -15,9 +15,51 @@ import {
 } from 'lucide-react';
 
 const AboutSection = ({ userData }) => {
-  const { about, skills, role } = userData;
+  // Debug logging
+  console.log('AboutSection userData:', userData);
+  console.log('AboutSection skills:', userData?.skills);
+  console.log('AboutSection about:', userData?.about);
+  
+  const { about, skills, role } = userData || {};
 
-  if (!about && (!skills || skills.length === 0)) {
+  // Filter out empty skills
+  const validSkills = skills?.filter(skill => skill && skill.trim()) || [];
+
+  // If no data at all, show empty state
+  if (!userData) {
+    return (
+      <div className="text-center py-12 text-gray-500">
+        <p>No profile data available.</p>
+      </div>
+    );
+  }
+
+  // Check if there's any meaningful content
+  const hasContent = 
+    (about?.bio && about.bio.trim()) ||
+    validSkills.length > 0 ||
+    (about?.achievements && about.achievements.length > 0) ||
+    (role === 'student' && about?.student && (
+      (about.student.projects && about.student.projects.length > 0) ||
+      about.student.linkedIn ||
+      about.student.github ||
+      about.student.portfolio
+    )) ||
+    (role === 'teacher' && about?.teacher && (
+      (about.teacher.teachingExperience && about.teacher.teachingExperience.length > 0) ||
+      (about.teacher.researchWork && about.teacher.researchWork.length > 0) ||
+      (about.teacher.publications && about.teacher.publications.length > 0) ||
+      (about.teacher.specializations && about.teacher.specializations.length > 0)
+    )) ||
+    (role === 'alumni' && about?.alumni && (
+      about.alumni.currentPosition ||
+      about.alumni.currentCompany ||
+      (about.alumni.workExperience && about.alumni.workExperience.length > 0) ||
+      about.alumni.linkedIn ||
+      (about.alumni.expertise && about.alumni.expertise.length > 0)
+    ));
+
+  if (!hasContent) {
     return (
       <div className="text-center py-12 text-gray-500">
         <p>No information added yet.</p>
@@ -32,8 +74,9 @@ const AboutSection = ({ userData }) => {
 
   return (
     <div className="space-y-6">
-      {/* Bio */}
-      {about?.bio && (
+      {/* Bio - HIDDEN as per user request */}
+      {/* Commenting out the bio section */}
+      {/* {about?.bio && (
         <div>
           <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
             <FileText size={18} className="text-oxford-blue-600" />
@@ -41,17 +84,17 @@ const AboutSection = ({ userData }) => {
           </h3>
           <p className="text-gray-700 leading-relaxed whitespace-pre-wrap text-sm">{about.bio}</p>
         </div>
-      )}
+      )} */}
 
       {/* Skills */}
-      {skills && skills.length > 0 && (
+      {validSkills.length > 0 && (
         <div>
           <h3 className="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
             <Code size={18} className="text-oxford-blue-600" />
             Skills
           </h3>
           <div className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
+            {validSkills.map((skill, index) => (
               <span
                 key={index}
                 className="px-4 py-2 bg-gradient-to-r from-oxford-blue-50 to-oxford-blue-100 text-oxford-blue-700 rounded-lg text-sm font-semibold border border-oxford-blue-200"
