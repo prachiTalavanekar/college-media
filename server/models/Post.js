@@ -205,31 +205,48 @@ postSchema.methods.canUserView = function(user) {
   if (!this.isActive) return false;
   
   // If user is not provided or doesn't have required fields, deny access
-  if (!user || !user.department || !user.course || !user.role) {
+  if (!user || !user.role) {
     return false;
   }
   
   const { departments, courses, batches, roles } = this.targetAudience || {};
   
-  // Check department
-  if (departments && departments.length > 0 && !departments.includes('All') && !departments.includes(user.department)) {
-    return false;
+  // If no targeting is set (empty arrays or undefined), post is visible to everyone
+  const hasNoTargeting = 
+    (!departments || departments.length === 0) &&
+    (!courses || courses.length === 0) &&
+    (!batches || batches.length === 0) &&
+    (!roles || roles.length === 0);
+  
+  if (hasNoTargeting) {
+    return true;
   }
   
-  // Check course
-  if (courses && courses.length > 0 && !courses.includes('All') && !courses.includes(user.course)) {
-    return false;
-  }
-  
-  // Check batch
-  if (batches && batches.length > 0 && user.batch && !batches.includes(user.batch)) {
-    return false;
-  }
-  
-  // Check role
+  // Check role first - if roles are specified and user's role doesn't match, deny
   if (roles && roles.length > 0 && !roles.includes('all') && !roles.includes(user.role)) {
     return false;
   }
+  
+  // For students, check department, course, and batch
+  if (user.role === 'student') {
+    // Check department
+    if (departments && departments.length > 0 && !departments.includes('All') && !departments.includes(user.department)) {
+      return false;
+    }
+    
+    // Check course
+    if (courses && courses.length > 0 && !courses.includes('All') && !courses.includes(user.course)) {
+      return false;
+    }
+    
+    // Check batch
+    if (batches && batches.length > 0 && user.batch && !batches.includes(user.batch)) {
+      return false;
+    }
+  }
+  
+  // For teachers, alumni, and other roles - only check role targeting
+  // They can see posts regardless of department/course/batch restrictions
   
   return true;
 };
