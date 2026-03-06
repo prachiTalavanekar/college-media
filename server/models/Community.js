@@ -356,6 +356,24 @@ communitySchema.virtual('memberCount').get(function() {
 
 // Method to check if community is visible to user
 communitySchema.methods.isVisibleTo = function(user) {
+  // If no user provided, deny access
+  if (!user) {
+    return false;
+  }
+  
+  // Get user ID as string
+  const userId = (user._id || user.id || user).toString();
+  
+  // Creator should always see their own community
+  if (this.creator && this.creator.toString() === userId) {
+    return true;
+  }
+  
+  // Members should always see communities they're part of
+  if (this.isMember(userId)) {
+    return true;
+  }
+  
   // If no visibility restrictions, show to all
   if (!this.visibleTo || !this.visibleTo.roles || this.visibleTo.roles.length === 0 || this.visibleTo.roles.includes('all')) {
     return true;
@@ -368,13 +386,13 @@ communitySchema.methods.isVisibleTo = function(user) {
   
   // If visible to this role, check department/course restrictions
   if (this.visibleTo.departments && this.visibleTo.departments.length > 0) {
-    if (!this.visibleTo.departments.includes(user.department)) {
+    if (!user.department || !this.visibleTo.departments.includes(user.department)) {
       return false;
     }
   }
   
   if (this.visibleTo.courses && this.visibleTo.courses.length > 0) {
-    if (!this.visibleTo.courses.includes(user.course)) {
+    if (!user.course || !this.visibleTo.courses.includes(user.course)) {
       return false;
     }
   }
@@ -384,58 +402,67 @@ communitySchema.methods.isVisibleTo = function(user) {
 
 // Method to check if user is eligible to join
 communitySchema.methods.canUserJoin = function(user) {
-  const { departments, courses, batches, roles } = this.eligibility;
+  // If no user provided, deny access
+  if (!user) {
+    return false;
+  }
   
-  console.log('canUserJoin - Checking eligibility for user:', {
-    userDept: user.department,
-    userCourse: user.course,
-    userBatch: user.batch,
-    userRole: user.role
-  });
-  console.log('canUserJoin - Community eligibility criteria:', {
-    departments,
-    courses,
-    batches,
-    roles
-  });
+  // Get user ID as string
+  const userId = (user._id || user.id || user).toString();
+  
+  // Creator should always be able to access their own community
+  if (this.creator && this.creator.toString() === userId) {
+    return true;
+  }
+  
+  // Moderators should always be able to access
+  if (this.isModerator(userId)) {
+    return true;
+  }
+  
+  // Members should always be able to access
+  if (this.isMember(userId)) {
+    return true;
+  }
+  
+  const { departments, courses, batches, roles } = this.eligibility || {};
+  
+  // If no eligibility criteria set, allow all users
+  if ((!departments || departments.length === 0) && 
+      (!courses || courses.length === 0) && 
+      (!batches || batches.length === 0) && 
+      (!roles || roles.length === 0)) {
+    return true;
+  }
   
   // Check department
-  if (departments && departments.length > 0 && !departments.includes('All') && !departments.includes(user.department)) {
-    console.log('canUserJoin - Failed department check:', {
-      userDept: user.department,
-      allowedDepts: departments
-    });
-    return false;
+  if (departments && departments.length > 0 && !departments.includes('All')) {
+    if (!user.department || !departments.includes(user.department)) {
+      return false;
+    }
   }
   
   // Check course
-  if (courses && courses.length > 0 && !courses.includes('All') && !courses.includes(user.course)) {
-    console.log('canUserJoin - Failed course check:', {
-      userCourse: user.course,
-      allowedCourses: courses
-    });
-    return false;
+  if (courses && courses.length > 0 && !courses.includes('All')) {
+    if (!user.course || !courses.includes(user.course)) {
+      return false;
+    }
   }
   
   // Check batch
-  if (batches && batches.length > 0 && !batches.includes(user.batch)) {
-    console.log('canUserJoin - Failed batch check:', {
-      userBatch: user.batch,
-      allowedBatches: batches
-    });
-    return false;
+  if (batches && batches.length > 0) {
+    if (!user.batch || !batches.includes(user.batch)) {
+      return false;
+    }
   }
   
   // Check role
-  if (roles && roles.length > 0 && !roles.includes('all') && !roles.includes(user.role)) {
-    console.log('canUserJoin - Failed role check:', {
-      userRole: user.role,
-      allowedRoles: roles
-    });
-    return false;
+  if (roles && roles.length > 0 && !roles.includes('all')) {
+    if (!user.role || !roles.includes(user.role)) {
+      return false;
+    }
   }
   
-  console.log('canUserJoin - All checks passed');
   return true;
 };
 
@@ -473,6 +500,11 @@ communitySchema.methods.getEligibilityDetails = function(user) {
 
 // Method to check if user can access community content
 communitySchema.methods.canAccessContent = function(userId) {
+  // Creator should always have access
+  const creatorId = this.creator._id ? this.creator._id.toString() : this.creator.toString();
+  if (creatorId === userId.toString()) {
+    return true;
+  }
   // Members and moderators can access content
   return this.isMember(userId) || this.isModerator(userId);
 };

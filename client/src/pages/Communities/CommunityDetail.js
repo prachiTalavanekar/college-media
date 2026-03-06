@@ -86,13 +86,17 @@ const CommunityDetail = () => {
       console.log('Community API Response:', response.data.community);
       setCommunity(response.data.community);
       
-      // Enhanced access check - allow access if user is member or moderator
-      const hasAccess = response.data.community.isMember || 
-                       response.data.community.isModerator;
+      // Enhanced access check - allow access if user is member, moderator, creator, or has canAccessContent
+      const hasAccess = response.data.community.canAccessContent || 
+                       response.data.community.isMember || 
+                       response.data.community.isModerator ||
+                       response.data.community.isCreator;
       
       if (!hasAccess) {
         console.log('Access denied - isMember:', response.data.community.isMember, 
-                   'isModerator:', response.data.community.isModerator);
+                   'isModerator:', response.data.community.isModerator,
+                   'isCreator:', response.data.community.isCreator,
+                   'canAccessContent:', response.data.community.canAccessContent);
         toast.error('You do not have access to this community');
         navigate('/communities');
         return;

@@ -1,5 +1,5 @@
 // Service Worker for CampusConnect PWA
-const CACHE_NAME = 'campusconnect-v12';
+const CACHE_NAME = 'campusconnect-v13';
 const urlsToCache = [
   '/',
   '/manifest.json',

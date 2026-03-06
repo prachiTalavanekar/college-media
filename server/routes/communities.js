@@ -42,44 +42,89 @@ router.get('/', auth, requireVerified, async (req, res) => {
 
     // Get user to check eligibility and membership
     const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(401).json({ message: 'User not found' });
+    }
 
     // Filter communities based on visibility
     const visibleCommunities = communities.filter(community => {
-      // Creator should always see their own community
-      if (community.creator._id.toString() === user._id.toString()) {
+      try {
+        // Get creator ID (handle both populated and unpopulated cases)
+        if (!community.creator) {
+          console.warn('Community has no creator:', community._id);
+          return false;
+        }
+        
+        const creatorId = community.creator._id ? community.creator._id.toString() : community.creator.toString();
+        const userId = user._id.toString();
+        
+        // Creator should always see their own community
+        if (creatorId === userId) {
+          return true;
+        }
+        
+        // Members should always see communities they're part of
+        if (community.isMember && community.isMember(req.user.id)) {
+          return true;
+        }
+        
+        // Teacher communities should not be visible to alumni
+        if (community.creatorRole === 'teacher' && user.role === 'alumni') {
+          return false;
+        }
+        
+        // Check custom visibility settings
+        if (community.isVisibleTo) {
+          return community.isVisibleTo(user);
+        }
+        
+        // Default: show if no restrictions
         return true;
-      }
-      
-      // Members should always see communities they're part of
-      if (community.isMember(req.user.id)) {
-        return true;
-      }
-      
-      // Teacher communities should not be visible to alumni
-      if (community.creatorRole === 'teacher' && user.role === 'alumni') {
+      } catch (error) {
+        console.error('Error filtering community:', community._id, error);
         return false;
       }
-      
-      // Check custom visibility settings
-      return community.isVisibleTo(user);
     });
 
     const communitiesWithStatus = visibleCommunities.map(community => {
-      const isMember = community.isMember(req.user.id);
-      const isModerator = community.isModerator(req.user.id);
-      const canAccessContent = isMember || isModerator;
-      
-      return {
-        ...community.toObject(),
-        canJoin: community.canUserJoin(user),
-        isMember,
-        isModerator,
-        canAccessContent,
-        hasPendingRequest: community.joinRequests.some(req => 
-          req.user.toString() === user._id.toString() && req.status === 'pending'
-        )
-      };
-    });
+      try {
+        // Get creator ID (handle both populated and unpopulated cases)
+        if (!community.creator) {
+          console.warn('Community has no creator:', community._id);
+          return null;
+        }
+        
+        const creatorId = community.creator._id ? community.creator._id.toString() : community.creator.toString();
+        const userId = user._id.toString();
+        
+        // Check if user is the creator
+        const isCreator = creatorId === userId;
+        const isMember = community.isMember ? community.isMember(req.user.id) : false;
+        const isModerator = community.isModerator ? community.isModerator(req.user.id) : false;
+        
+        // Creator should always have access, even if not recognized as member
+        // Also ensure creator is always treated as a member
+        const canAccessContent = isCreator || isMember || isModerator;
+        const effectiveIsMember = isCreator || isMember;
+        
+        return {
+          ...community.toObject(),
+          canJoin: community.canUserJoin ? community.canUserJoin(user) : false,
+          isMember: effectiveIsMember,
+          isModerator: isCreator || isModerator, // Creator is always a moderator
+          canAccessContent,
+          isCreator, // Add explicit flag for frontend
+          hasPendingRequest: (community.joinRequests || []).some(req => {
+            const requestUserId = req.user._id ? req.user._id.toString() : req.user.toString();
+            return requestUserId === userId && req.status === 'pending';
+          })
+        };
+      } catch (error) {
+        console.error('Error mapping community status:', community._id, error);
+        return null;
+      }
+    }).filter(community => community !== null); // Remove any null entries
 
     res.json({
       communities: communitiesWithStatus,
@@ -202,9 +247,13 @@ router.post('/', [
     });
 
     // Add creator as first member
+    console.log('Adding creator as member:', req.user.id);
     community.addMember(req.user.id, 'admin');
+    console.log('Members after adding creator:', community.members.length);
+    console.log('Is creator now a member?', community.isMember(req.user.id));
     
     await community.save();
+    console.log('Community saved successfully');
 
     // Populate creator info for response
     await community.populate('creator', 'name role');
@@ -227,7 +276,7 @@ router.get('/:id', auth, requireVerified, async (req, res) => {
   try {
     const community = await Community.findById(req.params.id)
       .populate('creator', 'name role department course batch profileImage')
-      .populate('moderators', 'name role department course batch profileImage')
+      .populate('moderators.user', 'name role department course batch profileImage')
       .populate('members.user', 'name role department course batch profileImage');
 
     if (!community || !community.isActive) {
@@ -240,43 +289,70 @@ router.get('/:id', auth, requireVerified, async (req, res) => {
       return res.status(401).json({ message: 'User not found' });
     }
 
-    const isMember = community.isMember(req.user.id);
-    const canJoin = community.canUserJoin(user);
-    const isModerator = community.isModerator(req.user.id);
-    const canAccessContent = isMember || isModerator; // Simplified: members and moderators can access
+    // Get creator ID (handle both populated and unpopulated cases)
+    if (!community.creator) {
+      console.error('Community has no creator:', community._id);
+      return res.status(500).json({ message: 'Community data is invalid' });
+    }
+    
+    const creatorId = community.creator._id ? community.creator._id.toString() : community.creator.toString();
+    const userId = user._id.toString();
+    
+    // Check if user is the creator
+    const isCreator = creatorId === userId;
+    const isMember = community.isMember ? community.isMember(req.user.id) : false;
+    const canJoin = community.canUserJoin ? community.canUserJoin(user) : false;
+    const isModerator = community.isModerator ? community.isModerator(req.user.id) : false;
+    
+    // Creator should always have access, even if not recognized as member
+    const canAccessContent = isCreator || isMember || isModerator;
+    const effectiveIsMember = isCreator || isMember;
+    const effectiveIsModerator = isCreator || isModerator;
 
     console.log('Community Detail API - User:', user.name, 'Community:', community.name); // Debug log
-    console.log('Community Detail - Members:', community.members.map(m => ({
-      userId: m.user._id ? m.user._id.toString() : m.user.toString(),
-      name: m.user.name || 'Unknown',
-      role: m.role
-    })));
-    console.log('Community Detail - Current User ID:', req.user.id);
-    console.log('Access checks:', { isMember, canAccessContent, isModerator, canJoin }); // Debug log
+    console.log('Community Detail - Creator ID:', creatorId);
+    console.log('Community Detail - Current User ID:', userId);
+    console.log('Community Detail - Is Creator:', isCreator);
+    
+    try {
+      console.log('Community Detail - Members:', community.members.map(m => ({
+        userId: m.user && (m.user._id ? m.user._id.toString() : m.user.toString()),
+        name: (m.user && m.user.name) || 'Unknown',
+        role: m.role
+      })));
+    } catch (memberError) {
+      console.error('Error mapping members:', memberError);
+    }
+    
+    console.log('Access checks:', { isCreator, isMember, effectiveIsMember, canAccessContent, isModerator, canJoin }); // Debug log
 
-    // For debugging: Always allow access if user is a member
-    const forceAccess = isMember || isModerator;
-
-    if (community.isPrivate && !isMember) {
+    // Creator should always have access, even to private communities
+    if (community.isPrivate && !effectiveIsMember && !isCreator) {
       return res.status(403).json({ message: 'This is a private community' });
     }
 
     const responseData = {
       ...community.toObject(),
       canJoin,
-      isMember,
-      isModerator,
-      canAccessContent: forceAccess, // Force access for members and moderators
-      hasPendingRequest: community.joinRequests.some(req => 
-        req.user.toString() === user._id.toString() && req.status === 'pending'
-      )
+      isMember: effectiveIsMember,
+      isModerator: effectiveIsModerator,
+      canAccessContent,
+      isCreator, // Add explicit flag for frontend
+      hasPendingRequest: (community.joinRequests || []).some(req => {
+        try {
+          const requestUserId = req.user && (req.user._id ? req.user._id.toString() : req.user.toString());
+          return requestUserId === userId && req.status === 'pending';
+        } catch (err) {
+          return false;
+        }
+      })
     };
 
     console.log('Sending response with access flags:', { 
       canAccessContent: responseData.canAccessContent, 
       isModerator: responseData.isModerator,
       isMember: responseData.isMember,
-      forceAccess
+      isCreator: responseData.isCreator
     }); // Debug log
 
     res.json({
@@ -285,7 +361,11 @@ router.get('/:id', auth, requireVerified, async (req, res) => {
 
   } catch (error) {
     console.error('Get community error:', error);
-    res.status(500).json({ message: 'Server error while fetching community' });
+    console.error('Error stack:', error.stack);
+    res.status(500).json({ 
+      message: 'Server error while fetching community',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -300,24 +380,51 @@ router.post('/:id/join', auth, requireVerified, async (req, res) => {
       return res.status(404).json({ message: 'Community not found' });
     }
 
+    // Get user data
+    const user = await User.findById(req.user.id);
+    
+    // Debug logging
+    console.log('Join community - Debug info:', {
+      userId: req.user.id,
+      userName: user.name,
+      communityId: community._id,
+      communityName: community.name,
+      creatorId: community.creator.toString(),
+      isCreator: community.creator.toString() === req.user.id,
+      isMember: community.isMember(req.user.id),
+      totalMembers: community.members.length,
+      members: community.members.map(m => ({
+        id: m.user._id ? m.user._id.toString() : m.user.toString(),
+        role: m.role
+      }))
+    });
+
     // Check if already a member
     if (community.isMember(req.user.id)) {
       return res.status(400).json({ message: 'You are already a member of this community' });
     }
 
+    // Check if user is the creator (should already be a member, but just in case)
+    if (community.creator.toString() === req.user.id) {
+      // Add creator as member if somehow they're not already
+      community.addMember(req.user.id, 'admin');
+      await community.save();
+      return res.status(400).json({ message: 'You are the creator of this community' });
+    }
+
     // Check eligibility
-    const user = await User.findById(req.user.id);
-    console.log('Join community - User data:', {
-      id: user._id,
-      name: user.name,
-      role: user.role,
-      department: user.department,
-      course: user.course,
-      batch: user.batch
-    });
-    console.log('Join community - Community eligibility:', community.eligibility);
-    
     const canJoin = community.canUserJoin(user);
+    console.log('Join community - Can user join:', canJoin);
+    
+    if (!canJoin) {
+      // Get detailed eligibility information for better error message
+      const eligibilityDetails = community.getEligibilityDetails ? community.getEligibilityDetails(user) : { reasons: [] };
+      const detailedMessage = eligibilityDetails.reasons && eligibilityDetails.reasons.length > 0 
+        ? `You are not eligible to join this community. Requirements not met: ${eligibilityDetails.reasons.join('; ')}`
+        : 'You are not eligible to join this community';
+      
+      return res.status(403).json({ message: detailedMessage });
+    }
     console.log('Join community - Can user join:', canJoin);
     
     if (!canJoin) {
@@ -947,7 +1054,12 @@ router.get('/:id/study-materials', auth, requireVerified, async (req, res) => {
       return res.status(404).json({ message: 'Community not found' });
     }
 
-    if (!community.isMember(req.user.id)) {
+    // Check if user is creator or has access
+    const creatorId = community.creator._id ? community.creator._id.toString() : community.creator.toString();
+    const userId = req.user.id.toString();
+    const isCreator = creatorId === userId;
+    
+    if (!isCreator && !community.canAccessContent(req.user.id)) {
       return res.status(403).json({ message: 'Only members can access study materials' });
     }
 
@@ -1032,7 +1144,12 @@ router.get('/:id/assignments', auth, requireVerified, async (req, res) => {
       return res.status(404).json({ message: 'Community not found' });
     }
 
-    if (!community.isMember(req.user.id)) {
+    // Check if user is creator or has access
+    const creatorId = community.creator._id ? community.creator._id.toString() : community.creator.toString();
+    const userId = req.user.id.toString();
+    const isCreator = creatorId === userId;
+    
+    if (!isCreator && !community.canAccessContent(req.user.id)) {
       return res.status(403).json({ message: 'Only members can access assignments' });
     }
 
@@ -1160,7 +1277,12 @@ router.get('/:id/messages', auth, requireVerified, async (req, res) => {
       return res.status(404).json({ message: 'Community not found' });
     }
 
-    if (!community.canAccessContent(req.user.id)) {
+    // Check if user is creator or has access
+    const creatorId = community.creator._id ? community.creator._id.toString() : community.creator.toString();
+    const userId = req.user.id.toString();
+    const isCreator = creatorId === userId;
+    
+    if (!isCreator && !community.canAccessContent(req.user.id)) {
       return res.status(403).json({ message: 'You do not have access to this community' });
     }
 

@@ -109,11 +109,12 @@ const Communities = () => {
       isMember: community.isMember,
       isModerator: community.isModerator,
       canAccessContent: community.canAccessContent,
+      isCreator: community.isCreator,
       hasPendingRequest: community.hasPendingRequest
     });
     
-    // Allow access if user is a member or moderator
-    if (community.isMember || community.isModerator) {
+    // Allow access if user is a member, moderator, creator, or has canAccessContent
+    if (community.canAccessContent || community.isMember || community.isModerator || community.isCreator) {
       console.log('Access granted - navigating to community');
       navigate(`/communities/${community._id}`);
     } else if (community.hasPendingRequest) {
