@@ -259,6 +259,70 @@ const communitySchema = new mongoose.Schema({
     }]
   }],
   
+  // Job Opportunities (for alumni communities)
+  opportunities: [{
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 200
+    },
+    company: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 100
+    },
+    description: {
+      type: String,
+      required: true,
+      trim: true,
+      maxlength: 2000
+    },
+    type: {
+      type: String,
+      enum: ['job', 'internship', 'freelance', 'contract'],
+      required: true
+    },
+    location: {
+      type: String,
+      trim: true,
+      maxlength: 100
+    },
+    salary: {
+      type: String,
+      trim: true,
+      maxlength: 100
+    },
+    experience: {
+      type: String,
+      trim: true,
+      maxlength: 100
+    },
+    skills: [{
+      type: String,
+      trim: true
+    }],
+    link: {
+      type: String,
+      trim: true
+    },
+    deadline: Date,
+    postedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
+    postedAt: {
+      type: Date,
+      default: Date.now
+    },
+    isActive: {
+      type: Boolean,
+      default: true
+    }
+  }],
+  
   // Statistics
   stats: {
     totalPosts: {

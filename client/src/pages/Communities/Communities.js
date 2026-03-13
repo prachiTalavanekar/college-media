@@ -358,7 +358,9 @@ const Communities = () => {
           isOpen={showCreateModal}
           onClose={() => setShowCreateModal(false)}
           onCommunityCreated={(newCommunity) => {
-            setCommunities(prev => [newCommunity, ...prev]);
+            // Refresh the communities list to get proper status flags
+            fetchCommunities();
+            setShowCreateModal(false);
           }}
         />
       )}

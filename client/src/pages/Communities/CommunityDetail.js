@@ -21,7 +21,8 @@ import {
   Heart,
   Share2,
   Briefcase,
-  ArrowRight
+  ArrowRight,
+  X
 } from 'lucide-react';
 import api from '../../utils/api';
 import { toast } from 'react-hot-toast';
@@ -48,6 +49,7 @@ const CommunityDetail = () => {
     fetchMessages();
     fetchStudyMaterials();
     fetchAssignments();
+    fetchOpportunities();
   }, [id]);
 
   // Add a refresh mechanism that can be triggered externally
@@ -58,6 +60,7 @@ const CommunityDetail = () => {
       fetchMessages();
       fetchStudyMaterials();
       fetchAssignments();
+      fetchOpportunities();
     };
 
     // Listen for custom refresh event
@@ -158,6 +161,15 @@ const CommunityDetail = () => {
       setAssignments(response.data.assignments || []);
     } catch (error) {
       console.error('Error fetching assignments:', error);
+    }
+  };
+
+  const fetchOpportunities = async () => {
+    try {
+      const response = await api.get(`/communities/${id}/opportunities`);
+      setOpportunities(response.data.opportunities || []);
+    } catch (error) {
+      console.error('Error fetching opportunities:', error);
     }
   };
 
@@ -293,6 +305,16 @@ const CommunityDetail = () => {
     if (diffInHours < 24) return `${diffInHours}h ago`;
     if (diffInHours < 168) return `${Math.floor(diffInHours / 24)}d ago`;
     return messageDate.toLocaleDateString();
+  };
+
+  const getJobTypeLabel = (type) => {
+    const labels = {
+      'job': 'Full-time',
+      'internship': 'Internship',
+      'freelance': 'Freelance',
+      'contract': 'Contract'
+    };
+    return labels[type] || type;
   };
 
   const getFileIcon = (fileType) => {
@@ -718,35 +740,71 @@ const CommunityDetail = () => {
 
             <div className="space-y-4">
               {opportunities.map((opportunity) => (
-                <div key={opportunity._id} className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow-md transition-shadow">
+                <div key={opportunity._id} className="bg-white rounded-lg border border-gray-200 p-5 hover:shadow-md transition-shadow">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 text-lg">{opportunity.title}</h3>
-                      <p className="text-sm text-gray-600 mt-1">{opportunity.company}</p>
-                      <div className="flex items-center space-x-3 mt-2">
+                      <p className="text-sm text-gray-600 mt-1 font-medium">{opportunity.company}</p>
+                      <div className="flex items-center flex-wrap gap-2 mt-2">
                         <span className="px-2 py-1 bg-oxford-blue-100 text-oxford-blue-700 text-xs font-medium rounded-full">
-                          {opportunity.type}
+                          {getJobTypeLabel(opportunity.type)}
                         </span>
-                        <span className="text-xs text-gray-500">
-                          Posted {formatTime(opportunity.postedAt)}
-                        </span>
+                        {opportunity.location && (
+                          <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded-full">
+                            📍 {opportunity.location}
+                          </span>
+                        )}
+                        {opportunity.salary && (
+                          <span className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                            💰 {opportunity.salary}
+                          </span>
+                        )}
+                        {opportunity.experience && (
+                          <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                            🎯 {opportunity.experience}
+                          </span>
+                        )}
                       </div>
                     </div>
                   </div>
                   
                   <p className="text-gray-700 mb-3">{opportunity.description}</p>
                   
-                  {opportunity.link && (
-                    <a
-                      href={opportunity.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center space-x-2 text-oxford-blue-600 hover:text-oxford-blue-700 font-medium"
-                    >
-                      <span>Apply Now</span>
-                      <ArrowRight size={16} />
-                    </a>
+                  {opportunity.skills && opportunity.skills.length > 0 && (
+                    <div className="mb-3">
+                      <p className="text-xs font-medium text-gray-500 mb-2">Required Skills:</p>
+                      <div className="flex flex-wrap gap-2">
+                        {opportunity.skills.map((skill, index) => (
+                          <span key={index} className="px-2 py-1 bg-blue-50 text-blue-700 text-xs rounded">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   )}
+                  
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <div className="flex items-center space-x-4 text-xs text-gray-500">
+                      <span>Posted {formatTime(opportunity.postedAt)}</span>
+                      {opportunity.deadline && (
+                        <span className="text-red-600 font-medium">
+                          Deadline: {new Date(opportunity.deadline).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                    
+                    {opportunity.link && (
+                      <a
+                        href={opportunity.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-2 px-4 py-2 bg-oxford-blue-600 text-white rounded-lg hover:bg-oxford-blue-700 font-medium text-sm transition-colors"
+                      >
+                        <span>Apply Now</span>
+                        <ArrowRight size={16} />
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -896,6 +954,261 @@ const CommunityDetail = () => {
           </div>
         </div>
       )}
+
+      {/* Post Opportunity Modal */}
+      {showOpportunityModal && (
+        <PostOpportunityModal 
+          isOpen={showOpportunityModal}
+          onClose={() => setShowOpportunityModal(false)}
+          onOpportunityPosted={() => {
+            fetchOpportunities();
+            setShowOpportunityModal(false);
+          }}
+          communityId={id}
+        />
+      )}
+    </div>
+  );
+};
+
+// Post Opportunity Modal Component
+const PostOpportunityModal = ({ isOpen, onClose, onOpportunityPosted, communityId }) => {
+  const [formData, setFormData] = useState({
+    title: '',
+    company: '',
+    description: '',
+    type: 'job',
+    location: '',
+    salary: '',
+    experience: '',
+    skills: '',
+    link: '',
+    deadline: ''
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (!formData.title.trim() || !formData.company.trim() || !formData.description.trim()) {
+      toast.error('Title, company, and description are required');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Convert skills string to array
+      const opportunityData = {
+        ...formData,
+        skills: formData.skills ? formData.skills.split(',').map(s => s.trim()).filter(s => s) : []
+      };
+
+      await api.post(`/communities/${communityId}/opportunities`, opportunityData);
+      toast.success('Job opportunity posted successfully!');
+      onOpportunityPosted();
+      
+      // Reset form
+      setFormData({
+        title: '',
+        company: '',
+        description: '',
+        type: 'job',
+        location: '',
+        salary: '',
+        experience: '',
+        skills: '',
+        link: '',
+        deadline: ''
+      });
+    } catch (error) {
+      console.error('Post opportunity error:', error);
+      toast.error(error.response?.data?.message || 'Failed to post opportunity');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+          <h2 className="text-xl font-bold text-gray-900">Post Job Opportunity</h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Job Title *
+            </label>
+            <input
+              type="text"
+              value={formData.title}
+              onChange={(e) => handleInputChange('title', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
+              placeholder="e.g., Software Engineer"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Company *
+            </label>
+            <input
+              type="text"
+              value={formData.company}
+              onChange={(e) => handleInputChange('company', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
+              placeholder="e.g., Google"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description *
+            </label>
+            <textarea
+              value={formData.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
+              rows={4}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
+              placeholder="Describe the job role, responsibilities, and requirements..."
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Job Type
+              </label>
+              <select
+                value={formData.type}
+                onChange={(e) => handleInputChange('type', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
+              >
+                <option value="job">Full-time Job</option>
+                <option value="internship">Internship</option>
+                <option value="freelance">Freelance</option>
+                <option value="contract">Contract</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Location
+              </label>
+              <input
+                type="text"
+                value={formData.location}
+                onChange={(e) => handleInputChange('location', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
+                placeholder="e.g., Mumbai, India"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Salary Range
+              </label>
+              <input
+                type="text"
+                value={formData.salary}
+                onChange={(e) => handleInputChange('salary', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
+                placeholder="e.g., ₹8-12 LPA"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Experience Required
+              </label>
+              <input
+                type="text"
+                value={formData.experience}
+                onChange={(e) => handleInputChange('experience', e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
+                placeholder="e.g., 0-2 years"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Required Skills
+            </label>
+            <input
+              type="text"
+              value={formData.skills}
+              onChange={(e) => handleInputChange('skills', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
+              placeholder="e.g., React, Node.js, MongoDB (comma separated)"
+            />
+            <p className="text-xs text-gray-500 mt-1">Separate multiple skills with commas</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Application Link
+            </label>
+            <input
+              type="url"
+              value={formData.link}
+              onChange={(e) => handleInputChange('link', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
+              placeholder="https://company.com/careers/apply"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Application Deadline
+            </label>
+            <input
+              type="date"
+              value={formData.deadline}
+              onChange={(e) => handleInputChange('deadline', e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-oxford-blue-500 focus:border-transparent"
+            />
+          </div>
+
+          <div className="flex items-center justify-end space-x-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-2 bg-oxford-blue-600 text-white rounded-lg hover:bg-oxford-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {loading ? 'Posting...' : 'Post Opportunity'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

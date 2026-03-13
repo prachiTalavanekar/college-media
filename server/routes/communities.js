@@ -1558,3 +1558,220 @@ router.get('/:id/debug-access', auth, requireVerified, async (req, res) => {
 });
 
 module.exports = router;
+
+
+// ==================== JOB OPPORTUNITIES ROUTES (ALUMNI COMMUNITIES) ====================
+
+// @route   GET /api/communities/:id/opportunities
+// @desc    Get job opportunities for a community
+// @access  Private (Members only)
+router.get('/:id/opportunities', auth, requireVerified, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+    
+    if (!community || !community.isActive) {
+      return res.status(404).json({ message: 'Community not found' });
+    }
+
+    // Check if user has access to this community
+    if (!community.isMember(req.user.id) && !community.isModerator(req.user.id)) {
+      return res.status(403).json({ message: 'You must be a member to view opportunities' });
+    }
+
+    // Get opportunities from the community
+    const opportunities = community.opportunities || [];
+    
+    // Sort by posted date (newest first)
+    const sortedOpportunities = opportunities
+      .filter(opp => opp.isActive !== false)
+      .sort((a, b) => new Date(b.postedAt) - new Date(a.postedAt));
+
+    res.json({
+      opportunities: sortedOpportunities
+    });
+
+  } catch (error) {
+    console.error('Get opportunities error:', error);
+    res.status(500).json({ message: 'Server error while fetching opportunities' });
+  }
+});
+
+// @route   POST /api/communities/:id/opportunities
+// @desc    Post a job opportunity (Alumni/Moderators only)
+// @access  Private (Moderators only)
+router.post('/:id/opportunities', [
+  auth,
+  requireVerified,
+  body('title').trim().isLength({ min: 3, max: 200 }).withMessage('Title must be between 3 and 200 characters'),
+  body('company').trim().isLength({ min: 2, max: 100 }).withMessage('Company name must be between 2 and 100 characters'),
+  body('description').trim().isLength({ min: 10, max: 2000 }).withMessage('Description must be between 10 and 2000 characters'),
+  body('type').isIn(['job', 'internship', 'freelance', 'contract']).withMessage('Invalid opportunity type'),
+  body('location').optional().trim().isLength({ max: 100 }),
+  body('salary').optional().trim().isLength({ max: 100 }),
+  body('experience').optional().trim().isLength({ max: 100 }),
+  body('skills').optional().isArray(),
+  body('link').optional().trim().isURL().withMessage('Invalid URL format')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ 
+        message: 'Validation failed', 
+        errors: errors.array() 
+      });
+    }
+
+    const community = await Community.findById(req.params.id);
+    
+    if (!community || !community.isActive) {
+      return res.status(404).json({ message: 'Community not found' });
+    }
+
+    // Check if user is a moderator
+    if (!community.isModerator(req.user.id)) {
+      return res.status(403).json({ message: 'Only moderators can post job opportunities' });
+    }
+
+    const {
+      title,
+      company,
+      description,
+      type,
+      location,
+      salary,
+      experience,
+      skills,
+      link,
+      deadline
+    } = req.body;
+
+    // Create opportunity object
+    const opportunity = {
+      title: title.trim(),
+      company: company.trim(),
+      description: description.trim(),
+      type,
+      location: location?.trim() || '',
+      salary: salary?.trim() || '',
+      experience: experience?.trim() || '',
+      skills: skills || [],
+      link: link?.trim() || '',
+      deadline: deadline ? new Date(deadline) : null,
+      postedBy: req.user.id,
+      postedAt: new Date(),
+      isActive: true
+    };
+
+    // Initialize opportunities array if it doesn't exist
+    if (!community.opportunities) {
+      community.opportunities = [];
+    }
+
+    // Add opportunity to community
+    community.opportunities.push(opportunity);
+    await community.save();
+
+    // Get the newly added opportunity (last item in array)
+    const newOpportunity = community.opportunities[community.opportunities.length - 1];
+
+    // Populate postedBy field
+    await community.populate('opportunities.postedBy', 'name role profileImage');
+
+    res.status(201).json({
+      message: 'Job opportunity posted successfully',
+      opportunity: newOpportunity
+    });
+
+  } catch (error) {
+    console.error('Post opportunity error:', error);
+    res.status(500).json({ message: 'Server error while posting opportunity' });
+  }
+});
+
+// @route   PUT /api/communities/:id/opportunities/:opportunityId
+// @desc    Update a job opportunity
+// @access  Private (Moderators only)
+router.put('/:id/opportunities/:opportunityId', [
+  auth,
+  requireVerified,
+  body('title').optional().trim().isLength({ min: 3, max: 200 }),
+  body('company').optional().trim().isLength({ min: 2, max: 100 }),
+  body('description').optional().trim().isLength({ min: 10, max: 2000 }),
+  body('type').optional().isIn(['job', 'internship', 'freelance', 'contract']),
+  body('link').optional().trim().isURL()
+], async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+    
+    if (!community || !community.isActive) {
+      return res.status(404).json({ message: 'Community not found' });
+    }
+
+    // Check if user is a moderator
+    if (!community.isModerator(req.user.id)) {
+      return res.status(403).json({ message: 'Only moderators can update opportunities' });
+    }
+
+    // Find the opportunity
+    const opportunity = community.opportunities.id(req.params.opportunityId);
+    
+    if (!opportunity) {
+      return res.status(404).json({ message: 'Opportunity not found' });
+    }
+
+    // Update fields
+    const updateFields = ['title', 'company', 'description', 'type', 'location', 'salary', 'experience', 'skills', 'link', 'deadline'];
+    updateFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        opportunity[field] = req.body[field];
+      }
+    });
+
+    await community.save();
+
+    res.json({
+      message: 'Opportunity updated successfully',
+      opportunity
+    });
+
+  } catch (error) {
+    console.error('Update opportunity error:', error);
+    res.status(500).json({ message: 'Server error while updating opportunity' });
+  }
+});
+
+// @route   DELETE /api/communities/:id/opportunities/:opportunityId
+// @desc    Delete a job opportunity
+// @access  Private (Moderators only)
+router.delete('/:id/opportunities/:opportunityId', auth, requireVerified, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+    
+    if (!community || !community.isActive) {
+      return res.status(404).json({ message: 'Community not found' });
+    }
+
+    // Check if user is a moderator
+    if (!community.isModerator(req.user.id)) {
+      return res.status(403).json({ message: 'Only moderators can delete opportunities' });
+    }
+
+    // Find and remove the opportunity
+    const opportunity = community.opportunities.id(req.params.opportunityId);
+    
+    if (!opportunity) {
+      return res.status(404).json({ message: 'Opportunity not found' });
+    }
+
+    // Soft delete by setting isActive to false
+    opportunity.isActive = false;
+    await community.save();
+
+    res.json({ message: 'Opportunity deleted successfully' });
+
+  } catch (error) {
+    console.error('Delete opportunity error:', error);
+    res.status(500).json({ message: 'Server error while deleting opportunity' });
+  }
+});
+
